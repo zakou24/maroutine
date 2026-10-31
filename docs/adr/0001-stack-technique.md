@@ -48,6 +48,13 @@ Vérifiées sur npm le 31/10/2026, au démarrage du Lot 0.
 
 TanStack Query et Recharts seront figés au premier lot qui les utilise.
 
+## Offres réellement souscrites (31/10/2026)
+
+- **Vercel Hobby** : projet `maroutine`, Node 24.x, fonctions dans la région `cdg1` (Paris), protection de déploiement par défaut (les URL d'aperçu demandent une connexion Vercel).
+- **Neon `free_v3`** via la Marketplace Vercel : base `maroutine-db` en `fra1` (Francfort), authentification Neon désactivée. Variables `DATABASE_URL`, `DATABASE_URL_UNPOOLED` et apparentées injectées par l'intégration.
+- **GitHub** : dépôt public `zakou24/maroutine`, Actions gratuites.
+- Sur Vercel, les variables de production marquées secrètes (`BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`) ne sont pas récupérées par `vercel env pull`.
+
 ## Conséquences
 
 - Les limites des offres gratuites (et leurs éventuels changements) sont revues à chaque lot.

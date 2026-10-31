@@ -4,9 +4,26 @@ Projet perso et portfolio (profil fullstack) : application web installable (PWA)
 
 ## État actuel
 
-- **Phase : conception.** Il n'y a encore aucun code. Maquettes faites, direction visuelle **A — Courbes** retenue (D13, [canevas](https://claude.ai/artifact/WStbXSegxDLEsFJhceFYXC)). Plan du Lot 0 validé, exécution en cours.
-- `PRODUCT.md` (racine) est la fiche produit lue par la skill de design impeccable. Au premier écran codé, enregistrer la direction A comme contrat de direction impeccable et produire `DESIGN.md` à la fin.
-- Machine de développement : Mac, 8 Go de RAM. Pas de Docker (voir [ADR 0009](docs/adr/0009-base-de-donnees-dev-et-tests.md)).
+- **Lot 0 (socle) livré** sur la branche `lot-0` (PR #1), en production sur https://maroutine-nu.vercel.app. Le propriétaire est créé et l'app est installée sur son iPhone. Prochaine étape : plan du Lot 1 (séances).
+- Direction visuelle **A — Courbes** (D13, [canevas](https://claude.ai/artifact/WStbXSegxDLEsFJhceFYXC)). `PRODUCT.md` (racine) est la fiche produit lue par la skill de design impeccable. Au premier vrai écran du Lot 1, enregistrer la direction A comme contrat de direction impeccable et produire `DESIGN.md`.
+- Machine de développement : Mac, 8 Go de RAM, pas de Docker ([ADR 0009](docs/adr/0009-base-de-donnees-dev-et-tests.md)). Le shell par défaut est en Node 23 : utiliser Node 24 (`~/.nvm/versions/node/v24.11.0/bin` en tête du PATH).
+- Vercel : projet `maroutine` (racine `apps/web`, Node 24, fonctions à Paris `cdg1`), base Neon `maroutine-db` (offre gratuite, Francfort). Une seule base pour la production, les aperçus et le développement, à séparer avant les tests manuels du Lot 1.
+- **À faire** : relier le dépôt GitHub au projet Vercel (réglages Git du projet) pour les déploiements automatiques. En attendant, `vercel deploy --prod` depuis la racine.
+
+## Commandes
+
+```bash
+pnpm install
+pnpm lint && pnpm typecheck && pnpm test          # tout le monorepo (Vitest, PGlite)
+pnpm --filter @maroutine/web test:e2e             # Playwright iPhone + ordinateur (build de prod)
+pnpm --filter @maroutine/web dev                  # nécessite apps/web/.env.local
+pnpm --filter @maroutine/web db:generate          # migration Drizzle depuis le schéma
+pnpm --filter @maroutine/web db:migrate           # applique sur DATABASE_URL (préférer DATABASE_URL_UNPOOLED)
+npx auth@1.7.14 generate --config src/server/auth.ts --output src/db/schema/auth.ts   # schéma Better Auth (dans apps/web)
+vercel deploy --prod                              # depuis la racine
+```
+
+Création du propriétaire en production : voir le README.
 
 ## Documentation (à lire dans cet ordre)
 
@@ -18,7 +35,7 @@ Projet perso et portfolio (profil fullstack) : application web installable (PWA)
 | [docs/architecture.md](docs/architecture.md) | Diagrammes, **formules et règles de calcul (§6)**, modèle de données, écrans |
 | [docs/adr/](docs/adr/) | 9 décisions d'architecture |
 | [docs/threat-model.md](docs/threat-model.md) | Analyse STRIDE, menaces T-01 à T-12, priorités par lot |
-| [docs/plans/lot-0.md](docs/plans/lot-0.md) | Plan détaillé du Lot 0 (socle), prêt à exécuter |
+| [docs/plans/lot-0.md](docs/plans/lot-0.md) | Plan du Lot 0 (socle), exécuté |
 
 En cas de contradiction : `decisions-ouvertes.md` et les ADRs priment, et `SPEC.md` les consolide.
 
@@ -36,9 +53,8 @@ En cas de contradiction : `decisions-ouvertes.md` et les ADRs priment, et `SPEC.
 - Exigence ambiguë : poser la question plutôt que deviner.
 - Utiliser le vocabulaire de `GLOSSARY.md` (« séance » et non « entraînement », « max estimé » et non « 1RM » dans les textes).
 
-## Au démarrage du développement
+## Au démarrage d'un lot
 
-1. ~~Faire les maquettes des écrans~~ : fait, direction A.
-2. ~~Écrire et faire valider `docs/plans/lot-0.md`~~ : fait.
-3. Tâche 1 du plan : `git init`, déplacer `Docs/` vers `docs/` et figer les versions dans l'[ADR 0001](docs/adr/0001-stack-technique.md).
-4. Mettre à jour ce fichier avec les commandes réelles à la fin de chaque lot.
+1. Écrire `docs/plans/lot-<n>.md` (même format que le Lot 0) et le faire valider.
+2. Travailler sur une branche `lot-<n>`, ouvrir une PR vers `main`, CI verte avant fusion.
+3. Mettre à jour ce fichier (état, commandes) à la fin du lot.
