@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDays, daysBetween, monthGrid, startOfWeek, todayIn } from "./calendar";
+import { addDays, addMonths, daysBetween, monthGrid, startOfWeek, todayIn } from "./calendar";
 
 describe("todayIn", () => {
   // 31 octobre 2026, 23 h 45 à Paris = 22 h 45 UTC (heure d'hiver) ; 31 mars 2026, 23 h 30 à Paris = 21 h 30 UTC (heure d'été)
@@ -41,5 +41,14 @@ describe("daysBetween", () => {
     expect(daysBetween("2026-10-01", "2026-10-31")).toBe(30);
     expect(daysBetween("2026-10-31", "2026-10-01")).toBe(-30);
     expect(daysBetween("2026-03-28", "2026-03-30")).toBe(2);
+  });
+});
+
+describe("addMonths", () => {
+  it("passe d'un mois « AAAA-MM » à l'autre, année comprise", () => {
+    expect(addMonths("2026-11", 1)).toBe("2026-12");
+    expect(addMonths("2026-12", 1)).toBe("2027-01");
+    expect(addMonths("2027-01", -1)).toBe("2026-12");
+    expect(addMonths("2026-11", -11)).toBe("2025-12");
   });
 });

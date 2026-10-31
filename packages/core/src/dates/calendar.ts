@@ -47,3 +47,10 @@ export function monthGrid(month: string): string[][] {
   }
   return weeks;
 }
+
+// « 2026-12 » + 1 → « 2027-01 ».
+export function addMonths(month: string, months: number): string {
+  const [year, monthIndex] = month.split("-").map(Number) as [number, number];
+  const date = new Date(Date.UTC(year, monthIndex - 1 + months, 1));
+  return date.toISOString().slice(0, 7);
+}
