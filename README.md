@@ -16,11 +16,15 @@ Prérequis : Node.js 24, pnpm 10, [gitleaks](https://github.com/gitleaks/gitleak
 pnpm install
 git config core.hooksPath .githooks      # bloque tout commit contenant un secret
 
-cp apps/web/.env.example apps/web/.env.local   # puis renseigner les trois variables
-pnpm --filter @maroutine/web db:migrate        # applique les migrations sur DATABASE_URL
-pnpm --filter @maroutine/web create-owner      # crée le compte du propriétaire
+cp apps/web/.env.example apps/web/.env.local   # DATABASE_URL=pglite:./.data/dev, secret, http://localhost:3000
+pnpm --filter @maroutine/web db:migrate        # crée la base locale PGlite et applique les migrations
+pnpm --filter @maroutine/web create-owner      # crée le compte du propriétaire local
 pnpm --filter @maroutine/web dev
 ```
+
+Le développement local tourne sur une base PGlite en fichier dans `apps/web/.data/dev`, sans Docker ni compte Neon ([ADR 0010](docs/adr/0010-pglite-pour-le-developpement-et-les-e2e.md)). Une base PGlite n'accepte qu'un processus : arrêter `dev` avant `db:migrate` ou `create-owner`.
+
+Les migrations de production s'appliquent d'elles-mêmes au déploiement de production (`pnpm build`, avec `DATABASE_URL_UNPOOLED`). Les aperçus Vercel partagent la base de production et ne migrent pas : ils servent à regarder, pas à saisir.
 
 Créer le propriétaire en production (une seule fois) : depuis la racine, `vercel env pull apps/web/.env.production.local --environment=production`, puis dans `apps/web` :
 
@@ -36,7 +40,7 @@ Les variables marquées secrètes sur Vercel ne sont pas récupérées par `env 
 
 ```bash
 pnpm lint && pnpm typecheck && pnpm test   # lint, types, tests unitaires et d'intégration (PGlite)
-pnpm --filter @maroutine/web test:e2e      # Playwright, formats iPhone et ordinateur
+pnpm --filter @maroutine/web test:e2e      # Playwright, formats iPhone et ordinateur, sur une base PGlite e2e neuve
 ```
 
 ## Structure

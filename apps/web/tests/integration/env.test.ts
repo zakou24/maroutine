@@ -16,6 +16,14 @@ describe("parseEnv", () => {
       /DATABASE_URL.*BETTER_AUTH_SECRET|BETTER_AUTH_SECRET.*DATABASE_URL/s,
     );
   });
+  it("refuse une variable faite d'espaces", () => {
+    expect(() => parseEnv({ ...valid, DATABASE_URL: "   " })).toThrow(/DATABASE_URL/);
+  });
+  it("retire les espaces autour des valeurs", () => {
+    expect(
+      parseEnv({ ...valid, BETTER_AUTH_URL: " https://maroutine.vercel.app\n" }).BETTER_AUTH_URL,
+    ).toBe("https://maroutine.vercel.app");
+  });
   it("refuse un secret de moins de 32 caractères", () => {
     expect(() => parseEnv({ ...valid, BETTER_AUTH_SECRET: "court" })).toThrow(/BETTER_AUTH_SECRET/);
   });

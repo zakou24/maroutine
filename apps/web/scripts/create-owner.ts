@@ -1,6 +1,6 @@
 import { createInterface } from "node:readline/promises";
 import { stdin, stdout } from "node:process";
-import { db } from "@/db/client";
+import { getDb } from "@/db/client";
 import { createOwner } from "@/server/create-owner";
 
 // Lecture du mot de passe sans écho : le terminal passe en mode brut le temps de la saisie.
@@ -45,7 +45,7 @@ async function main() {
   rl.close();
   const password = await askHidden("Mot de passe (12 caractères minimum) : ");
 
-  const result = await createOwner(db, { email, password });
+  const result = await createOwner(getDb(), { email, password });
   if (!result.ok) {
     console.error(result.reason);
     process.exit(1);

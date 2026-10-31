@@ -10,7 +10,8 @@
   --ink-soft: #4a5568;
   --rule: #d9e0e8;
   --rule-soft: #e6ebf0;
-  --field: #c9d3de;
+  /* Bord des champs : 3,2:1 sur le fond, 3,5:1 sur le blanc (WCAG 1.4.11). */
+  --field: #7d8ba0;
   --action: #1f5fa8;
   --action-strong: #174a84;
   --corridor: #e3ecf7;
@@ -33,7 +34,8 @@
   --muted-foreground: var(--ink-soft);
   --accent: var(--corridor);
   --accent-foreground: var(--corridor-ink);
-  --destructive: var(--regression);
+  /* L'orange est réservé aux régressions (Lot 2) : erreurs et suppressions restent à l'encre. */
+  --destructive: var(--ink);
   --border: var(--rule);
   --input: var(--field);
   --ring: var(--action);
@@ -47,6 +49,7 @@
   --color-rule: var(--rule);
   --color-rule-soft: var(--rule-soft);
   --color-action: var(--action);
+  --color-action-strong: var(--action-strong);
   --color-corridor: var(--corridor);
   --color-corridor-ink: var(--corridor-ink);
   --color-regression: var(--regression);
@@ -77,7 +80,8 @@
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
+  /* Coins de 12 px pour toute surface dessinée (direction A). */
+  --radius-xl: var(--radius);
 }
 
 @layer base {
@@ -95,6 +99,23 @@
   ::selection {
     background: var(--corridor);
     color: var(--corridor-ink);
+  }
+  /* Case à cocher aux couleurs de l'app (la case native reste grise). */
+  input[type="checkbox"].check {
+    appearance: none;
+    display: grid;
+    place-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid var(--field);
+    border-radius: 4px;
+    background: var(--surface);
+  }
+  input[type="checkbox"].check:checked {
+    border-color: var(--action);
+    background: var(--action)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")
+      center / 14px no-repeat;
   }
   :focus-visible {
     outline: 2px solid var(--action);

@@ -39,14 +39,15 @@ Vérifiées sur npm le 31/10/2026, au démarrage du Lot 0.
 | @neondatabase/serverless | 1.2.0 | |
 | Better Auth / CLI `auth` | 1.7.14 | L'ancien `@better-auth/cli` est déprécié |
 | Vitest | 5.0.5 | |
-| PGlite | 0.5.14 | |
+| PGlite | 0.5.14 | Tests, développement local et e2e ([ADR 0010](0010-pglite-pour-le-developpement-et-les-e2e.md)) |
 | Testing Library (React) | 16.3.3 | |
 | Playwright / axe-core | 1.64.1 / 4.14.0 | |
-| ESLint / typescript-eslint | 10.14.0 / 8.72.1 | |
+| ESLint / typescript-eslint | 9.39.5 / 8.72.1 | ESLint 10 n'est pas encore pris en charge par `eslint-config-next` 16.4 |
 | Prettier | 3.9.10 | |
 | tsx | 4.23.15 | |
+| TanStack Query | 5.105.0 | Lot 1 : lectures et écritures de l'interface via `/api/v1` |
 
-TanStack Query et Recharts seront figés au premier lot qui les utilise.
+Recharts sera figé au premier lot qui l'utilise (Lot 2).
 
 ## Offres réellement souscrites (31/10/2026)
 

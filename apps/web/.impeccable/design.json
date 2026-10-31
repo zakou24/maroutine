@@ -1,0 +1,503 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-31T19:59:16.160Z",
+  "title": "Design System: MaRoutine",
+  "extensions": {
+    "colorMeta": {
+      "ground": {
+        "role": "neutral",
+        "displayName": "Gris de fond",
+        "canonical": "#f5f7f9",
+        "oklch": "oklch(97.5% 0.003 248)",
+        "tonalRamp": [
+          "oklch(15% 0.001 248)",
+          "oklch(26% 0.002 248)",
+          "oklch(38% 0.003 248)",
+          "oklch(49% 0.004 248)",
+          "oklch(61% 0.004 248)",
+          "oklch(72% 0.003 248)",
+          "oklch(84% 0.002 248)",
+          "oklch(95% 0.001 248)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Blanc de feuille",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 90)",
+        "tonalRamp": [
+          "oklch(15% 0.001 90)",
+          "oklch(26% 0.002 90)",
+          "oklch(38% 0.003 90)",
+          "oklch(49% 0.004 90)",
+          "oklch(61% 0.004 90)",
+          "oklch(72% 0.003 90)",
+          "oklch(84% 0.002 90)",
+          "oklch(95% 0.001 90)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Encre bleu nuit",
+        "canonical": "#172033",
+        "oklch": "oklch(24.5% 0.039 264)",
+        "tonalRamp": [
+          "oklch(15% 0.006 264)",
+          "oklch(26% 0.018 264)",
+          "oklch(38% 0.031 264)",
+          "oklch(49% 0.039 264)",
+          "oklch(61% 0.039 264)",
+          "oklch(72% 0.029 264)",
+          "oklch(84% 0.016 264)",
+          "oklch(95% 0.006 264)"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Encre douce",
+        "canonical": "#4a5568",
+        "oklch": "oklch(44.7% 0.034 261)",
+        "tonalRamp": [
+          "oklch(15% 0.005 261)",
+          "oklch(26% 0.016 261)",
+          "oklch(38% 0.027 261)",
+          "oklch(49% 0.034 261)",
+          "oklch(61% 0.034 261)",
+          "oklch(72% 0.025 261)",
+          "oklch(84% 0.014 261)",
+          "oklch(95% 0.005 261)"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Filet",
+        "canonical": "#d9e0e8",
+        "oklch": "oklch(90.4% 0.013 252)",
+        "tonalRamp": [
+          "oklch(15% 0.002 252)",
+          "oklch(26% 0.006 252)",
+          "oklch(38% 0.011 252)",
+          "oklch(49% 0.013 252)",
+          "oklch(61% 0.013 252)",
+          "oklch(72% 0.010 252)",
+          "oklch(84% 0.005 252)",
+          "oklch(95% 0.002 252)"
+        ]
+      },
+      "rule-soft": {
+        "role": "neutral",
+        "displayName": "Filet doux",
+        "canonical": "#e6ebf0",
+        "oklch": "oklch(93.8% 0.009 248)",
+        "tonalRamp": [
+          "oklch(15% 0.001 248)",
+          "oklch(26% 0.004 248)",
+          "oklch(38% 0.007 248)",
+          "oklch(49% 0.009 248)",
+          "oklch(61% 0.009 248)",
+          "oklch(72% 0.006 248)",
+          "oklch(84% 0.004 248)",
+          "oklch(95% 0.001 248)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Gris de survol",
+        "canonical": "#eef2f6",
+        "oklch": "oklch(95.9% 0.007 248)",
+        "tonalRamp": [
+          "oklch(15% 0.001 248)",
+          "oklch(26% 0.003 248)",
+          "oklch(38% 0.005 248)",
+          "oklch(49% 0.007 248)",
+          "oklch(61% 0.007 248)",
+          "oklch(72% 0.005 248)",
+          "oklch(84% 0.003 248)",
+          "oklch(95% 0.001 248)"
+        ]
+      },
+      "field": {
+        "role": "neutral",
+        "displayName": "Bord de champ",
+        "canonical": "#7d8ba0",
+        "oklch": "oklch(63.3% 0.036 258)",
+        "tonalRamp": [
+          "oklch(15% 0.005 258)",
+          "oklch(26% 0.017 258)",
+          "oklch(38% 0.028 258)",
+          "oklch(49% 0.036 258)",
+          "oklch(61% 0.036 258)",
+          "oklch(72% 0.026 258)",
+          "oklch(84% 0.015 258)",
+          "oklch(95% 0.005 258)"
+        ]
+      },
+      "action": {
+        "role": "primary",
+        "displayName": "Bleu acier",
+        "canonical": "#1f5fa8",
+        "oklch": "oklch(48.5% 0.133 255)",
+        "tonalRamp": [
+          "oklch(15% 0.020 255)",
+          "oklch(26% 0.063 255)",
+          "oklch(38% 0.106 255)",
+          "oklch(49% 0.133 255)",
+          "oklch(61% 0.133 255)",
+          "oklch(72% 0.098 255)",
+          "oklch(84% 0.055 255)",
+          "oklch(95% 0.020 255)"
+        ]
+      },
+      "action-strong": {
+        "role": "primary",
+        "displayName": "Bleu acier appuyé",
+        "canonical": "#174a84",
+        "oklch": "oklch(40.8% 0.111 254)",
+        "tonalRamp": [
+          "oklch(15% 0.017 254)",
+          "oklch(26% 0.052 254)",
+          "oklch(38% 0.088 254)",
+          "oklch(49% 0.111 254)",
+          "oklch(61% 0.111 254)",
+          "oklch(72% 0.082 254)",
+          "oklch(84% 0.046 254)",
+          "oklch(95% 0.017 254)"
+        ]
+      },
+      "corridor": {
+        "role": "secondary",
+        "displayName": "Voile de couloir",
+        "canonical": "#e3ecf7",
+        "oklch": "oklch(94.0% 0.018 253)",
+        "tonalRamp": [
+          "oklch(15% 0.003 253)",
+          "oklch(26% 0.008 253)",
+          "oklch(38% 0.014 253)",
+          "oklch(49% 0.018 253)",
+          "oklch(61% 0.018 253)",
+          "oklch(72% 0.013 253)",
+          "oklch(84% 0.007 253)",
+          "oklch(95% 0.003 253)"
+        ]
+      },
+      "corridor-ink": {
+        "role": "secondary",
+        "displayName": "Encre de couloir",
+        "canonical": "#17406f",
+        "oklch": "oklch(36.9% 0.093 254)",
+        "tonalRamp": [
+          "oklch(15% 0.014 254)",
+          "oklch(26% 0.044 254)",
+          "oklch(38% 0.074 254)",
+          "oklch(49% 0.093 254)",
+          "oklch(61% 0.093 254)",
+          "oklch(72% 0.069 254)",
+          "oklch(84% 0.038 254)",
+          "oklch(95% 0.014 254)"
+        ]
+      },
+      "regression": {
+        "role": "tertiary",
+        "displayName": "Orange brûlé (réservé régressions)",
+        "canonical": "#b4470e",
+        "oklch": "oklch(53.8% 0.154 42)",
+        "tonalRamp": [
+          "oklch(15% 0.023 42)",
+          "oklch(26% 0.072 42)",
+          "oklch(38% 0.123 42)",
+          "oklch(49% 0.154 42)",
+          "oklch(61% 0.154 42)",
+          "oklch(72% 0.114 42)",
+          "oklch(84% 0.064 42)",
+          "oklch(95% 0.023 42)"
+        ]
+      },
+      "regression-ink": {
+        "role": "tertiary",
+        "displayName": "Encre de régression (réservée)",
+        "canonical": "#8a3409",
+        "oklch": "oklch(44.2% 0.127 42)",
+        "tonalRamp": [
+          "oklch(15% 0.019 42)",
+          "oklch(26% 0.060 42)",
+          "oklch(38% 0.101 42)",
+          "oklch(49% 0.127 42)",
+          "oklch(61% 0.127 42)",
+          "oklch(72% 0.094 42)",
+          "oklch(84% 0.053 42)",
+          "oklch(95% 0.019 42)"
+        ]
+      },
+      "regression-wash": {
+        "role": "tertiary",
+        "displayName": "Voile de régression (réservé)",
+        "canonical": "#fdf3ec",
+        "oklch": "oklch(97.0% 0.014 58)",
+        "tonalRamp": [
+          "oklch(15% 0.002 58)",
+          "oklch(26% 0.007 58)",
+          "oklch(38% 0.011 58)",
+          "oklch(49% 0.014 58)",
+          "oklch(61% 0.014 58)",
+          "oklch(72% 0.011 58)",
+          "oklch(84% 0.006 58)",
+          "oklch(95% 0.002 58)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Titre de page",
+        "purpose": "Titre de chaque écran et de la carte de connexion."
+      },
+      "title": {
+        "displayName": "Titre de section",
+        "purpose": "Mois du calendrier, boîte de dialogue, nom de l'app dans la barre latérale."
+      },
+      "body": {
+        "displayName": "Corps",
+        "purpose": "Texte courant, lignes de liste, valeurs des champs."
+      },
+      "body-strong": {
+        "displayName": "Corps gras",
+        "purpose": "Nom d'exercice, bouton principal, compte de séances."
+      },
+      "body-sm": {
+        "displayName": "Corps secondaire",
+        "purpose": "Libellés, métadonnées, boutons secondaires, messages d'erreur (gras)."
+      },
+      "label": {
+        "displayName": "Libellé de colonne",
+        "purpose": "En-têtes de la grille de séries, initiales des jours."
+      },
+      "tab-label": {
+        "displayName": "Libellé d'onglet",
+        "purpose": "Barre d'onglets uniquement."
+      }
+    },
+    "shadows": [],
+    "focus": [
+      {
+        "name": "focus-ring-control",
+        "value": "border-color: var(--action); box-shadow: 0 0 0 3px color-mix(in srgb, var(--action) 50%, transparent)",
+        "purpose": "Boutons et champs (primitives shadcn)."
+      },
+      {
+        "name": "focus-outline",
+        "value": "outline: 2px solid var(--action); outline-offset: 2px",
+        "purpose": "Tous les autres éléments focalisables (liens, onglets, cases)."
+      }
+    ],
+    "overlays": [
+      {
+        "name": "dialog-backdrop",
+        "value": "color-mix(in srgb, var(--ink) 40%, transparent)",
+        "purpose": "Fond de la boîte de dialogue de suppression."
+      }
+    ],
+    "motion": [
+      {
+        "name": "press",
+        "value": "transform: translateY(1px)",
+        "purpose": "Enfoncement des boutons au clic."
+      },
+      {
+        "name": "disclosure",
+        "value": "transform: rotate(90deg) (transition-transform, 150ms)",
+        "purpose": "Chevron du repli « Archivés »."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px",
+        "purpose": "Marges latérales de 24 px, colonnes fixes de la grille de séries."
+      },
+      {
+        "name": "md",
+        "value": "768px",
+        "purpose": "Barre latérale de 240 px à la place de la barre d'onglets."
+      }
+    ],
+    "sizes": [
+      {
+        "name": "touch-target",
+        "value": "44px"
+      },
+      {
+        "name": "primary-button",
+        "value": "52px"
+      },
+      {
+        "name": "tab-bar",
+        "value": "52px + env(safe-area-inset-bottom)"
+      },
+      {
+        "name": "side-nav",
+        "value": "240px"
+      },
+      {
+        "name": "content-column",
+        "value": "640px max"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Bouton principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Action principale de l'écran (Enregistrer la séance, Se connecter, Saisie du soir).",
+      "html": "<button class=\"ds-btn-primary\">Enregistrer la séance</button>",
+      "css": ".ds-btn-primary { font-family: var(--font-atkinson, 'Atkinson Hyperlegible'), system-ui, sans-serif; font-variant-numeric: tabular-nums; height: 52px; padding: 0 20px; border: 1px solid transparent; border-radius: 12px; background: var(--action, #1f5fa8); color: #fff; font-size: 17px; font-weight: 700; cursor: pointer; } .ds-btn-primary:hover { background: var(--action-strong, #174a84); } .ds-btn-primary:focus-visible { outline: none; border-color: var(--action, #1f5fa8); box-shadow: 0 0 0 3px color-mix(in srgb, var(--action, #1f5fa8) 50%, transparent); } .ds-btn-primary:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Bouton secondaire",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Actions secondaires : Réessayer, Annuler, Restaurer, Se déconnecter, Supprimer la séance (encre, icône).",
+      "html": "<button class=\"ds-btn-secondary\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 6h18\"/><path d=\"M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6\"/><path d=\"M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2\"/><line x1=\"10\" x2=\"10\" y1=\"11\" y2=\"17\"/><line x1=\"14\" x2=\"14\" y1=\"11\" y2=\"17\"/></svg>Supprimer la séance</button>",
+      "css": ".ds-btn-secondary { font-family: var(--font-atkinson, 'Atkinson Hyperlegible'), system-ui, sans-serif; font-variant-numeric: tabular-nums; display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 16px; border: 1px solid var(--rule, #d9e0e8); border-radius: 12px; background: var(--ground, #f5f7f9); color: var(--ink, #172033); font-size: 15px; cursor: pointer; } .ds-btn-secondary:hover { background: var(--muted, #eef2f6); } .ds-btn-secondary:focus-visible { outline: none; border-color: var(--action, #1f5fa8); box-shadow: 0 0 0 3px color-mix(in srgb, var(--action, #1f5fa8) 50%, transparent); }"
+    },
+    {
+      "name": "Bouton fantôme d'action",
+      "kind": "button",
+      "refersTo": "button-ghost-action",
+      "description": "Ajout léger dans une carte (Ajouter une série, Créer un exercice).",
+      "html": "<button class=\"ds-btn-ghost\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"M12 5v14\"/></svg>Ajouter une série</button>",
+      "css": ".ds-btn-ghost { font-family: var(--font-atkinson, 'Atkinson Hyperlegible'), system-ui, sans-serif; font-variant-numeric: tabular-nums; display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 16px; border: 1px solid transparent; border-radius: 12px; background: transparent; color: var(--action, #1f5fa8); font-size: 15px; cursor: pointer; } .ds-btn-ghost:hover { background: var(--muted, #eef2f6); } .ds-btn-ghost:focus-visible { outline: none; border-color: var(--action, #1f5fa8); box-shadow: 0 0 0 3px color-mix(in srgb, var(--action, #1f5fa8) 50%, transparent); }"
+    },
+    {
+      "name": "Bouton d'ajout pointillé",
+      "kind": "button",
+      "refersTo": "button-add-dashed",
+      "description": "Emplacement à remplir : Ajouter un exercice à la séance.",
+      "html": "<button class=\"ds-btn-dashed\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"M12 5v14\"/></svg>Ajouter un exercice</button>",
+      "css": ".ds-btn-dashed { font-family: var(--font-atkinson, 'Atkinson Hyperlegible'), system-ui, sans-serif; font-variant-numeric: tabular-nums; display: flex; width: 100%; align-items: center; justify-content: center; gap: 6px; height: 44px; border: 1px dashed var(--field, #7d8ba0); border-radius: 12px; background: var(--surface, #fff); color: var(--action, #1f5fa8); font-size: 15px; font-weight: 700; cursor: pointer; } .ds-btn-dashed:hover { background: var(--muted, #eef2f6); } .ds-btn-dashed:focus-visible { outline: none; border-color: var(--action, #1f5fa8); box-shadow: 0 0 0 3px color-mix(in srgb, var(--action, #1f5fa8) 50%, transparent); }"
+    },
+    {
+      "name": "Champ de saisie",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Champ 17 px, 44 px de haut, filet field ; valeur préremplie en encre douce.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Charge (kg)</span><input class=\"ds-input ds-input-prefilled\" inputmode=\"decimal\" value=\"62,5\"></label>",
+      "css": ".ds-field { font-family: var(--font-atkinson, 'Atkinson Hyperlegible'), system-ui, sans-serif; font-variant-numeric: tabular-nums; display: flex; flex-direction: column; gap: 8px; width: 160px; } .ds-field-label { font-size: 15px; color: var(--ink-soft, #4a5568); } .ds-input { font-family: var(--font-atkinson, 'Atkinson Hyperlegible'), system-ui, sans-serif; font-variant-numeric: tabular-nums; height: 44px; padding: 0 10px; border: 1px solid var(--field, #7d8ba0); border-radius: 12px; background: var(--surface, #fff); color: var(--ink, #172033); font-size: 17px; text-align: right; outline: none; } .ds-input-prefilled { color: var(--ink-soft, #4a5568); } .ds-input:focus-visible { border-color: var(--action, #1f5fa8); box-shadow: 0 0 0 3px color-mix(in srgb, var(--action, #1f5fa8) 50%, transparent); } .ds-input[aria-invalid=\"true\"] { border-color: var(--ink, #172033); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ink, #172033) 20%, transparent); }"
+    },
+    {
+      "name": "Barre d'onglets",
+      "kind": "nav",
+      "refersTo": "tab-bar",
+      "description": "Navigation iPhone (< 768 px), quatre onglets, actif en bleu acier gras.",
+      "html": "<nav class=\"ds-tabbar\"><a class=\"ds-tab ds-tab-active\" aria-current=\"page\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 20h9\"/><path d=\"M16.4 3.6a2 2 0 0 1 3 3L7 19l-4 1 1-4Z\"/></svg>Saisie</a><a class=\"ds-tab\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"12\" r=\"1\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"19\" cy=\"12\" r=\"1\"/></svg>Plus</a></nav>",
+      "css": ".ds-tabbar { font-family: var(--font-atkinson, 'Atkinson Hyperlegible'), system-ui, sans-serif; font-variant-numeric: tabular-nums; display: flex; width: 320px; border-top: 1px solid var(--rule, #d9e0e8); background: var(--surface, #fff); } .ds-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 52px; font-size: 12px; line-height: 16px; color: var(--ink-soft, #4a5568); text-decoration: none; cursor: pointer; } .ds-tab-active { color: var(--action, #1f5fa8); font-weight: 700; } .ds-tab:focus-visible { outline: 2px solid var(--action, #1f5fa8); outline-offset: 2px; }"
+    },
+    {
+      "name": "Élément de barre latérale",
+      "kind": "nav",
+      "refersTo": "side-nav-item",
+      "description": "Navigation ordinateur (≥ 768 px) ; actif sur voile de couloir.",
+      "html": "<ul class=\"ds-sidenav\"><li><a class=\"ds-sidenav-item ds-sidenav-active\" aria-current=\"page\">Semaine</a></li><li><a class=\"ds-sidenav-item\">Exercices</a></li></ul>",
+      "css": ".ds-sidenav { font-family: var(--font-atkinson, 'Atkinson Hyperlegible'), system-ui, sans-serif; font-variant-numeric: tabular-nums; list-style: none; margin: 0; padding: 12px; width: 216px; display: flex; flex-direction: column; gap: 4px; background: var(--surface, #fff); } .ds-sidenav-item { display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 12px; font-size: 15px; color: var(--ink-soft, #4a5568); text-decoration: none; cursor: pointer; } .ds-sidenav-item:hover { background: var(--muted, #eef2f6); color: var(--ink, #172033); } .ds-sidenav-active, .ds-sidenav-active:hover { background: var(--corridor, #e3ecf7); color: var(--corridor-ink, #17406f); font-weight: 700; } .ds-sidenav-item:focus-visible { outline: 2px solid var(--action, #1f5fa8); outline-offset: 2px; }"
+    },
+    {
+      "name": "Liste groupée",
+      "kind": "card",
+      "refersTo": "list-row",
+      "description": "Lignes de séance ou d'exercice dans une surface à filet, séparées par des filets.",
+      "html": "<ul class=\"ds-list\"><li><a class=\"ds-row\"><span class=\"ds-row-text\"><span class=\"ds-row-title\">Jeudi 29 octobre</span><span class=\"ds-row-meta\">2 exercices · 8 séries</span></span><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"m9 18 6-6-6-6\"/></svg></a></li><li><a class=\"ds-row\"><span class=\"ds-row-text\"><span class=\"ds-row-title\">Lundi 26 octobre</span><span class=\"ds-row-meta\">3 exercices · 12 séries</span></span><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"m9 18 6-6-6-6\"/></svg></a></li></ul>",
+      "css": ".ds-list { font-family: var(--font-atkinson, 'Atkinson Hyperlegible'), system-ui, sans-serif; font-variant-numeric: tabular-nums; list-style: none; margin: 0; padding: 0; width: 360px; overflow: hidden; border: 1px solid var(--rule, #d9e0e8); border-radius: 12px; background: var(--surface, #fff); } .ds-list li + li { border-top: 1px solid var(--rule, #d9e0e8); } .ds-row { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 12px 16px; color: var(--ink-soft, #4a5568); text-decoration: none; cursor: pointer; } .ds-row:hover { background: var(--muted, #eef2f6); } .ds-row:focus-visible { outline: 2px solid var(--action, #1f5fa8); outline-offset: 2px; } .ds-row-text { flex: 1; display: flex; flex-direction: column; } .ds-row-title { font-size: 17px; color: var(--ink, #172033); } .ds-row-meta { font-size: 15px; color: var(--ink-soft, #4a5568); }"
+    },
+    {
+      "name": "Carte d'exercice (grille de séries)",
+      "kind": "custom",
+      "refersTo": "card",
+      "description": "Signature du Lot 1 : nom, fourchette, grille Charge × Rép. tabulaire, ligne de préremplissage.",
+      "html": "<section class=\"ds-card\"><header class=\"ds-card-head\"><h2>Développé couché</h2><span>6–10 rép.</span></header><div class=\"ds-grid\"><span class=\"ds-colh\">N°</span><span class=\"ds-colh\">Charge (kg)</span><span></span><span class=\"ds-colh\">Rép.</span><span class=\"ds-n\">1</span><input class=\"ds-cell ds-pre\" value=\"62,5\"><span class=\"ds-x\">×</span><input class=\"ds-cell ds-pre\" value=\"8\"><span class=\"ds-n\">2</span><input class=\"ds-cell\" value=\"65\"><span class=\"ds-x\">×</span><input class=\"ds-cell ds-pre\" value=\"8\"></div><p class=\"ds-meta\">Prérempli depuis le 29 oct.</p></section>",
+      "css": ".ds-card { font-family: var(--font-atkinson, 'Atkinson Hyperlegible'), system-ui, sans-serif; font-variant-numeric: tabular-nums; display: flex; flex-direction: column; gap: 12px; width: 340px; padding: 16px 12px; border: 1px solid var(--rule, #d9e0e8); border-radius: 12px; background: var(--surface, #fff); color: var(--ink, #172033); } .ds-card-head { display: flex; align-items: baseline; justify-content: space-between; padding: 0 4px; } .ds-card-head h2 { margin: 0; font-size: 17px; line-height: 24px; font-weight: 700; } .ds-card-head span, .ds-meta { font-size: 15px; color: var(--ink-soft, #4a5568); } .ds-meta { margin: 0; padding: 0 4px; } .ds-grid { display: grid; grid-template-columns: 1.5rem minmax(0,1fr) 0.75rem minmax(0,0.8fr); align-items: center; gap: 8px; } .ds-colh { font-size: 13px; color: var(--ink-soft, #4a5568); } .ds-n { font-size: 15px; color: var(--ink-soft, #4a5568); } .ds-x { text-align: center; color: var(--ink-soft, #4a5568); } .ds-cell { font-family: var(--font-atkinson, 'Atkinson Hyperlegible'), system-ui, sans-serif; font-variant-numeric: tabular-nums; min-width: 0; height: 44px; padding: 0 10px; border: 1px solid var(--field, #7d8ba0); border-radius: 12px; background: var(--surface, #fff); color: var(--ink, #172033); font-size: 17px; text-align: right; outline: none; } .ds-pre { color: var(--ink-soft, #4a5568); } .ds-cell:focus-visible { border-color: var(--action, #1f5fa8); box-shadow: 0 0 0 3px color-mix(in srgb, var(--action, #1f5fa8) 50%, transparent); }"
+    },
+    {
+      "name": "Case d'échauffement",
+      "kind": "input",
+      "refersTo": "checkbox",
+      "description": "Case de 20 px aux couleurs de l'app dans une cible de 44 px.",
+      "html": "<label class=\"ds-check-wrap\"><input type=\"checkbox\" class=\"ds-check\" checked aria-label=\"Échauffement\"></label><label class=\"ds-check-wrap\"><input type=\"checkbox\" class=\"ds-check\" aria-label=\"Échauffement\"></label>",
+      "css": ".ds-check-wrap { display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; } .ds-check { appearance: none; display: grid; place-content: center; width: 20px; height: 20px; margin: 0; border: 2px solid var(--field, #7d8ba0); border-radius: 4px; background: var(--surface, #fff); cursor: pointer; } .ds-check:checked { border-color: var(--action, #1f5fa8); background: var(--action, #1f5fa8) url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E\") center / 14px no-repeat; } .ds-check:focus-visible { outline: 2px solid var(--action, #1f5fa8); outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Le carnet de chiffres du soir",
+    "overview": "MaRoutine se lit comme un carnet tenu proprement : un fond gris très clair, des feuilles blanches cerclées d'un filet bleu-gris, une encre bleu nuit, et une seule couleur qui agit, le bleu acier. Chaque écran donne une seule réponse (ce que j'ai fait cette semaine, la séance à enregistrer, la liste de mes exercices) et tout le reste se tait. La densité est celle d'un formulaire bien réglé, pas d'un tableau de bord : une colonne, des cartes empilées, des grilles de chiffres alignés.\n\nLe système refuse le tableau de bord de salle de sport saturé de cartes, de jauges et de badges (thèse de la direction A, décision D13). La profondeur vient du contraste fond/surface et du filet, jamais d'une ombre. L'orange brûlé existe dans les jetons mais reste silencieux tant qu'aucune régression de performance n'est calculée (Lot 2) : sa rareté est sa fonction.\n\nLa signature prévue, le couloir de tendance (`--corridor`), arrive au Lot 2 avec la fiche exercice. Au Lot 1, c'est la grille de séries tabulaire (N° | Charge × Rép. | Échauffement) qui en tient lieu.",
+    "keyCharacteristics": [
+      "Thème clair uniquement, fond `ground` et surfaces `surface` à filet `rule`.",
+      "Une seule couleur d'action, le bleu acier ; l'orange est réservé aux régressions.",
+      "Atkinson Hyperlegible en deux graisses (400, 700), chiffres tabulaires partout.",
+      "Coins de 12 px sur toute surface dessinée, aucune ombre portée.",
+      "Cibles tactiles de 44 px au moins, champs en 17 px.",
+      "Icônes Lucide au trait de 2 px."
+    ],
+    "rules": [
+      {
+        "name": "The Single Voice Rule",
+        "body": "Le bleu acier est la seule couleur d'action. Rien d'autre que ce qui se touche ne le porte, à l'exception de la pastille d'un jour avec séance.",
+        "section": "colors"
+      },
+      {
+        "name": "The Orange Is Earned Rule",
+        "body": "L'orange brûlé n'apparaît que pour une régression de performance calculée. Les erreurs de saisie et les actions destructives restent à l'encre, accompagnées d'une icône (`destructive` pointe sur `ink`).",
+        "section": "colors"
+      },
+      {
+        "name": "The Prefill Whisper Rule",
+        "body": "Une valeur préremplie depuis la dernière séance s'affiche en encre douce jusqu'à ce qu'on la modifie ; elle passe alors à l'encre pleine. La couleur dit « repris », pas « faux ».",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Rule",
+        "body": "Les chiffres sont tabulaires dans tout le corps de page (`font-variant-numeric: tabular-nums` sur `body`). Charges et répétitions sont alignées à droite dans leur champ pour que les colonnes se lisent d'un trait.",
+        "section": "typography"
+      },
+      {
+        "name": "The Two Weights Rule",
+        "body": "Seules les graisses 400 et 700 sont chargées. Une graisse intermédiaire retombe sur 400 ; l'emphase passe par le 700.",
+        "section": "typography"
+      },
+      {
+        "name": "The No Zoom Rule",
+        "body": "Tout champ de saisie est en 17 px, sur iPhone comme sur ordinateur, pour qu'iOS ne zoome pas au focus.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Column Rule",
+        "body": "Pas de grille de cartes côte à côte, même sur ordinateur : la colonne de 640 px reste la seule colonne, l'espace libre reste vide.",
+        "section": "layout"
+      },
+      {
+        "name": "The Paper And Rule Rule",
+        "body": "Une surface se distingue par sa couleur et son filet, jamais par une ombre. Si une surface a besoin de se détacher davantage, c'est qu'elle ne devrait pas être une surface.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Twelve Rule",
+        "body": "Une surface dessinée a des coins de 12 px, sans exception. Pas de pilule, pas d'angle vif.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "**Do** poser chaque contenu sur une surface blanche à filet `rule` de 1 px et coins de 12 px, sur le fond `ground`.",
+      "**Do** réserver le bleu acier à ce qui se touche : boutons, liens, onglet actif, case cochée.",
+      "**Do** afficher erreurs et suppressions à l'encre, en gras, avec une icône au trait.",
+      "**Do** garder les champs en 17 px et toute cible tactile à 44 px au moins (52 px pour le bouton principal).",
+      "**Do** aligner les chiffres en colonnes tabulaires, à droite dans les champs numériques.",
+      "**Do** montrer les valeurs préremplies en encre douce jusqu'à leur modification.",
+      "**Do** utiliser des icônes Lucide au trait de 2 px."
+    ],
+    "donts": [
+      "**Don't** utiliser d'ombre portée pour détacher une surface.",
+      "**Don't** utiliser l'orange (`regression`, `regression-ink`, `regression-wash`) pour une erreur, un avertissement ou une suppression : il est réservé aux régressions de performance.",
+      "**Don't** introduire une seconde couleur d'action ni une seconde famille de caractères.",
+      "**Don't** arrondir une surface autrement qu'à 12 px (pas de pilule, pas d'angle vif).",
+      "**Don't** juxtaposer des cartes en grille : une seule colonne de 640 px au plus.",
+      "**Don't** ajouter de thème sombre sans décision : l'app est en thème clair uniquement."
+    ]
+  }
+}

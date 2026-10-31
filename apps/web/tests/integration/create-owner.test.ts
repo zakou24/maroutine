@@ -43,3 +43,9 @@ it("refuse un email invalide", async () => {
   const result = await createOwner(db, { email: "zak", password: "correct-horse-battery" });
   expect(result).toEqual({ ok: false, reason: "Email invalide." });
 });
+
+it("ne laisse aucune session après la création du propriétaire", async () => {
+  await createOwner(db, { email: "zak@mail.com", password: "correct-horse-battery" });
+  const rows = await rowsOf<{ n: number }>(db, sql`select count(*)::int as n from "session"`);
+  expect(rows[0]?.n).toBe(0);
+});

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-> **Statut : non démarré.**
+> **Statut : terminé** (PR #1, fusionnée le 31 octobre 2026).
 
 **Goal :** poser le monorepo, une app Next.js déployée sur Vercel avec sa base Neon, la connexion du propriétaire (sans inscription), une garde d'API réutilisable par tous les lots, l'app installable sur iPhone, et une CI verte.
 

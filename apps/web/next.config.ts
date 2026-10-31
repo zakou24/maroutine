@@ -24,6 +24,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@maroutine/core"],
+  // PGlite charge ses fichiers WASM depuis node_modules : ne pas l'empaqueter.
+  serverExternalPackages: ["@electric-sql/pglite"],
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {

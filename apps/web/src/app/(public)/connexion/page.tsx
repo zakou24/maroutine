@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { auth } from "@/server/auth";
+import { getAuth } from "@/server/auth";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = { title: "Connexion · MaRoutine" };
 
 async function RedirectIfSignedIn() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getAuth().api.getSession({ headers: await headers() });
   if (session) redirect("/");
   return null;
 }

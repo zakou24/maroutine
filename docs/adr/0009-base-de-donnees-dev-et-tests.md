@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted, remplacée en partie par l'ADR 0010 (développement local et e2e)
 date: 2026-10-31
 ---
 

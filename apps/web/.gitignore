@@ -13,6 +13,10 @@
 # testing
 /coverage
 
+# bases PGlite locales (développement, e2e) et session e2e
+/.data/
+/e2e/.auth/
+
 # next.js
 /.next/
 /out/

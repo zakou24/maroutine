@@ -3,6 +3,7 @@
 import { loginSchema } from "@maroutine/core";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { FormError } from "@/components/form-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,11 +80,7 @@ export function LoginForm() {
           className="h-11 rounded-lg bg-surface text-[17px] md:text-[17px]"
         />
       </div>
-      {error ? (
-        <p role="alert" className="text-[15px] text-regression-ink">
-          {error}
-        </p>
-      ) : null}
+      <FormError>{error}</FormError>
       <Button
         type="submit"
         disabled={pending}
