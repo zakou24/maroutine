@@ -7,6 +7,9 @@ export default defineConfig({
   },
   test: {
     include: ["tests/**/*.test.{ts,tsx}"],
+    // Chaque base PGlite met 3 à 4 s à démarrer (WASM) : le délai par défaut de 5 s est trop juste.
+    testTimeout: 20_000,
+    hookTimeout: 20_000,
     // Valeurs factices : les tests n'atteignent jamais Neon (base PGlite en mémoire).
     env: {
       DATABASE_URL: "postgres://test:test@localhost/test",
