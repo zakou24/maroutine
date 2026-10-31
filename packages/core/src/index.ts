@@ -71,3 +71,9 @@ export {
   targetLabel,
   type Suggestion,
 } from "./training/suggestion";
+export {
+  periodSchema,
+  type ExerciseStatsResponse,
+  type ExerciseTrendSummary,
+  type SuggestionResponse,
+} from "./schemas/stats";
