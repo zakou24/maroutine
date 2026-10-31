@@ -19,4 +19,23 @@ describe("parseEnv", () => {
   it("refuse un secret de moins de 32 caractères", () => {
     expect(() => parseEnv({ ...valid, BETTER_AUTH_SECRET: "court" })).toThrow(/BETTER_AUTH_SECRET/);
   });
+  it("sur un aperçu Vercel sans BETTER_AUTH_URL, prend l'adresse de la branche", () => {
+    const env = parseEnv({
+      ...valid,
+      BETTER_AUTH_URL: undefined,
+      VERCEL_ENV: "preview",
+      VERCEL_BRANCH_URL: "maroutine-git-lot-0-zak.vercel.app",
+    });
+    expect(env.BETTER_AUTH_URL).toBe("https://maroutine-git-lot-0-zak.vercel.app");
+  });
+  it("en production, BETTER_AUTH_URL reste obligatoire", () => {
+    expect(() =>
+      parseEnv({
+        ...valid,
+        BETTER_AUTH_URL: undefined,
+        VERCEL_ENV: "production",
+        VERCEL_BRANCH_URL: "x.vercel.app",
+      }),
+    ).toThrow(/BETTER_AUTH_URL/);
+  });
 });
