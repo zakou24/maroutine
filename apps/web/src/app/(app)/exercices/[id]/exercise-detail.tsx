@@ -1,36 +1,21 @@
 "use client";
 
 import type { Exercise } from "@maroutine/core";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { Settings } from "lucide-react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
-import { FormError } from "@/components/form-error";
-import { secondaryButtonClass } from "@/components/form-styles";
+import { useParams } from "next/navigation";
 import { Page } from "@/components/page";
 import { LoadError, Loading } from "@/components/query-state";
-import { Button } from "@/components/ui/button";
 import { ApiError, apiFetch } from "@/lib/api";
-import { ExerciseForm } from "../exercise-form";
+import { ExerciseStats } from "./exercise-stats";
 
+// Fiche exercice (F-STA-2) : les stats ; les réglages sont sur /exercices/[id]/reglages.
 export function ExerciseDetail() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const [error, setError] = useState<string | null>(null);
   const exercise = useQuery({
     queryKey: ["exercise", id],
     queryFn: () => apiFetch<Exercise>(`/api/v1/exercises/${id}`),
-  });
-  const archive = useMutation({
-    mutationFn: (archived: boolean) =>
-      apiFetch<Exercise>(`/api/v1/exercises/${id}`, { method: "PATCH", body: { archived } }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["exercises"] });
-      await queryClient.invalidateQueries({ queryKey: ["exercise", id] });
-      router.push("/exercices");
-    },
-    onError: () => setError("Modification impossible. Réessaie."),
   });
 
   if (exercise.isPending) {
@@ -61,26 +46,20 @@ export function ExerciseDetail() {
     );
   }
 
-  const data = exercise.data;
   return (
-    <Page title={data.name}>
-      <ExerciseForm initial={data} onSaved={() => router.push("/exercices")} />
-      <section className="mt-4 flex flex-col items-start gap-3 border-t border-rule pt-6">
-        <p className="text-[15px] text-muted-foreground">
-          {data.archived
-            ? "Cet exercice est archivé : il n'est plus proposé dans la saisie."
-            : "Archiver retire l'exercice de la saisie. Il reste dans tes séances passées."}
-        </p>
-        <Button
-          variant="outline"
-          className={secondaryButtonClass}
-          disabled={archive.isPending}
-          onClick={() => archive.mutate(!data.archived)}
+    <Page
+      title={exercise.data.name}
+      action={
+        <Link
+          href={`/exercices/${id}/reglages`}
+          className="flex min-h-11 items-center gap-2 rounded-lg px-3 text-[15px] text-muted-foreground hover:bg-muted hover:text-foreground"
         >
-          {data.archived ? "Restaurer" : "Archiver"}
-        </Button>
-        <FormError>{error}</FormError>
-      </section>
+          <Settings aria-hidden className="size-5" strokeWidth={2} />
+          Réglages
+        </Link>
+      }
+    >
+      <ExerciseStats exercise={exercise.data} />
     </Page>
   );
 }

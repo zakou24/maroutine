@@ -16,6 +16,7 @@ test("créer, modifier, archiver puis restaurer un exercice", async ({ page }, t
 
   await expect(page).toHaveURL(/\/exercices$/);
   await page.getByRole("link", { name: link }).click();
+  await page.getByRole("link", { name: "Réglages" }).click();
   // Le pas n'est pas demandé à la création : il suit le matériel (2 kg aux haltères).
   await expect(page.getByRole("textbox", { name: "Pas d'augmentation (kg)" })).toHaveValue("2");
   await page.getByRole("textbox", { name: "Répétitions maximum" }).fill("12");
@@ -24,6 +25,7 @@ test("créer, modifier, archiver puis restaurer un exercice", async ({ page }, t
   await expect(page.getByRole("link", { name: link })).toContainText("6–12");
 
   await page.getByRole("link", { name: link }).click();
+  await page.getByRole("link", { name: "Réglages" }).click();
   await page.getByRole("button", { name: "Archiver" }).click();
   await expect(page).toHaveURL(/\/exercices$/);
   await expect(page.getByRole("link", { name: link })).toHaveCount(0);
