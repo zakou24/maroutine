@@ -21,6 +21,13 @@ export {
   type WorkoutSummary,
 } from "./schemas/workout";
 export {
+  EXERCISE_CATALOG,
+  MUSCLE_GROUPS,
+  muscleGroupLabel,
+  type CatalogExercise,
+  type MuscleGroup,
+} from "./training/catalog";
+export {
   EQUIPMENT,
   defaultIncrementKg,
   equipmentLabel,

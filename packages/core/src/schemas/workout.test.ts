@@ -79,3 +79,27 @@ describe("workoutInputSchema", () => {
     ).toBe(false);
   });
 });
+
+describe("échauffement et cardio de la séance", () => {
+  it("échauffement à false et cardio absent par défaut", () => {
+    const parsed = workoutInputSchema.parse(withSets(1));
+    expect(parsed.warmupDone).toBe(false);
+    expect(parsed.cardioMinutes ?? null).toBeNull();
+  });
+  it("accepte 15 minutes de cardio et null", () => {
+    expect(
+      workoutInputSchema.parse({ ...withSets(1), cardioMinutes: 15, warmupDone: true }),
+    ).toMatchObject({
+      cardioMinutes: 15,
+      warmupDone: true,
+    });
+    expect(workoutInputSchema.safeParse({ ...withSets(1), cardioMinutes: null }).success).toBe(
+      true,
+    );
+  });
+  it("refuse 0, 181 et 12,5 minutes", () => {
+    for (const cardioMinutes of [0, 181, 12.5]) {
+      expect(workoutInputSchema.safeParse({ ...withSets(1), cardioMinutes }).success).toBe(false);
+    }
+  });
+});
