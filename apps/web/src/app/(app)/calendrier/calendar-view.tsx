@@ -223,8 +223,13 @@ export function WorkoutLink({ workout, title }: { workout: WorkoutSummary; title
           {title ?? formatLongDate(workout.performedOn)}
         </span>
         <span className="text-[15px] text-muted-foreground">
-          {countLabel(workout.exerciseCount, "exercice", "exercices")} ·{" "}
-          {countLabel(workout.workingSetCount, "série", "séries")}
+          {[
+            countLabel(workout.exerciseCount, "exercice", "exercices"),
+            countLabel(workout.workingSetCount, "série de travail", "séries de travail"),
+            workout.cardioMinutes ? `cardio ${workout.cardioMinutes} min` : null,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
         </span>
       </span>
       <ChevronRight aria-hidden className="size-5 text-muted-foreground" strokeWidth={2} />

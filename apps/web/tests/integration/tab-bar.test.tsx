@@ -15,7 +15,7 @@ describe("navigation de l'app", () => {
     pathname.current = "/exercices";
     render(<TabBar />);
     expect(screen.getByRole("link", { name: "Exercices" })).toHaveAttribute("aria-current", "page");
-    expect(screen.getByRole("link", { name: "Semaine" })).not.toHaveAttribute("aria-current");
+    expect(screen.getByRole("link", { name: "Accueil" })).not.toHaveAttribute("aria-current");
   });
 
   it("une page enfant garde son onglet actif", () => {
@@ -30,17 +30,17 @@ describe("navigation de l'app", () => {
     expect(screen.getByRole("link", { name: "Plus" })).toHaveAttribute("aria-current", "page");
   });
 
-  it("propose Semaine, Séance, Exercices et Plus dans cet ordre", () => {
+  it("propose Accueil, Séance, Exercices et Plus dans cet ordre", () => {
     pathname.current = "/";
     render(<AppNav />);
     expect(screen.getAllByRole("link").map((l) => [l.textContent, l.getAttribute("href")])).toEqual(
       [
-        ["Semaine", "/"],
+        ["Accueil", "/"],
         ["Séance", "/saisie"],
         ["Exercices", "/exercices"],
         ["Plus", "/plus"],
       ],
     );
-    expect(screen.getByRole("link", { name: "Semaine" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "Accueil" })).toHaveAttribute("aria-current", "page");
   });
 });

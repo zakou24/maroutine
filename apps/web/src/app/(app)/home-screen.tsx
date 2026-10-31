@@ -8,12 +8,20 @@ import { LoadError, Loading } from "@/components/query-state";
 import { countLabel, formatDayMonthLong } from "@/lib/format";
 import { useToday } from "@/lib/use-today";
 import { workoutsQuery } from "@/lib/workouts-query";
+import { ActivityCalendar } from "./activity-calendar";
 import { WorkoutLink } from "./calendrier/calendar-view";
 
-export function WeekSummary() {
+// Accueil : calendrier d'activité des 3 derniers mois (D17), puis la semaine en cours.
+// La place du poids, sous le calendrier, arrive au Lot 3.
+export function HomeScreen() {
   const today = useToday();
   if (today === null) return <Loading />;
-  return <Week today={today} />;
+  return (
+    <div className="flex flex-col gap-8">
+      <ActivityCalendar today={today} />
+      <Week today={today} />
+    </div>
+  );
 }
 
 function Week({ today }: { today: string }) {
@@ -40,10 +48,15 @@ function Week({ today }: { today: string }) {
 
   const list = workouts.data;
   return (
-    <div className="flex flex-col gap-5">
-      <p className="text-[17px] text-muted-foreground">
-        Semaine du {formatDayMonthLong(start)} au {formatDayMonthLong(end)}
-      </p>
+    <section aria-labelledby="week-title" className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1">
+        <h2 id="week-title" className="text-[20px] leading-7 font-bold">
+          Cette semaine
+        </h2>
+        <p className="text-[15px] text-muted-foreground">
+          Du {formatDayMonthLong(start)} au {formatDayMonthLong(end)}
+        </p>
+      </div>
       {list.length === 0 ? (
         <p className="text-[17px]">Pas encore de séance cette semaine.</p>
       ) : (
@@ -62,6 +75,6 @@ function Week({ today }: { today: string }) {
         </>
       )}
       <div>{entryLink}</div>
-    </div>
+    </section>
   );
 }

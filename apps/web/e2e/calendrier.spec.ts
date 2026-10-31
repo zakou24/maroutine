@@ -9,7 +9,7 @@ function unique(name: string, project: string) {
   return `${name} ${project} ${Math.random().toString(36).slice(2, 6)}`;
 }
 
-test("la séance saisie apparaît dans « Cette semaine » et dans le calendrier, et s'ouvre", async ({
+test("la séance saisie apparaît sur l'accueil (activité et semaine) et dans le calendrier, et s'ouvre", async ({
   page,
   request,
 }, testInfo) => {
@@ -30,6 +30,18 @@ test("la séance saisie apparaît dans « Cette semaine » et dans le calendrier
   await expect(page.getByRole("heading", { name: "Cette semaine" })).toBeVisible();
   await expect(page.locator(`a[href="/seances/${id}"]`)).toBeVisible();
 
+  // Calendrier d'activité de l'accueil (D17) : la case du jour ouvre ses séances.
+  const dayLabel = new Intl.DateTimeFormat("fr-FR", {
+    day: "numeric",
+    month: "long",
+    timeZone: "Europe/Paris",
+  })
+    .format(new Date())
+    .replace(/^1 /, "1er ");
+  const activity = page.getByRole("region", { name: "3 derniers mois" });
+  await activity.getByRole("button", { name: new RegExp(`^${dayLabel}, \\d+ séances?$`) }).click();
+  await expect(activity.locator(`a[href="/seances/${id}"]`)).toBeVisible();
+
   await page.goto("/calendrier");
   await page
     .getByRole("button", { name: /séances?$/ })
@@ -49,7 +61,7 @@ test("le calendrier change de mois par l'URL", async ({ page }) => {
 });
 
 for (const [path, heading] of [
-  ["/", "Cette semaine"],
+  ["/", "Accueil"],
   ["/saisie", "Séance du soir"],
   ["/exercices", "Exercices"],
   ["/calendrier", "Calendrier"],
