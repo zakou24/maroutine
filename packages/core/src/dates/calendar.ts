@@ -63,3 +63,12 @@ export function activityWeeks(today: string, weeks: number): string[][] {
     return Array.from({ length: 7 }, (_, d) => addDays(monday, d));
   });
 }
+
+// « 2027-03-31 » - 1 mois → « 2027-02-28 » : un jour absent du mois d'arrivée devient son dernier jour.
+export function addMonthsToDate(date: string, months: number): string {
+  const month = addMonths(date.slice(0, 7), months);
+  const [year, monthIndex] = month.split("-").map(Number) as [number, number];
+  const lastDay = new Date(Date.UTC(year, monthIndex, 0)).getUTCDate();
+  const day = Math.min(Number(date.slice(8)), lastDay);
+  return `${month}-${String(day).padStart(2, "0")}`;
+}

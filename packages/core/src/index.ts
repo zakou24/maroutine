@@ -2,6 +2,7 @@ export {
   activityWeeks,
   addDays,
   addMonths,
+  addMonthsToDate,
   daysBetween,
   monthGrid,
   startOfWeek,
@@ -43,3 +44,16 @@ export {
   type Equipment,
 } from "./training/equipment";
 export { formatKg, parseDecimal } from "./units/decimal";
+export {
+  PERIODS,
+  bodyWeightOn,
+  estimatedMax,
+  isWorkingSet,
+  periodStart,
+  sessionStats,
+  type ExerciseSession,
+  type HistorySet,
+  type Period,
+  type SessionStats,
+  type WeighIn,
+} from "./training/stats";

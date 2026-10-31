@@ -3,6 +3,7 @@ import {
   activityWeeks,
   addDays,
   addMonths,
+  addMonthsToDate,
   daysBetween,
   monthGrid,
   startOfWeek,
@@ -73,5 +74,13 @@ describe("activityWeeks", () => {
     const weeks = activityWeeks("2026-11-01", 13);
     expect(weeks.at(-1)?.at(-1)).toBe("2026-11-01");
     expect(weeks.at(-1)?.[0]).toBe("2026-10-26");
+  });
+});
+
+describe("addMonthsToDate", () => {
+  it("ramène au dernier jour d'un mois plus court", () => {
+    expect(addMonthsToDate("2027-03-31", -1)).toBe("2027-02-28");
+    expect(addMonthsToDate("2026-01-31", 1)).toBe("2026-02-28");
+    expect(addMonthsToDate("2026-10-15", -12)).toBe("2025-10-15");
   });
 });
