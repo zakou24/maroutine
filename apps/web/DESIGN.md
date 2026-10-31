@@ -335,7 +335,9 @@ Listes groupées dans une seule surface à filet, lignes séparées par des file
 - **Error :** bord encre et anneau encre à 20 % (`aria-invalid`), message en 15 px gras encre précédé d'une icône cercle-alerte de 18 px, annoncé par `role="alert"`.
 - **Disabled :** opacité 50 %.
 
-### Checkbox (échauffement)
+### Checkbox
+
+Utilisée pour « Échauffement fait », « Cardio » et le catalogue d'exercices.
 
 Case de 20 px dans une cible de 44 px, filet de 2 px `field`, coins de 4 px, fond blanc ; cochée, fond et filet bleu acier avec une coche blanche au trait.
 
@@ -356,9 +358,17 @@ Bandeau d'information en voile de couloir, texte encre de couloir 15 px, coins d
 
 Grille mensuelle dans une surface à filet : initiales des jours en 13 px encre douce, une colonne « Total » de séances par semaine en 15 px gras encre de couloir. Case de jour de 44 px : chiffre en 15 px, pastille bleu acier de 6 px sous le chiffre quand une séance existe (case alors cliquable). Jour sélectionné sur voile de couloir, jour courant en gras, jours hors du mois en encre douce.
 
+### Activity calendar (Lot 1.1)
+
+Sur l'accueil, façon graphe d'activité de GitHub mais aux couleurs de la direction A : 13 colonnes de semaines (lundi → dimanche), cases carrées d'environ 22 px à coins de 3 px et 4 px d'écart, initiales L, M, V à gauche et mois abrégés (« sept. ») au-dessus, en 12 px encre douce. Aucune séance en `rule-soft`, 1 séance en `action`, 2 et plus en `action-strong` ; jamais d'orange, de jaune ni de vert. Une case de séance est un bouton nommé (« 28 octobre, 1 séance ») qui déplie la liste du jour ; sélectionnée, anneau encre de 2 px. Jours futurs vides. Légende « Aucune · 1 séance · 2 et plus » et nombre de séances sous le titre « 3 derniers mois ». Sur ordinateur, la carte épouse la largeur de la grille (400 px).
+
+### Session extras (Lot 1.1)
+
+Sous les exercices, une surface à filet en deux lignes : « Échauffement fait » et « Cardio », chacun avec sa case à droite. Cardio coché : boutons de 44 px « 10 min », « 15 min », « 20 min », « Autre » (sélectionné sur voile de couloir, filet bleu acier, texte encre de couloir gras) ; « Autre » ouvre un champ minutes de 80 px.
+
 ### Set grid (signature du Lot 1)
 
-Dans chaque carte d'exercice : nom en 17 px gras et fourchette « 6–10 rép. » en encre douce sur la même ligne, puis la grille N° | Charge (kg) × Rép. | Échauffement | Supprimer, en chiffres tabulaires alignés en colonnes, puis « Prérempli depuis le … » en encre douce, puis la rangée d'actions (ajouter une série à gauche, monter/descendre/retirer à droite). Elle tient lieu du couloir de tendance jusqu'au Lot 2.
+Dans chaque carte d'exercice : nom en 17 px gras et fourchette « 6–10 rép. » en encre douce sur la même ligne, puis la grille N° | Charge (kg) × Rép. | Supprimer (plus de colonne échauffement depuis D14), en chiffres tabulaires alignés en colonnes, puis « Prérempli depuis le … » en encre douce, puis la rangée d'actions (ajouter une série à gauche, monter/descendre/retirer à droite). Elle tient lieu du couloir de tendance jusqu'au Lot 2.
 
 ## Do's and Don'ts
 

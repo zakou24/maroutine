@@ -30,12 +30,20 @@ _Avoid_ : Équipement, Type
 Une suite de répétitions faites d'affilée à une charge donnée, notée `charge × répétitions`.
 _Avoid_ : Set (sauf dans le code)
 
+**Échauffement** :
+Noté une fois pour la séance (« Échauffement fait »), sans détail des séries (D14).
+_Avoid_ : Warm-up
+
 **Série d'échauffement** :
-Série marquée comme échauffement. Elle est enregistrée mais exclue de toutes les stats.
+Ancienne notion (avant D14) : série marquée comme échauffement. Les séries existantes restent enregistrées et exclues de toutes les stats ; on n'en saisit plus.
 _Avoid_ : Série de chauffe, Warm-up
 
+**Cardio** :
+Effort d'endurance en fin de séance, noté par sa seule durée en minutes (D15).
+_Avoid_ : Cardio training, HIIT (sauf s'il en est question)
+
 **Série de travail** :
-Toute série qui n'est pas d'échauffement et compte au moins une répétition.
+Toute série qui n'est pas une ancienne série d'échauffement et compte au moins une répétition. Depuis D14, toute série saisie en est une.
 _Avoid_ : Série effective, Working set
 
 **Charge** :

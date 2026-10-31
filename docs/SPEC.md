@@ -44,7 +44,7 @@ Chaque exigence porte un identifiant (`F-<module>-<n>`) repris dans les tests.
 ### Séances
 
 - **F-SEA-1** : le propriétaire crée, modifie, archive et restaure ses exercices : nom, matériel (barre, haltères, machine, poulie, poids du corps, autre), fourchette cible (min et max de répétitions), pas d'augmentation en kg.
-- **F-SEA-2** : il crée une séance pour une date (aujourd'hui par défaut), y ajoute des exercices dans un ordre, et pour chaque exercice des séries `charge × répétitions`, avec la case « échauffement » optionnelle.
+- **F-SEA-2** : il crée une séance pour une date (aujourd'hui par défaut), y ajoute des exercices dans un ordre (depuis ses exercices ou le catalogue, D16), et pour chaque exercice des séries `charge × répétitions`. Il coche « Échauffement fait » pour la séance (D14) et note un cardio de fin de séance en minutes (D15).
 - **F-SEA-3** : en ajoutant un exercice à une séance, les séries sont **préremplies** avec celles de la dernière séance sur cet exercice. La suggestion de la prochaine séance (F-STA-4) est affichée à côté.
 - **F-SEA-4** : il modifie ou supprime une séance passée, un exercice d'une séance ou une série.
 - **F-SEA-5** : un calendrier montre les jours de séance, mois par mois, avec le nombre de séances par semaine.
@@ -52,7 +52,7 @@ Chaque exigence porte un identifiant (`F-<module>-<n>`) repris dans les tests.
 
 ### Statistiques et suggestions
 
-- **F-STA-1** : pour chaque exercice et chaque séance, l'app calcule le **max estimé**, la **meilleure série** et le **volume**, selon les formules de [architecture.md §6](architecture.md#6-calculs-et-statistiques). Les séries d'échauffement sont exclues.
+- **F-STA-1** : pour chaque exercice et chaque séance, l'app calcule le **max estimé**, la **meilleure série** et le **volume**, selon les formules de [architecture.md §6](architecture.md#6-calculs-et-statistiques). Les anciennes séries d'échauffement (avant D14) sont exclues.
 - **F-STA-2** : la fiche exercice affiche la courbe du max estimé dans le temps (périodes 1 mois, 3 mois, 1 an, tout), le volume par séance et l'historique des séances.
 - **F-STA-3** : chaque exercice reçoit une **tendance** : en progression, en stagnation, en régression, inactif, ou « pas assez de données » (règles en [architecture.md §6.4](architecture.md#64-tendance-dun-exercice)).
 - **F-STA-4** : la **suggestion** de la prochaine séance (charge et répétitions visées) suit les règles de l'[ADR 0006](adr/0006-suggestions-par-regles.md). Elle est toujours accompagnée de sa justification en une phrase.
@@ -75,7 +75,7 @@ Chaque exigence porte un identifiant (`F-<module>-<n>`) repris dans les tests.
 
 ### Tableau de bord et croisement
 
-- **F-TDB-1** : le tableau de bord montre la semaine en cours : séances faites, tendance du poids, jours engagés côté alimentation, exercices regroupés par tendance, et les suggestions des exercices de la dernière séance.
+- **F-TDB-1** : le tableau de bord montre en haut le calendrier d'activité des 13 dernières semaines (D17), puis la semaine en cours : séances faites, tendance du poids, jours engagés côté alimentation, exercices regroupés par tendance, et les suggestions des exercices de la dernière séance.
 - **F-TDB-2** : sur la fiche exercice, la courbe du max estimé peut être superposée aux calories et protéines quotidiennes.
 - **F-TDB-3** : une vue **Croisement** compare la progression moyenne du max estimé après une fenêtre alimentaire engagée et après une fenêtre non engagée, tous exercices confondus et par exercice, avec le nombre de progressions et de séances distinctes de chaque groupe.
 - **F-TDB-4** : sous 5 séances distinctes dans l'un des groupes, la vue affiche « pas encore assez de données » et le nombre de séances manquantes, sans aucun chiffre de comparaison.

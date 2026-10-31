@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-> **Statut : en cours** (branche `lot-1.1`).
+> **Statut : terminé** (PR #3).
 
 **Goal :** appliquer les premiers retours du propriétaire après la mise en production du Lot 1 :
 - échauffement et cardio notés une fois par séance ;
