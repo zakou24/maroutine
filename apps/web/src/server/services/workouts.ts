@@ -1,4 +1,11 @@
-import type { LastSets, SetInput, Workout, WorkoutInput, WorkoutSummary } from "@maroutine/core";
+import type {
+  LastSets,
+  NewWorkoutInput,
+  SetInput,
+  Workout,
+  WorkoutInput,
+  WorkoutSummary,
+} from "@maroutine/core";
 import { and, asc, desc, eq, gte, inArray, lt, lte, ne, sql, type SQL } from "drizzle-orm";
 import type { AppDatabase } from "@/db/client";
 import { exercise, workout, workoutExercise, workoutSet } from "@/db/schema";
@@ -78,19 +85,23 @@ export async function getWorkout(db: AppDatabase, userId: string, id: string): P
   return { ...head, exercises };
 }
 
+// Création idempotente : si la séance `input.id` existe déjà pour cet utilisateur, elle est
+// renvoyée telle quelle (created: false) ; si elle appartient à un autre, 404.
 export async function createWorkout(
   db: AppDatabase,
   userId: string,
-  input: WorkoutInput,
-): Promise<Workout> {
+  input: NewWorkoutInput,
+): Promise<{ workout: Workout; created: boolean }> {
   return db.transaction(async (tx) => {
-    await assertOwnExercises(tx, userId, input);
     const [row] = await tx
       .insert(workout)
-      .values({ userId, performedOn: input.performedOn, note: noteOf(input) })
+      .values({ id: input.id, userId, performedOn: input.performedOn, note: noteOf(input) })
+      .onConflictDoNothing({ target: workout.id })
       .returning({ id: workout.id });
-    await insertContent(tx, row!.id, input);
-    return getWorkout(tx, userId, row!.id);
+    if (!row) return { workout: await getWorkout(tx, userId, input.id!), created: false };
+    await assertOwnExercises(tx, userId, input);
+    await insertContent(tx, row.id, input);
+    return { workout: await getWorkout(tx, userId, row.id), created: true };
   });
 }
 

@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  todayIn,
-  type Exercise,
-  type LastSets,
-  type Workout,
-  type WorkoutInput,
-} from "@maroutine/core";
+import { type Exercise, type LastSets, type Workout, type WorkoutInput } from "@maroutine/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowDown, ArrowUp, CalendarDays, Plus, Trash2, X } from "lucide-react";
 import Link from "next/link";
@@ -27,11 +21,12 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { readStored, removeStored, writeStored } from "@/lib/draft-storage";
 import { formatDayMonth, formatShortDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { useIsClient } from "@/lib/use-is-client";
+import { useToday } from "@/lib/use-today";
 import {
   draftReducer,
   draftStorageKey,
   emptyDraft,
+  parseStoredDraft,
   toWorkoutInput,
   type DraftAction,
   type DraftExercise,
@@ -39,7 +34,6 @@ import {
 } from "./workout-draft";
 import { ExercisePicker } from "./exercise-picker";
 
-const TIME_ZONE = "Europe/Paris";
 const NO_HISTORY: LastSets = { performedOn: null, sets: [] };
 
 type EditorProps =
@@ -49,8 +43,8 @@ type EditorProps =
 // Saisie du soir (création) ou séance passée (modification). Rendu côté navigateur uniquement :
 // la date du jour et le brouillon dépendent de l'appareil.
 export function WorkoutEditor(props: EditorProps) {
-  const isClient = useIsClient();
-  if (!isClient) {
+  const today = useToday();
+  if (today === null) {
     return (
       <Page title={props.mode === "create" ? "Saisie du soir" : "Séance"}>
         <Loading />
@@ -58,7 +52,7 @@ export function WorkoutEditor(props: EditorProps) {
     );
   }
   return props.mode === "create" ? (
-    <CreateEditor today={props.initialDate ?? todayIn(TIME_ZONE, new Date())} />
+    <CreateEditor today={props.initialDate ?? today} />
   ) : (
     <EditEditor workoutId={props.workoutId} />
   );
@@ -69,7 +63,8 @@ function CreateEditor({ today }: { today: string }) {
     <EditorForm
       mode="create"
       title="Saisie du soir"
-      storageKey={draftStorageKey(today)}
+      today={today}
+      storageKey={draftStorageKey()}
       base={() => emptyDraft(today)}
     />
   );
@@ -111,7 +106,7 @@ function EditEditor({ workoutId }: { workoutId: string }) {
       mode="edit"
       workoutId={loaded.id}
       title={`Séance du ${formatDayMonth(loaded.performedOn)}`}
-      storageKey={draftStorageKey(loaded.performedOn, loaded.id)}
+      storageKey={draftStorageKey(loaded.id)}
       base={() => draftReducer(emptyDraft(loaded.performedOn), { type: "load", workout: loaded })}
     />
   );
@@ -128,12 +123,14 @@ function EditorForm({
   mode,
   workoutId,
   title,
+  today,
   storageKey,
   base,
 }: {
   mode: "create" | "edit";
   workoutId?: string;
   title: string;
+  today?: string;
   storageKey: string;
   base: () => WorkoutDraft;
 }) {
@@ -144,7 +141,7 @@ function EditorForm({
 
   // Le brouillon restauré l'emporte sur l'état de départ (Review Focus 4).
   const [start] = useState(() => {
-    const stored = readStored<WorkoutDraft>(storageKey);
+    const stored = parseStoredDraft(readStored<unknown>(storageKey));
     return { draft: stored ?? base(), restored: stored !== null };
   });
   const [draft, dispatch] = useReducer(draftReducer, start.draft);
@@ -155,6 +152,15 @@ function EditorForm({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
+
+  // Saisie restée ouverte d'un soir à l'autre : une saisie encore vide prend la date du jour.
+  const [seenToday, setSeenToday] = useState(today);
+  if (today !== seenToday) {
+    setSeenToday(today);
+    if (today && draft.exercises.length === 0 && draft.note === "") {
+      dispatch({ type: "setDate", performedOn: today });
+    }
+  }
 
   useEffect(() => {
     if (dirty.current) writeStored(storageKey, draft);
@@ -194,14 +200,17 @@ function EditorForm({
   const save = useMutation({
     mutationFn: (input: WorkoutInput) =>
       mode === "create"
-        ? apiFetch<Workout>("/api/v1/workouts", { method: "POST", body: input })
+        ? apiFetch<Workout>("/api/v1/workouts", {
+            method: "POST",
+            body: { ...input, id: draft.id },
+          })
         : apiFetch<Workout>(`/api/v1/workouts/${workoutId}`, { method: "PUT", body: input }),
     onSuccess: async (workout) => {
       queryClient.setQueryData(["workout", workout.id], workout);
       await queryClient.invalidateQueries({ queryKey: ["workouts"] });
       if (mode === "create") {
         // L'écran reste monté (caché) après la navigation : il repart d'une saisie vide.
-        resetTo(emptyDraft(draft.performedOn));
+        resetTo(emptyDraft(today ?? draft.performedOn));
         router.push(`/seances/${workout.id}`);
       } else {
         dirty.current = false;

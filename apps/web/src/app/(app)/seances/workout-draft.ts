@@ -1,3 +1,4 @@
+import { z } from "zod";
 import {
   formatKg,
   isQuarterKg,
@@ -29,7 +30,14 @@ export type DraftExercise = {
   prefilledFrom: string | null;
 };
 
-export type WorkoutDraft = { performedOn: string; note: string; exercises: DraftExercise[] };
+// `id` : identifiant choisi à la création du brouillon, envoyé avec la séance pour qu'un
+// enregistrement rejoué ne crée pas de doublon.
+export type WorkoutDraft = {
+  id?: string;
+  performedOn: string;
+  note: string;
+  exercises: DraftExercise[];
+};
 
 export type DraftAction =
   | { type: "setDate"; performedOn: string }
@@ -55,7 +63,7 @@ function newKey(): string {
 }
 
 export function emptyDraft(performedOn: string): WorkoutDraft {
-  return { performedOn, note: "", exercises: [] };
+  return { id: crypto.randomUUID(), performedOn, note: "", exercises: [] };
 }
 
 function draftSet(set?: SetInput, prefilled = false): DraftSet {
@@ -192,6 +200,37 @@ export function toWorkoutInput(
   return { ok: true, input: parsed.data };
 }
 
-export function draftStorageKey(performedOn: string, workoutId?: string): string {
-  return workoutId ? `maroutine:draft:seance:${workoutId}` : `maroutine:draft:${performedOn}`;
+// Une seule clé pour la nouvelle séance : le brouillon garde sa propre date, et reste retrouvable
+// après minuit (Review Focus 2 et 4).
+export function draftStorageKey(workoutId?: string): string {
+  return workoutId ? `maroutine:draft:seance:${workoutId}` : "maroutine:draft:nouvelle";
+}
+
+const storedDraftSchema = z.object({
+  id: z.string().optional(),
+  performedOn: z.iso.date(),
+  note: z.string(),
+  exercises: z.array(
+    z.object({
+      key: z.string(),
+      exerciseId: z.string(),
+      name: z.string(),
+      prefilledFrom: z.string().nullable(),
+      sets: z.array(
+        z.object({
+          key: z.string(),
+          weight: z.string(),
+          reps: z.string(),
+          isWarmup: z.boolean(),
+          prefilled: z.boolean().optional(),
+        }),
+      ),
+    }),
+  ),
+});
+
+// Un brouillon lu dans localStorage peut être ancien ou abîmé : on l'ignore plutôt que de bloquer l'écran.
+export function parseStoredDraft(value: unknown): WorkoutDraft | null {
+  const parsed = storedDraftSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
 }

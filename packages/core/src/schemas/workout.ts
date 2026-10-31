@@ -27,6 +27,12 @@ export const workoutInputSchema = z.object({
 
 export type WorkoutInput = z.output<typeof workoutInputSchema>;
 
+// Création : l'identifiant peut être choisi par l'appareil, pour qu'un envoi rejoué
+// (réponse perdue, app fermée) ne crée pas deux fois la même séance.
+export const newWorkoutSchema = workoutInputSchema.extend({ id: z.uuid().optional() });
+
+export type NewWorkoutInput = z.output<typeof newWorkoutSchema>;
+
 export type Workout = {
   id: string;
   performedOn: string;

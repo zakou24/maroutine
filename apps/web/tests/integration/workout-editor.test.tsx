@@ -16,7 +16,8 @@ vi.mock("@/lib/api", async (original) => ({
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push, replace: push }) }));
 
 const TODAY = "2026-10-31";
-const KEY = draftStorageKey(TODAY);
+const KEY = draftStorageKey();
+const DRAFT_ID = "33333333-3333-4333-8333-333333333333";
 const squat: Exercise = {
   id: "00000000-0000-4000-8000-00000000000a",
   name: "Squat",
@@ -34,6 +35,7 @@ const curl: Exercise = {
 };
 
 const stored: WorkoutDraft = {
+  id: DRAFT_ID,
   performedOn: TODAY,
   note: "",
   exercises: [
@@ -59,8 +61,12 @@ function routeApi(
   });
 }
 
-function openEditor() {
-  renderWithQuery(<WorkoutEditor mode="create" initialDate={TODAY} />);
+function openEditor(initialDate = TODAY) {
+  return renderWithQuery(<WorkoutEditor mode="create" initialDate={initialDate} />);
+}
+
+function dateField() {
+  return screen.getByLabelText("Date de la séance");
 }
 
 beforeEach(() => {
@@ -79,6 +85,31 @@ describe("WorkoutEditor", () => {
     expect(within(card).getByRole("textbox", { name: "Charge (kg), série 1" })).toHaveValue("62,5");
     expect(within(card).getByText("Prérempli depuis le 30 oct.")).toBeInTheDocument();
     expect(screen.getByText("Brouillon non enregistré restauré.")).toBeInTheDocument();
+  });
+
+  it("un brouillon commencé avant minuit est restauré après minuit, avec sa date (Review Focus 2 et 4)", async () => {
+    localStorage.setItem(KEY, JSON.stringify(stored));
+    routeApi();
+    openEditor("2026-11-01");
+    await screen.findByRole("region", { name: "Squat" });
+    expect(dateField()).toHaveValue(TODAY);
+  });
+
+  it("une saisie vide restée ouverte prend la date du jour quand le jour change", async () => {
+    routeApi();
+    const view = openEditor();
+    await screen.findByRole("button", { name: "Ajouter un exercice" });
+    expect(dateField()).toHaveValue(TODAY);
+    view.rerender(<WorkoutEditor mode="create" initialDate="2026-11-01" />);
+    expect(dateField()).toHaveValue("2026-11-01");
+  });
+
+  it("un brouillon illisible est ignoré au lieu de bloquer l'écran", async () => {
+    localStorage.setItem(KEY, JSON.stringify({ performedOn: TODAY, exercises: "cassé" }));
+    routeApi();
+    openEditor();
+    expect(await screen.findByRole("button", { name: "Ajouter un exercice" })).toBeInTheDocument();
+    expect(screen.queryByText("Brouillon non enregistré restauré.")).toBeNull();
   });
 
   it("chaque modification est gardée dans le brouillon", async () => {
@@ -123,6 +154,7 @@ describe("WorkoutEditor", () => {
     expect(apiFetch).toHaveBeenCalledWith("/api/v1/workouts", {
       method: "POST",
       body: {
+        id: DRAFT_ID,
         performedOn: TODAY,
         note: null,
         exercises: [{ exerciseId: squat.id, sets: [{ weightKg: 62.5, reps: 8, isWarmup: false }] }],

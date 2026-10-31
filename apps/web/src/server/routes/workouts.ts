@@ -1,4 +1,4 @@
-import { daysBetween, isoDateSchema, workoutInputSchema } from "@maroutine/core";
+import { daysBetween, isoDateSchema, newWorkoutSchema, workoutInputSchema } from "@maroutine/core";
 import { z } from "zod";
 import { resourceId } from "@/server/http/params";
 import { readJson } from "@/server/http/read-json";
@@ -32,8 +32,9 @@ export function makeWorkoutsRoutes({ db, apiHandler }: RouteDeps) {
       return Response.json(await listWorkouts(db(), session.userId, from, to));
     }),
     POST: apiHandler(async ({ request, session }) => {
-      const input = await readJson(request, workoutInputSchema);
-      return Response.json(await createWorkout(db(), session.userId, input), { status: 201 });
+      const input = await readJson(request, newWorkoutSchema);
+      const { workout, created } = await createWorkout(db(), session.userId, input);
+      return Response.json(workout, { status: created ? 201 : 200 });
     }),
   };
 }

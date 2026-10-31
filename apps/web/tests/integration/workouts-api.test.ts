@@ -141,6 +141,40 @@ describe("API des séances", () => {
     expect((res.body as Workout).note).toBeNull();
   });
 
+  it("un POST rejoué avec le même id ne crée qu'une séance (réponse perdue, Review Focus 4)", async () => {
+    const id = "11111111-1111-4111-8111-111111111111";
+    const body = {
+      id,
+      performedOn: "2026-10-30",
+      exercises: [{ exerciseId: squat, sets: sets([80, 6]) }],
+    };
+    const first = await create(owner, body);
+    const second = await create(owner, body);
+    expect(first.status).toBe(201);
+    expect(second.status).toBe(200);
+    expect((first.body as Workout).id).toBe(id);
+    expect(second.body).toEqual(first.body);
+    expect(await count("workout")).toBe(1);
+    expect(await count("workout_set")).toBe(1);
+  });
+
+  it("un id de séance déjà pris par un autre utilisateur : 404, rien n'est écrit", async () => {
+    const theirSquat = await newExercise(other, "Squat");
+    const id = "22222222-2222-4222-8222-222222222222";
+    await create(other, {
+      id,
+      performedOn: "2026-10-30",
+      exercises: [{ exerciseId: theirSquat, sets: sets([1, 1]) }],
+    });
+    const res = await create(owner, {
+      id,
+      performedOn: "2026-10-30",
+      exercises: [{ exerciseId: squat, sets: sets([80, 6]) }],
+    });
+    expect(res.status).toBe(404);
+    expect(await count("workout")).toBe(1);
+  });
+
   it("deux séances le même jour restent distinctes (F-SEA-6)", async () => {
     const body = {
       performedOn: "2026-10-30",

@@ -4,6 +4,7 @@ import {
   draftReducer,
   draftStorageKey,
   emptyDraft,
+  parseStoredDraft,
   toWorkoutInput,
   type WorkoutDraft,
 } from "@/app/(app)/seances/workout-draft";
@@ -225,8 +226,27 @@ describe("toWorkoutInput", () => {
 });
 
 describe("draftStorageKey", () => {
-  it("distingue une nouvelle séance d'une séance existante", () => {
-    expect(draftStorageKey("2026-10-31")).toBe("maroutine:draft:2026-10-31");
-    expect(draftStorageKey("2026-10-31", "w1")).toBe("maroutine:draft:seance:w1");
+  it("une seule clé pour la nouvelle séance, une par séance existante", () => {
+    expect(draftStorageKey()).toBe("maroutine:draft:nouvelle");
+    expect(draftStorageKey("w1")).toBe("maroutine:draft:seance:w1");
+  });
+});
+
+describe("emptyDraft", () => {
+  it("porte un identifiant de séance neuf, pour un enregistrement rejoué sans doublon", () => {
+    const a = emptyDraft("2026-10-31");
+    const b = emptyDraft("2026-10-31");
+    expect(a.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    expect(a.id).not.toBe(b.id);
+  });
+});
+
+describe("parseStoredDraft", () => {
+  it("accepte un brouillon bien formé et refuse le reste", () => {
+    const draft = withSquat();
+    expect(parseStoredDraft(JSON.parse(JSON.stringify(draft)))).toEqual(draft);
+    expect(parseStoredDraft(null)).toBeNull();
+    expect(parseStoredDraft({ performedOn: "2026-10-31", exercises: "x" })).toBeNull();
+    expect(parseStoredDraft({ performedOn: "31/10", note: "", exercises: [] })).toBeNull();
   });
 });

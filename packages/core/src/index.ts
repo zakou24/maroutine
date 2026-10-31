@@ -10,9 +10,11 @@ export {
 } from "./schemas/exercise";
 export {
   isoDateSchema,
+  newWorkoutSchema,
   setInputSchema,
   workoutInputSchema,
   type LastSets,
+  type NewWorkoutInput,
   type SetInput,
   type Workout,
   type WorkoutInput,

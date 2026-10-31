@@ -1,19 +1,19 @@
 "use client";
 
-import { addDays, startOfWeek, todayIn } from "@maroutine/core";
+import { addDays, startOfWeek } from "@maroutine/core";
 import { useQuery } from "@tanstack/react-query";
 import { PencilLine } from "lucide-react";
 import Link from "next/link";
 import { LoadError, Loading } from "@/components/query-state";
 import { countLabel, formatDayMonthLong } from "@/lib/format";
-import { useIsClient } from "@/lib/use-is-client";
+import { useToday } from "@/lib/use-today";
 import { workoutsQuery } from "@/lib/workouts-query";
 import { WorkoutLink } from "./calendrier/calendar-view";
 
 export function WeekSummary() {
-  const isClient = useIsClient();
-  if (!isClient) return <Loading />;
-  return <Week today={todayIn("Europe/Paris", new Date())} />;
+  const today = useToday();
+  if (today === null) return <Loading />;
+  return <Week today={today} />;
 }
 
 function Week({ today }: { today: string }) {
