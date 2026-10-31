@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDays, monthGrid, startOfWeek, todayIn } from "./calendar";
+import { addDays, daysBetween, monthGrid, startOfWeek, todayIn } from "./calendar";
 
 describe("todayIn", () => {
   // 31 octobre 2026, 23 h 45 à Paris = 22 h 45 UTC (heure d'hiver) ; 31 mars 2026, 23 h 30 à Paris = 21 h 30 UTC (heure d'été)
@@ -33,5 +33,13 @@ describe("monthGrid", () => {
   });
   it("un mois qui commence un lundi commence par son 1er", () => {
     expect(monthGrid("2027-02")[0]?.[0]).toBe("2027-02-01");
+  });
+});
+
+describe("daysBetween", () => {
+  it("compte les jours de la première date à la seconde", () => {
+    expect(daysBetween("2026-10-01", "2026-10-31")).toBe(30);
+    expect(daysBetween("2026-10-31", "2026-10-01")).toBe(-30);
+    expect(daysBetween("2026-03-28", "2026-03-30")).toBe(2);
   });
 });

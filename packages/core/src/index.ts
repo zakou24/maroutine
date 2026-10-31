@@ -1,4 +1,4 @@
-export { addDays, monthGrid, startOfWeek, todayIn } from "./dates/calendar";
+export { addDays, daysBetween, monthGrid, startOfWeek, todayIn } from "./dates/calendar";
 export { loginSchema, ownerPasswordSchema, type LoginInput } from "./schemas/auth";
 export {
   exerciseInputSchema,
