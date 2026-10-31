@@ -23,7 +23,37 @@ L'app est une seule application Next.js (App Router) en TypeScript, qui sert l'i
 
 ## Versions
 
-Fixées au démarrage du Lot 0 (dernières versions stables) et consignées ici avec leur date de vérification : Node.js (LTS), pnpm, Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, Recharts, TanStack Query, Zod, Drizzle ORM et Drizzle Kit, Better Auth, Vitest, PGlite, Playwright.
+Vérifiées sur npm le 31/10/2026, au démarrage du Lot 0.
+
+| Outil | Version | Note |
+|---|---|---|
+| Node.js | 24 (LTS) | Runtime par défaut de Vercel |
+| pnpm | 10.8.1 | |
+| Next.js | 16.4.3 | |
+| React / React DOM | 19.3.1 | |
+| TypeScript | 6.0.3 | La 7.0.2 existe, mais typescript-eslint 8.72 exige TypeScript < 6.1 |
+| Tailwind CSS | 4.3.3 | |
+| shadcn (CLI) | 4.23.0 | |
+| Zod | 4.6.7 | |
+| Drizzle ORM / Drizzle Kit | 0.45.4 / 0.31.11 | |
+| @neondatabase/serverless | 1.2.0 | |
+| Better Auth / CLI `auth` | 1.7.14 | L'ancien `@better-auth/cli` est déprécié |
+| Vitest | 5.0.5 | |
+| PGlite | 0.5.14 | |
+| Testing Library (React) | 16.3.3 | |
+| Playwright / axe-core | 1.64.1 / 4.14.0 | |
+| ESLint / typescript-eslint | 10.14.0 / 8.72.1 | |
+| Prettier | 3.9.10 | |
+| tsx | 4.23.15 | |
+
+TanStack Query et Recharts seront figés au premier lot qui les utilise.
+
+## Offres réellement souscrites (31/10/2026)
+
+- **Vercel Hobby** : projet `maroutine`, Node 24.x, fonctions dans la région `cdg1` (Paris), protection de déploiement par défaut (les URL d'aperçu demandent une connexion Vercel).
+- **Neon `free_v3`** via la Marketplace Vercel : base `maroutine-db` en `fra1` (Francfort), authentification Neon désactivée. Variables `DATABASE_URL`, `DATABASE_URL_UNPOOLED` et apparentées injectées par l'intégration.
+- **GitHub** : dépôt public `zakou24/maroutine`, Actions gratuites.
+- Sur Vercel, les variables de production marquées secrètes (`BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`) ne sont pas récupérées par `vercel env pull`.
 
 ## Conséquences
 

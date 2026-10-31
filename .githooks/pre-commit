@@ -1,0 +1,7 @@
+#!/bin/sh
+# Bloque un commit qui contient un secret (T-05). Activation : git config core.hooksPath .githooks
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "gitleaks introuvable : brew install gitleaks" >&2
+  exit 1
+fi
+exec gitleaks protect --staged --redact
