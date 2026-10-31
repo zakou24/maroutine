@@ -50,7 +50,7 @@ test("le calendrier change de mois par l'URL", async ({ page }) => {
 
 for (const [path, heading] of [
   ["/", "Cette semaine"],
-  ["/saisie", "Saisie du soir"],
+  ["/saisie", "Séance du soir"],
   ["/exercices", "Exercices"],
   ["/calendrier", "Calendrier"],
 ] as const) {

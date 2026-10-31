@@ -5,7 +5,7 @@ export type NavItem = { href: string; label: string; icon: LucideIcon; covers: s
 // `covers` : les pages rattachées à l'onglet (le calendrier vit sous « Plus », une séance passée sous « Semaine »).
 export const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Semaine", icon: CalendarRange, covers: ["/seances"] },
-  { href: "/saisie", label: "Saisie", icon: PencilLine, covers: [] },
+  { href: "/saisie", label: "Séance", icon: PencilLine, covers: [] },
   { href: "/exercices", label: "Exercices", icon: Dumbbell, covers: [] },
   { href: "/plus", label: "Plus", icon: Ellipsis, covers: ["/calendrier"] },
 ];

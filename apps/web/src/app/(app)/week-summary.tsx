@@ -27,7 +27,7 @@ function Week({ today }: { today: string }) {
       className="inline-flex h-[52px] items-center justify-center gap-2 rounded-xl bg-action px-5 text-[17px] font-bold text-white hover:bg-action-strong"
     >
       <PencilLine aria-hidden className="size-5" strokeWidth={2} />
-      Saisie du soir
+      Séance du soir
     </Link>
   );
 

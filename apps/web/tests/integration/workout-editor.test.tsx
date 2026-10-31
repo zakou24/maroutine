@@ -27,6 +27,12 @@ const squat: Exercise = {
   incrementKg: 2.5,
   archived: false,
 };
+const dips: Exercise = {
+  ...squat,
+  id: "00000000-0000-4000-8000-00000000000d",
+  name: "Dips",
+  equipment: "bodyweight",
+};
 const curl: Exercise = {
   ...squat,
   id: "00000000-0000-4000-8000-00000000000c",
@@ -34,7 +40,8 @@ const curl: Exercise = {
   archived: true,
 };
 
-const stored: WorkoutDraft = {
+// Brouillon écrit avant le Lot 1.1 : sans échauffement ni cardio, il doit rester lisible.
+const stored: Omit<WorkoutDraft, "warmupDone" | "cardio"> = {
   id: DRAFT_ID,
   performedOn: TODAY,
   note: "",
@@ -56,6 +63,7 @@ function routeApi(
     const value = overrides(path, init);
     if (value !== undefined) return value instanceof Error ? Promise.reject(value) : value;
     if (path.startsWith("/api/v1/exercises?filter=all")) return [squat, curl];
+    if (path === "/api/v1/exercises/batch") return { created: [dips], existing: [] };
     if (path.includes("/last-sets")) return { performedOn: null, sets: [] };
     throw new Error(`appel inattendu : ${path}`);
   });
@@ -158,6 +166,7 @@ describe("WorkoutEditor", () => {
         performedOn: TODAY,
         note: null,
         warmupDone: false,
+        cardioMinutes: null,
         exercises: [{ exerciseId: squat.id, sets: [{ weightKg: 62.5, reps: 8, isWarmup: false }] }],
       },
     });
@@ -180,9 +189,85 @@ describe("WorkoutEditor", () => {
     routeApi();
     openEditor();
     await userEvent.click(await screen.findByRole("button", { name: "Ajouter un exercice" }));
-    const picker = await screen.findByRole("list", { name: "Exercices disponibles" });
+    const picker = await screen.findByRole("list", { name: "Tes exercices" });
     expect(within(picker).getByRole("button", { name: "Squat" })).toBeInTheDocument();
     expect(within(picker).queryByRole("button", { name: "Curl" })).toBeNull();
+  });
+
+  it("échauffement et cardio 15 min sont envoyés avec la séance", async () => {
+    localStorage.setItem(KEY, JSON.stringify(stored));
+    routeApi((path, init) =>
+      path === "/api/v1/workouts" && init?.method === "POST"
+        ? { id: "w1", performedOn: TODAY, note: null, exercises: [] }
+        : undefined,
+    );
+    openEditor();
+    await screen.findByRole("region", { name: "Squat" });
+    expect(screen.getByRole("checkbox", { name: "Échauffement fait" })).not.toBeChecked();
+    await userEvent.click(screen.getByRole("checkbox", { name: "Échauffement fait" }));
+    await userEvent.click(screen.getByRole("checkbox", { name: "Cardio" }));
+    await userEvent.click(screen.getByRole("button", { name: "15 min" }));
+    await userEvent.click(screen.getByRole("button", { name: "Enregistrer la séance" }));
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/seances/w1"));
+    expect(apiFetch).toHaveBeenCalledWith(
+      "/api/v1/workouts",
+      expect.objectContaining({
+        body: expect.objectContaining({ warmupDone: true, cardioMinutes: 15 }),
+      }),
+    );
+  });
+
+  it("cardio « Autre » à 0 : message et aucun envoi (Review Focus 2)", async () => {
+    localStorage.setItem(KEY, JSON.stringify(stored));
+    routeApi();
+    openEditor();
+    await screen.findByRole("region", { name: "Squat" });
+    await userEvent.click(screen.getByRole("checkbox", { name: "Cardio" }));
+    await userEvent.click(screen.getByRole("button", { name: "Autre" }));
+    await userEvent.type(screen.getByRole("textbox", { name: "Durée du cardio (min)" }), "0");
+    await userEvent.click(screen.getByRole("button", { name: "Enregistrer la séance" }));
+    expect(
+      (await screen.findAllByText("Durée de cardio entre 1 et 180 minutes.")).length,
+    ).toBeGreaterThan(0);
+    expect(apiFetch).not.toHaveBeenCalledWith("/api/v1/workouts", expect.anything());
+  });
+
+  it("choisir un exercice du catalogue le crée puis l'ajoute à la séance (D16)", async () => {
+    routeApi();
+    openEditor();
+    await userEvent.click(await screen.findByRole("button", { name: "Ajouter un exercice" }));
+    const catalog = await screen.findByRole("region", { name: "Catalogue" });
+    // Le catalogue est replié par groupe musculaire tant qu'on ne cherche pas.
+    expect(within(catalog).queryByRole("button", { name: "Dips" })).toBeNull();
+    await userEvent.click(within(catalog).getByRole("button", { name: /^Pectoraux/ }));
+    await userEvent.click(within(catalog).getByRole("button", { name: "Dips" }));
+    expect(await screen.findByRole("region", { name: "Dips" })).toBeInTheDocument();
+    expect(apiFetch).toHaveBeenCalledWith("/api/v1/exercises/batch", {
+      method: "POST",
+      body: { exercises: [{ name: "Dips", equipment: "bodyweight" }] },
+    });
+  });
+
+  it("la recherche filtre tes exercices et le catalogue ; un exercice déjà créé n'est pas reproposé", async () => {
+    routeApi();
+    openEditor();
+    await userEvent.click(await screen.findByRole("button", { name: "Ajouter un exercice" }));
+    await userEvent.type(
+      await screen.findByRole("searchbox", { name: "Rechercher un exercice" }),
+      "squ",
+    );
+    const mine = screen.getByRole("list", { name: "Tes exercices" });
+    expect(
+      within(mine)
+        .getAllByRole("button")
+        .map((b) => b.textContent),
+    ).toEqual(["Squat"]);
+    const catalog = screen.getByRole("region", { name: "Catalogue" });
+    expect(
+      within(catalog)
+        .getAllByRole("button")
+        .map((b) => b.textContent),
+    ).toEqual(["Squat bulgare"]);
   });
 
   it("choisir un exercice le préremplit depuis la dernière séance avant la date", async () => {
@@ -193,7 +278,11 @@ describe("WorkoutEditor", () => {
     );
     openEditor();
     await userEvent.click(await screen.findByRole("button", { name: "Ajouter un exercice" }));
-    await userEvent.click(await screen.findByRole("button", { name: "Squat" }));
+    await userEvent.click(
+      within(await screen.findByRole("list", { name: "Tes exercices" })).getByRole("button", {
+        name: "Squat",
+      }),
+    );
     const card = await screen.findByRole("region", { name: "Squat" });
     expect(within(card).getByRole("textbox", { name: "Charge (kg), série 1" })).toHaveValue("80");
     expect(apiFetch).toHaveBeenCalledWith(

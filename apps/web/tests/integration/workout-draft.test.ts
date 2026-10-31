@@ -171,6 +171,68 @@ describe("draftReducer", () => {
   });
 });
 
+describe("échauffement et cardio de la séance (D14, D15)", () => {
+  it("un brouillon neuf n'a ni échauffement ni cardio", () => {
+    expect(emptyDraft("2026-10-31")).toMatchObject({ warmupDone: false, cardio: null });
+  });
+
+  it("setWarmup et setCardio passent dans le corps envoyé", () => {
+    let draft = withSquat({
+      performedOn: "2026-10-30",
+      sets: [{ weightKg: 60, reps: 8, isWarmup: false }],
+    });
+    draft = draftReducer(draft, { type: "setWarmup", value: true });
+    draft = draftReducer(draft, { type: "setCardio", value: "15" });
+    expect(toWorkoutInput(draft)).toMatchObject({
+      ok: true,
+      input: { warmupDone: true, cardioMinutes: 15 },
+    });
+    draft = draftReducer(draft, { type: "setCardio", value: null });
+    expect(toWorkoutInput(draft)).toMatchObject({ ok: true, input: { cardioMinutes: null } });
+  });
+
+  it("refuse une durée de cardio vide, nulle, décimale ou au-delà de 180 (Review Focus 2)", () => {
+    const base = withSquat({
+      performedOn: "2026-10-30",
+      sets: [{ weightKg: 60, reps: 8, isWarmup: false }],
+    });
+    for (const value of ["", "0", "12,5", "181", "abc"]) {
+      const draft = draftReducer(base, { type: "setCardio", value });
+      expect(toWorkoutInput(draft)).toEqual({
+        ok: false,
+        errors: { cardio: "Durée de cardio entre 1 et 180 minutes." },
+      });
+    }
+  });
+
+  it("load reprend l'échauffement et le cardio de la séance", () => {
+    const loaded = draftReducer(emptyDraft("2026-10-31"), {
+      type: "load",
+      workout: {
+        id: "w1",
+        performedOn: "2026-10-28",
+        note: null,
+        warmupDone: true,
+        cardioMinutes: 12,
+        exercises: [
+          {
+            exerciseId: SQUAT.id,
+            name: "Squat",
+            archived: false,
+            sets: [{ weightKg: 80, reps: 5, isWarmup: false }],
+          },
+        ],
+      },
+    });
+    expect(loaded).toMatchObject({ warmupDone: true, cardio: "12" });
+  });
+
+  it("un ancien brouillon sans échauffement ni cardio est encore lisible", () => {
+    const old = { performedOn: "2026-10-31", note: "", exercises: [] };
+    expect(parseStoredDraft(old)).toMatchObject({ warmupDone: false, cardio: null });
+  });
+});
+
 describe("toWorkoutInput", () => {
   function filled(weight: string, reps: string) {
     const draft = withSquat();
@@ -191,6 +253,7 @@ describe("toWorkoutInput", () => {
         performedOn: "2026-10-31",
         note: null,
         warmupDone: false,
+        cardioMinutes: null,
         exercises: [{ exerciseId: SQUAT.id, sets: [{ weightKg: 62.5, reps: 8, isWarmup: false }] }],
       },
     });

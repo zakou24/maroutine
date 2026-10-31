@@ -30,13 +30,13 @@ describe("navigation de l'app", () => {
     expect(screen.getByRole("link", { name: "Plus" })).toHaveAttribute("aria-current", "page");
   });
 
-  it("propose Semaine, Saisie, Exercices et Plus dans cet ordre", () => {
+  it("propose Semaine, Séance, Exercices et Plus dans cet ordre", () => {
     pathname.current = "/";
     render(<AppNav />);
     expect(screen.getAllByRole("link").map((l) => [l.textContent, l.getAttribute("href")])).toEqual(
       [
         ["Semaine", "/"],
-        ["Saisie", "/saisie"],
+        ["Séance", "/saisie"],
         ["Exercices", "/exercices"],
         ["Plus", "/plus"],
       ],

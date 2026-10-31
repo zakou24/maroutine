@@ -36,6 +36,9 @@ export type WorkoutDraft = {
   id?: string;
   performedOn: string;
   note: string;
+  // Échauffement de la séance (D14) ; cardio en minutes tapées, null s'il n'y en a pas (D15).
+  warmupDone: boolean;
+  cardio: string | null;
   exercises: DraftExercise[];
 };
 
@@ -53,6 +56,8 @@ export type DraftAction =
     }
   | { type: "removeSet"; exerciseKey: string; setKey: string }
   | { type: "setNote"; note: string }
+  | { type: "setWarmup"; value: boolean }
+  | { type: "setCardio"; value: string | null }
   | { type: "load"; workout: Workout }
   | { type: "restore"; draft: WorkoutDraft };
 
@@ -63,7 +68,14 @@ function newKey(): string {
 }
 
 export function emptyDraft(performedOn: string): WorkoutDraft {
-  return { id: crypto.randomUUID(), performedOn, note: "", exercises: [] };
+  return {
+    id: crypto.randomUUID(),
+    performedOn,
+    note: "",
+    warmupDone: false,
+    cardio: null,
+    exercises: [],
+  };
 }
 
 function draftSet(set?: SetInput, prefilled = false): DraftSet {
@@ -93,6 +105,10 @@ export function draftReducer(state: WorkoutDraft, action: DraftAction): WorkoutD
       return { ...state, performedOn: action.performedOn };
     case "setNote":
       return { ...state, note: action.note };
+    case "setWarmup":
+      return { ...state, warmupDone: action.value };
+    case "setCardio":
+      return { ...state, cardio: action.value };
     case "addExercise": {
       if (state.exercises.some((e) => e.exerciseId === action.exercise.id)) return state;
       const sets = action.lastSets.sets.map((set) => draftSet(set, true));
@@ -143,6 +159,8 @@ export function draftReducer(state: WorkoutDraft, action: DraftAction): WorkoutD
       return {
         performedOn: action.workout.performedOn,
         note: action.workout.note ?? "",
+        warmupDone: action.workout.warmupDone,
+        cardio: action.workout.cardioMinutes === null ? null : String(action.workout.cardioMinutes),
         exercises: action.workout.exercises.map((e) => ({
           key: newKey(),
           exerciseId: e.exerciseId,
@@ -170,6 +188,13 @@ function parseReps(text: string): number | null {
   return value <= 100 ? value : null;
 }
 
+function parseCardio(text: string): number | null {
+  const trimmed = text.trim();
+  if (!REPS.test(trimmed)) return null;
+  const value = Number(trimmed);
+  return value >= 1 && value <= 180 ? value : null;
+}
+
 // Convertit le brouillon en corps d'API. Les erreurs sont indexées par clé de série
 // (ou « exercises » pour une séance vide), pour les afficher à côté du bon champ.
 export function toWorkoutInput(
@@ -189,11 +214,18 @@ export function toWorkoutInput(
       return { weightKg: weightKg ?? 0, reps: reps ?? 0, isWarmup: s.isWarmup };
     }),
   }));
+  let cardioMinutes: number | null = null;
+  if (draft.cardio !== null) {
+    cardioMinutes = parseCardio(draft.cardio);
+    if (cardioMinutes === null) errors.cardio = "Durée de cardio entre 1 et 180 minutes.";
+  }
   if (Object.keys(errors).length > 0) return { ok: false, errors };
 
   const parsed = workoutInputSchema.safeParse({
     performedOn: draft.performedOn,
     note: draft.note.trim() || null,
+    warmupDone: draft.warmupDone,
+    cardioMinutes,
     exercises,
   });
   if (!parsed.success) return { ok: false, errors: { exercises: "Séance incomplète." } };
@@ -210,6 +242,9 @@ const storedDraftSchema = z.object({
   id: z.string().optional(),
   performedOn: z.iso.date(),
   note: z.string(),
+  // Absents des brouillons écrits avant le Lot 1.1.
+  warmupDone: z.boolean().default(false),
+  cardio: z.string().nullable().default(null),
   exercises: z.array(
     z.object({
       key: z.string(),
