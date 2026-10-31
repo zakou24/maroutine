@@ -66,3 +66,10 @@ export function formatMonth(month: string): string {
 export function countLabel(count: number, singular: string, plural: string): string {
   return `${count} ${count > 1 ? plural : singular}`;
 }
+
+const monthShort = new Intl.DateTimeFormat("fr-FR", { month: "short", timeZone: "UTC" });
+
+// « 2026-11-04 » → « nov. »
+export function formatMonthShort(date: string): string {
+  return monthShort.format(utc(date));
+}

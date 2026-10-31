@@ -1,9 +1,10 @@
-import { exerciseInputSchema, exercisePatchSchema } from "@maroutine/core";
+import { exerciseBatchSchema, exerciseInputSchema, exercisePatchSchema } from "@maroutine/core";
 import { z } from "zod";
 import { resourceId } from "@/server/http/params";
 import { readJson } from "@/server/http/read-json";
 import {
   createExercise,
+  createExercises,
   getExercise,
   listExercises,
   updateExercise,
@@ -38,6 +39,16 @@ export function makeExerciseRoutes({ db, apiHandler }: RouteDeps) {
       const id = resourceId(params.id);
       const patch = await readJson(request, exercisePatchSchema);
       return Response.json(await updateExercise(db(), session.userId, id, patch));
+    }),
+  };
+}
+
+// POST /api/v1/exercises/batch : ajout de plusieurs exercices (catalogue), sans 409 sur un nom pris.
+export function makeExercisesBatchRoutes({ db, apiHandler }: RouteDeps) {
+  return {
+    POST: apiHandler(async ({ request, session }) => {
+      const { exercises } = await readJson(request, exerciseBatchSchema);
+      return Response.json(await createExercises(db(), session.userId, exercises));
     }),
   };
 }

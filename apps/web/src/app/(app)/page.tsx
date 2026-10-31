@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { Page } from "@/components/page";
-import { WeekSummary } from "./week-summary";
+import { HomeScreen } from "./home-screen";
 
-export const metadata: Metadata = { title: "Cette semaine · MaRoutine" };
+export const metadata: Metadata = { title: "Accueil · MaRoutine" };
 
 export default function HomePage() {
   return (
-    <Page title="Cette semaine">
-      <WeekSummary />
+    <Page title="Accueil">
+      <HomeScreen />
     </Page>
   );
 }

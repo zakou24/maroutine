@@ -2,7 +2,6 @@
 
 import {
   EQUIPMENT,
-  defaultIncrementKg,
   equipmentLabel,
   formatKg,
   isQuarterKg,
@@ -19,7 +18,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError, apiFetch } from "@/lib/api";
 
-type ExerciseBody = Omit<Exercise, "id" | "archived">;
+// À la création, le pas d'augmentation n'est pas demandé : le serveur prend celui du matériel.
+type ExerciseBody = Omit<Exercise, "id" | "archived" | "incrementKg"> & { incrementKg?: number };
 
 const MESSAGES = {
   name: "Donne un nom à l'exercice.",
@@ -43,7 +43,7 @@ function validate(fields: {
   equipment: Equipment;
   repMin: string;
   repMax: string;
-  increment: string;
+  increment: string | null;
 }): { ok: true; body: ExerciseBody } | { ok: false; message: string } {
   const name = fields.name.trim();
   if (!name) return { ok: false, message: MESSAGES.name };
@@ -51,6 +51,9 @@ function validate(fields: {
   const repMax = parseReps(fields.repMax);
   if (repMin === null || repMax === null) return { ok: false, message: MESSAGES.repBounds };
   if (repMax < repMin) return { ok: false, message: MESSAGES.repOrder };
+  if (fields.increment === null) {
+    return { ok: true, body: { name, equipment: fields.equipment, repMin, repMax } };
+  }
   const incrementKg = parseDecimal(fields.increment);
   if (incrementKg === null || !isQuarterKg(incrementKg))
     return { ok: false, message: MESSAGES.step };
@@ -72,11 +75,8 @@ export function ExerciseForm({
   const [equipment, setEquipment] = useState<Equipment>(initial?.equipment ?? "barbell");
   const [repMin, setRepMin] = useState(String(initial?.repMin ?? 6));
   const [repMax, setRepMax] = useState(String(initial?.repMax ?? 10));
-  const [increment, setIncrement] = useState(
-    formatKg(initial?.incrementKg ?? defaultIncrementKg("barbell")),
-  );
-  // Un pas déjà réglé (exercice existant) ou modifié à la main n'est plus remplacé par le matériel.
-  const [incrementTouched, setIncrementTouched] = useState(Boolean(initial));
+  // Pas d'augmentation : seulement dans les réglages d'un exercice existant (D16).
+  const [increment, setIncrement] = useState(initial ? formatKg(initial.incrementKg) : "");
   const [error, setError] = useState<string | null>(null);
 
   const save = useMutation({
@@ -98,14 +98,15 @@ export function ExerciseForm({
     },
   });
 
-  function onEquipmentChange(next: Equipment) {
-    setEquipment(next);
-    if (!incrementTouched) setIncrement(formatKg(defaultIncrementKg(next)));
-  }
-
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = validate({ name, equipment, repMin, repMax, increment });
+    const result = validate({
+      name,
+      equipment,
+      repMin,
+      repMax,
+      increment: initial ? increment : null,
+    });
     if (!result.ok) {
       setError(result.message);
       return;
@@ -137,7 +138,7 @@ export function ExerciseForm({
         <select
           id={`${id}-equipment`}
           value={equipment}
-          onChange={(e) => onEquipmentChange(e.target.value as Equipment)}
+          onChange={(e) => setEquipment(e.target.value as Equipment)}
           className={selectClass}
         >
           {EQUIPMENT.map((value) => (
@@ -172,21 +173,24 @@ export function ExerciseForm({
         </div>
       </fieldset>
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor={`${id}-increment`} className={labelClass}>
-          Pas d&apos;augmentation (kg)
-        </Label>
-        <Input
-          id={`${id}-increment`}
-          inputMode="decimal"
-          value={increment}
-          onChange={(e) => {
-            setIncrementTouched(true);
-            setIncrement(e.target.value);
-          }}
-          className={`${fieldClass} w-28`}
-        />
-      </div>
+      {initial ? (
+        <div className="flex flex-col gap-2">
+          <Label htmlFor={`${id}-increment`} className={labelClass}>
+            Pas d&apos;augmentation (kg)
+          </Label>
+          <Input
+            id={`${id}-increment`}
+            aria-describedby={`${id}-increment-help`}
+            inputMode="decimal"
+            value={increment}
+            onChange={(e) => setIncrement(e.target.value)}
+            className={`${fieldClass} w-28`}
+          />
+          <p id={`${id}-increment-help`} className="text-[15px] text-muted-foreground">
+            De combien monter la charge quand tu progresses. Sert aux suggestions de charge.
+          </p>
+        </div>
+      ) : null}
 
       <FormError>{error}</FormError>
 

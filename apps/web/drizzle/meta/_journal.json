@@ -15,6 +15,13 @@
       "when": 1793473847118,
       "tag": "0001_training",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793480785561,
+      "tag": "0002_session_extras",
+      "breakpoints": true
     }
   ]
 }

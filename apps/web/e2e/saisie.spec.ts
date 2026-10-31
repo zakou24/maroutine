@@ -11,14 +11,11 @@ function unique(name: string, project: string) {
 
 async function addExercise(page: Page, name: string) {
   await page.getByRole("button", { name: "Ajouter un exercice" }).click();
-  await page
-    .getByRole("list", { name: "Exercices disponibles" })
-    .getByRole("button", { name })
-    .click();
+  await page.getByRole("list", { name: "Tes exercices" }).getByRole("button", { name }).click();
   return page.getByRole("region", { name });
 }
 
-test("saisie complète : 2 exercices, enregistrer, la séance s'ouvre", async ({
+test("séance complète : 2 exercices, échauffement, 15 min de cardio, enregistrer, la séance s'ouvre", async ({
   page,
   request,
 }, testInfo) => {
@@ -28,7 +25,7 @@ test("saisie complète : 2 exercices, enregistrer, la séance s'ouvre", async ({
   await createExercise(request, squat);
 
   await page.goto("/saisie");
-  await expect(page.getByRole("heading", { name: "Saisie du soir" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Séance du soir" })).toBeVisible();
   const benchCard = await addExercise(page, bench);
   await benchCard.getByRole("textbox", { name: "Charge (kg), série 1" }).fill("62,5");
   await benchCard.getByRole("textbox", { name: "Répétitions, série 1" }).fill("8");
@@ -38,6 +35,9 @@ test("saisie complète : 2 exercices, enregistrer, la séance s'ouvre", async ({
   const squatCard = await addExercise(page, squat);
   await squatCard.getByRole("textbox", { name: "Charge (kg), série 1" }).fill("80");
   await squatCard.getByRole("textbox", { name: "Répétitions, série 1" }).fill("6");
+  await page.getByRole("checkbox", { name: "Échauffement fait" }).check();
+  await page.getByRole("checkbox", { name: "Cardio" }).check();
+  await page.getByRole("button", { name: "15 min" }).click();
 
   await page.getByRole("button", { name: "Enregistrer la séance" }).click();
   await expect(page).toHaveURL(/\/seances\/[0-9a-f-]{36}$/);
@@ -45,6 +45,11 @@ test("saisie complète : 2 exercices, enregistrer, la séance s'ouvre", async ({
   const saved = page.getByRole("region", { name: bench });
   await expect(saved.getByRole("textbox", { name: "Charge (kg), série 2" })).toHaveValue("62,5");
   await expect(saved.getByRole("textbox", { name: "Répétitions, série 2" })).toHaveValue("7");
+  await expect(page.getByRole("checkbox", { name: "Échauffement fait" })).toBeChecked();
+  await expect(page.getByRole("button", { name: "15 min" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
 });
 
 test("préremplissage : la séance suivante reprend les séries, on ne modifie qu'une série (NF-1)", async ({

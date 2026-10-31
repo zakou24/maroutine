@@ -88,3 +88,30 @@ export async function updateExercise(
     throw error;
   }
 }
+
+// Ajout depuis le catalogue (D16) : crée en une transaction les exercices dont le nom n'existe pas
+// encore pour cet utilisateur (sans tenir compte de la casse), et renvoie les autres tels quels.
+export async function createExercises(
+  db: AppDatabase,
+  userId: string,
+  inputs: ExerciseInput[],
+): Promise<{ created: Exercise[]; existing: Exercise[] }> {
+  return db.transaction(async (tx) => {
+    const current = await listExercises(tx, userId, "all");
+    const byName = new Map(current.map((e) => [e.name.toLowerCase(), e]));
+    const created: Exercise[] = [];
+    const existing: Exercise[] = [];
+    for (const input of inputs) {
+      const key = input.name.toLowerCase();
+      const known = byName.get(key);
+      if (known) {
+        if (!created.includes(known) && !existing.includes(known)) existing.push(known);
+        continue;
+      }
+      const exercise = await createExercise(tx, userId, input);
+      byName.set(key, exercise);
+      created.push(exercise);
+    }
+    return { created, existing };
+  });
+}

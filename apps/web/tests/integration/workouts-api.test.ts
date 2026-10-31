@@ -107,6 +107,8 @@ describe("API des séances", () => {
       id: expect.any(String),
       performedOn: "2026-10-30",
       note: "Bonne séance",
+      warmupDone: false,
+      cardioMinutes: null,
       exercises: [
         {
           exerciseId: bench,
@@ -130,6 +132,35 @@ describe("API des séances", () => {
         },
       ],
     });
+  });
+
+  it("une séance avec échauffement et 15 min de cardio se relit à l'identique (D14, D15)", async () => {
+    const created = (
+      await create(owner, {
+        performedOn: "2026-10-30",
+        warmupDone: true,
+        cardioMinutes: 15,
+        exercises: [{ exerciseId: squat, sets: sets([80, 6]) }],
+      })
+    ).body as Workout;
+    expect(created).toMatchObject({ warmupDone: true, cardioMinutes: 15 });
+    expect((await one(owner, "GET", created.id)).body).toEqual(created);
+    const updated = await one(owner, "PUT", created.id, {
+      performedOn: "2026-10-30",
+      exercises: [{ exerciseId: squat, sets: sets([80, 6]) }],
+    });
+    expect(updated.body).toMatchObject({ warmupDone: false, cardioMinutes: null });
+    const summaries = (await list(owner, "from=2026-10-30&to=2026-10-30")).body as WorkoutSummary[];
+    expect(summaries[0]).toMatchObject({ warmupDone: false, cardioMinutes: null });
+  });
+
+  it("refuse une durée de cardio hors de 1 à 180 minutes : 400", async () => {
+    const res = await create(owner, {
+      performedOn: "2026-10-30",
+      cardioMinutes: 0,
+      exercises: [{ exerciseId: squat, sets: sets([80, 6]) }],
+    });
+    expect(res.status).toBe(400);
   });
 
   it("une note vide est enregistrée comme absente", async () => {
@@ -309,7 +340,14 @@ describe("API des séances", () => {
     });
     const summaries = (await list(owner, "from=2026-10-26&to=2026-11-01")).body as WorkoutSummary[];
     expect(summaries).toEqual([
-      { id: expect.any(String), performedOn: "2026-10-28", exerciseCount: 2, workingSetCount: 3 },
+      {
+        id: expect.any(String),
+        performedOn: "2026-10-28",
+        exerciseCount: 2,
+        workingSetCount: 3,
+        warmupDone: false,
+        cardioMinutes: null,
+      },
     ]);
   });
 
@@ -348,7 +386,7 @@ describe("préremplissage (last-sets)", () => {
     ).body as Workout;
   }
 
-  it("last-sets renvoie les séries de la séance la plus récente de cet exercice", async () => {
+  it("last-sets ignore les anciennes séries d'échauffement (D14)", async () => {
     await workoutOn("2026-10-20", 75);
     await workoutOn("2026-10-27", 80);
     await create(owner, {
@@ -358,7 +396,6 @@ describe("préremplissage (last-sets)", () => {
     expect((await lastSets(owner, squat)).body).toEqual({
       performedOn: "2026-10-27",
       sets: [
-        { weightKg: 40, reps: 10, isWarmup: true },
         { weightKg: 80, reps: 6, isWarmup: false },
         { weightKg: 80, reps: 5, isWarmup: false },
       ],

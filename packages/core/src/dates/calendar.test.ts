@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { addDays, addMonths, daysBetween, monthGrid, startOfWeek, todayIn } from "./calendar";
+import {
+  activityWeeks,
+  addDays,
+  addMonths,
+  daysBetween,
+  monthGrid,
+  startOfWeek,
+  todayIn,
+} from "./calendar";
 
 describe("todayIn", () => {
   // 31 octobre 2026, 23 h 45 à Paris = 22 h 45 UTC (heure d'hiver) ; 31 mars 2026, 23 h 30 à Paris = 21 h 30 UTC (heure d'été)
@@ -50,5 +58,20 @@ describe("addMonths", () => {
     expect(addMonths("2026-12", 1)).toBe("2027-01");
     expect(addMonths("2027-01", -1)).toBe("2026-12");
     expect(addMonths("2026-11", -11)).toBe("2025-12");
+  });
+});
+
+describe("activityWeeks", () => {
+  it("13 colonnes du lundi au dimanche, la dernière contient aujourd'hui (un lundi)", () => {
+    const weeks = activityWeeks("2026-11-02", 13);
+    expect(weeks).toHaveLength(13);
+    expect(weeks.every((w) => w.length === 7)).toBe(true);
+    expect(weeks.at(-1)?.[0]).toBe("2026-11-02");
+    expect(weeks[0]?.[0]).toBe("2026-08-10");
+  });
+  it("un dimanche, aujourd'hui est le dernier jour de la dernière colonne", () => {
+    const weeks = activityWeeks("2026-11-01", 13);
+    expect(weeks.at(-1)?.at(-1)).toBe("2026-11-01");
+    expect(weeks.at(-1)?.[0]).toBe("2026-10-26");
   });
 });

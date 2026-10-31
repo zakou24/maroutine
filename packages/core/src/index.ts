@@ -1,6 +1,15 @@
-export { addDays, addMonths, daysBetween, monthGrid, startOfWeek, todayIn } from "./dates/calendar";
+export {
+  activityWeeks,
+  addDays,
+  addMonths,
+  daysBetween,
+  monthGrid,
+  startOfWeek,
+  todayIn,
+} from "./dates/calendar";
 export { loginSchema, ownerPasswordSchema, type LoginInput } from "./schemas/auth";
 export {
+  exerciseBatchSchema,
   exerciseInputSchema,
   exercisePatchSchema,
   isQuarterKg,
@@ -20,6 +29,13 @@ export {
   type WorkoutInput,
   type WorkoutSummary,
 } from "./schemas/workout";
+export {
+  EXERCISE_CATALOG,
+  MUSCLE_GROUPS,
+  muscleGroupLabel,
+  type CatalogExercise,
+  type MuscleGroup,
+} from "./training/catalog";
 export {
   EQUIPMENT,
   defaultIncrementKg,

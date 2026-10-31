@@ -101,6 +101,35 @@ describe("draftReducer", () => {
     expect(new Set(draft.exercises[0]!.sets.map((s) => s.key)).size).toBe(2);
   });
 
+  it("une série ajoutée après une ancienne série d'échauffement est une série de travail (D14)", () => {
+    const draft = withSquat({
+      performedOn: "2026-10-20",
+      sets: [{ weightKg: 40, reps: 10, isWarmup: true }],
+    });
+    // lastSets ne renvoie plus d'échauffement ; on simule une ancienne séance chargée telle quelle.
+    const loaded = draftReducer(draft, {
+      type: "load",
+      workout: {
+        id: "w0",
+        performedOn: "2026-10-20",
+        note: null,
+        warmupDone: false,
+        cardioMinutes: null,
+        exercises: [
+          {
+            exerciseId: SQUAT.id,
+            name: "Squat",
+            archived: false,
+            sets: [{ weightKg: 40, reps: 10, isWarmup: true }],
+          },
+        ],
+      },
+    });
+    const ex = loaded.exercises[0]!;
+    const next = draftReducer(loaded, { type: "addSet", exerciseKey: ex.key });
+    expect(next.exercises[0]!.sets.map((s) => s.isWarmup)).toEqual([true, false]);
+  });
+
   it("removeSet garde au moins une série", () => {
     const single = withSquat();
     const ex = single.exercises[0]!;
@@ -141,6 +170,8 @@ describe("draftReducer", () => {
       id: "w1",
       performedOn: "2026-10-28",
       note: "Bonne forme",
+      warmupDone: true,
+      cardioMinutes: 15,
       exercises: [
         {
           exerciseId: SQUAT.id,
@@ -169,6 +200,68 @@ describe("draftReducer", () => {
   });
 });
 
+describe("échauffement et cardio de la séance (D14, D15)", () => {
+  it("un brouillon neuf n'a ni échauffement ni cardio", () => {
+    expect(emptyDraft("2026-10-31")).toMatchObject({ warmupDone: false, cardio: null });
+  });
+
+  it("setWarmup et setCardio passent dans le corps envoyé", () => {
+    let draft = withSquat({
+      performedOn: "2026-10-30",
+      sets: [{ weightKg: 60, reps: 8, isWarmup: false }],
+    });
+    draft = draftReducer(draft, { type: "setWarmup", value: true });
+    draft = draftReducer(draft, { type: "setCardio", value: "15" });
+    expect(toWorkoutInput(draft)).toMatchObject({
+      ok: true,
+      input: { warmupDone: true, cardioMinutes: 15 },
+    });
+    draft = draftReducer(draft, { type: "setCardio", value: null });
+    expect(toWorkoutInput(draft)).toMatchObject({ ok: true, input: { cardioMinutes: null } });
+  });
+
+  it("refuse une durée de cardio vide, nulle, décimale ou au-delà de 180 (Review Focus 2)", () => {
+    const base = withSquat({
+      performedOn: "2026-10-30",
+      sets: [{ weightKg: 60, reps: 8, isWarmup: false }],
+    });
+    for (const value of ["", "0", "12,5", "181", "abc"]) {
+      const draft = draftReducer(base, { type: "setCardio", value });
+      expect(toWorkoutInput(draft)).toEqual({
+        ok: false,
+        errors: { cardio: "Durée de cardio entre 1 et 180 minutes." },
+      });
+    }
+  });
+
+  it("load reprend l'échauffement et le cardio de la séance", () => {
+    const loaded = draftReducer(emptyDraft("2026-10-31"), {
+      type: "load",
+      workout: {
+        id: "w1",
+        performedOn: "2026-10-28",
+        note: null,
+        warmupDone: true,
+        cardioMinutes: 12,
+        exercises: [
+          {
+            exerciseId: SQUAT.id,
+            name: "Squat",
+            archived: false,
+            sets: [{ weightKg: 80, reps: 5, isWarmup: false }],
+          },
+        ],
+      },
+    });
+    expect(loaded).toMatchObject({ warmupDone: true, cardio: "12" });
+  });
+
+  it("un ancien brouillon sans échauffement ni cardio est encore lisible", () => {
+    const old = { performedOn: "2026-10-31", note: "", exercises: [] };
+    expect(parseStoredDraft(old)).toMatchObject({ warmupDone: false, cardio: null });
+  });
+});
+
 describe("toWorkoutInput", () => {
   function filled(weight: string, reps: string) {
     const draft = withSquat();
@@ -188,6 +281,8 @@ describe("toWorkoutInput", () => {
       input: {
         performedOn: "2026-10-31",
         note: null,
+        warmupDone: false,
+        cardioMinutes: null,
         exercises: [{ exerciseId: SQUAT.id, sets: [{ weightKg: 62.5, reps: 8, isWarmup: false }] }],
       },
     });

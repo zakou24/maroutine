@@ -1,6 +1,13 @@
 "use client";
 
-import { type Exercise, type LastSets, type Workout, type WorkoutInput } from "@maroutine/core";
+import {
+  EXERCISE_CATALOG,
+  type CatalogExercise,
+  type Exercise,
+  type LastSets,
+  type Workout,
+  type WorkoutInput,
+} from "@maroutine/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowDown, ArrowUp, CalendarDays, Plus, Trash2, X } from "lucide-react";
 import Link from "next/link";
@@ -40,13 +47,13 @@ type EditorProps =
   | { mode: "create"; initialDate?: string; workoutId?: undefined }
   | { mode: "edit"; workoutId: string; initialDate?: undefined };
 
-// Saisie du soir (création) ou séance passée (modification). Rendu côté navigateur uniquement :
+// Séance du soir (création) ou séance passée (modification). Rendu côté navigateur uniquement :
 // la date du jour et le brouillon dépendent de l'appareil.
 export function WorkoutEditor(props: EditorProps) {
   const today = useToday();
   if (today === null) {
     return (
-      <Page title={props.mode === "create" ? "Saisie du soir" : "Séance"}>
+      <Page title={props.mode === "create" ? "Séance du soir" : "Séance"}>
         <Loading />
       </Page>
     );
@@ -62,7 +69,7 @@ function CreateEditor({ today }: { today: string }) {
   return (
     <EditorForm
       mode="create"
-      title="Saisie du soir"
+      title="Séance du soir"
       today={today}
       storageKey={draftStorageKey()}
       base={() => emptyDraft(today)}
@@ -90,7 +97,7 @@ function EditEditor({ workoutId }: { workoutId: string }) {
           <p className="text-[17px] text-muted-foreground">
             Cette séance n&apos;existe pas.{" "}
             <Link href="/" className="text-action underline underline-offset-4">
-              Retour à la semaine
+              Retour à l&apos;accueil
             </Link>
           </p>
         ) : (
@@ -188,6 +195,27 @@ function EditorForm({
   const inDraft = new Set(draft.exercises.map((e) => e.exerciseId));
   const available = (exercises.data ?? []).filter((e) => !e.archived && !inDraft.has(e.id));
 
+  // Entrées du catalogue dont le nom n'existe pas encore chez l'utilisateur (archivés compris).
+  const known = new Set((exercises.data ?? []).map((e) => e.name.toLowerCase()));
+  const catalog = EXERCISE_CATALOG.filter((entry) => !known.has(entry.name.toLowerCase()));
+
+  async function addFromCatalog(entry: CatalogExercise) {
+    setPicking(true);
+    try {
+      const { created, existing } = await apiFetch<{ created: Exercise[]; existing: Exercise[] }>(
+        "/api/v1/exercises/batch",
+        { method: "POST", body: { exercises: [{ name: entry.name, equipment: entry.equipment }] } },
+      );
+      await queryClient.invalidateQueries({ queryKey: ["exercises"] });
+      const exercise = created[0] ?? existing[0];
+      if (exercise) await addExercise(exercise);
+    } catch {
+      setSaveError("Ajout de l'exercice impossible. Réessaie.");
+    } finally {
+      setPicking(false);
+    }
+  }
+
   async function addExercise(exercise: Exercise) {
     setPicking(true);
     const lastSets = await apiFetch<LastSets>(
@@ -243,7 +271,11 @@ function EditorForm({
     const result = toWorkoutInput(draft);
     if (!result.ok) {
       setErrors(result.errors);
-      setSaveError(result.errors.exercises ?? "Corrige les séries signalées sous chaque exercice.");
+      setSaveError(
+        result.errors.exercises ??
+          result.errors.cardio ??
+          "Corrige les séries signalées sous chaque exercice.",
+      );
       return;
     }
     setErrors({});
@@ -301,10 +333,19 @@ function EditorForm({
       ) : (
         <ExercisePicker
           available={available}
+          catalog={catalog}
           disabled={exercises.isPending || picking}
           onPick={addExercise}
+          onPickCatalog={addFromCatalog}
         />
       )}
+
+      <SessionExtras
+        warmupDone={draft.warmupDone}
+        cardio={draft.cardio}
+        error={errors.cardio ?? null}
+        act={act}
+      />
 
       <div className="flex flex-col gap-2">
         <label htmlFor={noteId} className={labelClass}>
@@ -398,6 +439,8 @@ function ExerciseCard({
       errors[set.key] ? `Série ${i + 1} : ${errors[set.key]!.toLowerCase()}.` : null,
     )
     .filter((message): message is string => message !== null);
+  // Avant le Lot 1.1, l'échauffement se cochait par série : ces séries restent signalées (D14).
+  const legacyWarmups = exercise.sets.flatMap((set, i) => (set.isWarmup ? [i + 1] : []));
 
   return (
     <section
@@ -415,7 +458,7 @@ function ExerciseCard({
         ) : null}
       </header>
 
-      <div className="grid grid-cols-[1.5rem_minmax(0,1fr)_0.75rem_minmax(0,0.8fr)_2.75rem_2.75rem] items-center gap-x-2 gap-y-2 sm:grid-cols-[2rem_9rem_1rem_6rem_2.75rem_2.75rem] sm:justify-start">
+      <div className="grid grid-cols-[1.5rem_minmax(0,1fr)_0.75rem_minmax(0,0.8fr)_2.75rem] items-center gap-x-2 gap-y-2 sm:grid-cols-[2rem_9rem_1rem_6rem_2.75rem] sm:justify-start">
         <span aria-hidden className="text-[13px] text-muted-foreground">
           N°
         </span>
@@ -426,15 +469,12 @@ function ExerciseCard({
         <span aria-hidden className="text-[13px] text-muted-foreground">
           Rép.
         </span>
-        <span aria-hidden className="-mx-2 text-center text-[13px] text-muted-foreground">
-          Échauf.
-        </span>
         <span aria-hidden />
 
         {exercise.sets.map((set, i) => {
           const n = i + 1;
           const invalid = Boolean(errors[set.key]);
-          const update = (patch: { weight?: string; reps?: string; isWarmup?: boolean }) =>
+          const update = (patch: { weight?: string; reps?: string }) =>
             act({ type: "updateSet", exerciseKey: exercise.key, setKey: set.key, patch });
           return (
             <div key={set.key} role="group" aria-label={`Série ${n}`} className="contents">
@@ -470,15 +510,6 @@ function ExerciseCard({
                   set.prefilled && "text-muted-foreground",
                 )}
               />
-              <label className="flex size-11 items-center justify-center">
-                <input
-                  type="checkbox"
-                  aria-label={`Échauffement, série ${n}`}
-                  checked={set.isWarmup}
-                  onChange={(e) => update({ isWarmup: e.target.checked })}
-                  className="check"
-                />
-              </label>
               <button
                 type="button"
                 aria-label={`Supprimer la série ${n}`}
@@ -501,6 +532,13 @@ function ExerciseCard({
             <li key={message}>{message}</li>
           ))}
         </ul>
+      ) : null}
+
+      {legacyWarmups.length > 0 ? (
+        <p className="px-1 text-[15px] text-muted-foreground">
+          {legacyWarmups.length > 1 ? "Séries" : "Série"} {legacyWarmups.join(", ")} : échauffement
+          d&apos;une ancienne saisie, hors stats.
+        </p>
       ) : null}
 
       {exercise.prefilledFrom ? (
@@ -541,6 +579,112 @@ function ExerciseCard({
             <Trash2 aria-hidden className="size-5" strokeWidth={2} />
           </IconButton>
         </div>
+      </div>
+    </section>
+  );
+}
+
+const CARDIO_CHOICES = ["10", "15", "20"];
+
+// Échauffement et cardio notés une fois pour la séance (D14, D15).
+function SessionExtras({
+  warmupDone,
+  cardio,
+  error,
+  act,
+}: {
+  warmupDone: boolean;
+  cardio: string | null;
+  error: string | null;
+  act: (action: DraftAction) => void;
+}) {
+  const cardioId = useId();
+  // « Autre » est ouvert à la demande, et toujours dès que la durée sort des choix rapides
+  // (y compris après « Annuler les modifications », qui ne remonte pas ce bloc).
+  const [customChosen, setCustom] = useState(false);
+  const custom = customChosen || (cardio !== null && !CARDIO_CHOICES.includes(cardio));
+  const chip = (selected: boolean) =>
+    cn(
+      "h-11 min-w-16 rounded-lg border px-3 text-[15px] tabular-nums",
+      selected
+        ? "border-action bg-corridor font-bold text-corridor-ink"
+        : "border-input bg-surface text-foreground hover:bg-muted",
+    );
+
+  return (
+    <section
+      aria-label="Échauffement et cardio"
+      className="flex flex-col divide-y divide-rule rounded-xl border border-rule bg-surface"
+    >
+      <label className="flex min-h-14 items-center justify-between gap-3 px-4">
+        <span className="text-[17px]">Échauffement fait</span>
+        <input
+          type="checkbox"
+          className="check"
+          checked={warmupDone}
+          onChange={(e) => act({ type: "setWarmup", value: e.target.checked })}
+        />
+      </label>
+      <div className="flex flex-col gap-3 px-4 py-3">
+        <label className="flex min-h-8 items-center justify-between gap-3">
+          <span className="text-[17px]">Cardio</span>
+          <input
+            type="checkbox"
+            className="check"
+            checked={cardio !== null}
+            onChange={(e) => {
+              setCustom(false);
+              act({ type: "setCardio", value: e.target.checked ? "15" : null });
+            }}
+          />
+        </label>
+        {cardio !== null ? (
+          <div className="flex flex-wrap items-center gap-2">
+            {CARDIO_CHOICES.map((minutes) => (
+              <button
+                key={minutes}
+                type="button"
+                aria-pressed={!custom && cardio === minutes}
+                onClick={() => {
+                  setCustom(false);
+                  act({ type: "setCardio", value: minutes });
+                }}
+                className={chip(!custom && cardio === minutes)}
+              >
+                {minutes} min
+              </button>
+            ))}
+            <button
+              type="button"
+              aria-pressed={custom}
+              onClick={() => {
+                setCustom(true);
+                act({ type: "setCardio", value: "" });
+              }}
+              className={chip(custom)}
+            >
+              Autre
+            </button>
+            {custom ? (
+              <span className="flex items-center gap-2">
+                <Input
+                  id={cardioId}
+                  aria-label="Durée du cardio (min)"
+                  aria-invalid={error ? true : undefined}
+                  inputMode="numeric"
+                  autoComplete="off"
+                  value={cardio}
+                  onChange={(e) => act({ type: "setCardio", value: e.target.value })}
+                  className={`${fieldClass} w-20 text-right tabular-nums`}
+                />
+                <span aria-hidden className="text-[15px] text-muted-foreground">
+                  min
+                </span>
+              </span>
+            ) : null}
+          </div>
+        ) : null}
+        {error ? <p className="text-[15px] font-bold text-foreground">{error}</p> : null}
       </div>
     </section>
   );

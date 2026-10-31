@@ -54,3 +54,12 @@ export function addMonths(month: string, months: number): string {
   const date = new Date(Date.UTC(year, monthIndex - 1 + months, 1));
   return date.toISOString().slice(0, 7);
 }
+
+// Calendrier d'activité (D17) : `weeks` colonnes de 7 jours (lundi → dimanche), la dernière contient `today`.
+export function activityWeeks(today: string, weeks: number): string[][] {
+  const lastMonday = startOfWeek(today);
+  return Array.from({ length: weeks }, (_, w) => {
+    const monday = addDays(lastMonday, -7 * (weeks - 1 - w));
+    return Array.from({ length: 7 }, (_, d) => addDays(monday, d));
+  });
+}
