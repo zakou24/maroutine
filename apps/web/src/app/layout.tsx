@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Atkinson_Hyperlegible } from "next/font/google";
 import "./globals.css";
 
@@ -11,6 +11,14 @@ const atkinson = Atkinson_Hyperlegible({
 export const metadata: Metadata = {
   title: "MaRoutine",
   description: "Suivi de musculation : progression, suggestions de charge et alimentation.",
+  appleWebApp: { capable: true, title: "MaRoutine", statusBarStyle: "default" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#F5F7F9",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
