@@ -22,6 +22,16 @@ pnpm --filter @maroutine/web create-owner      # crée le compte du propriétair
 pnpm --filter @maroutine/web dev
 ```
 
+Créer le propriétaire en production (une seule fois) : depuis la racine, `vercel env pull apps/web/.env.production.local --environment=production`, puis dans `apps/web` :
+
+```bash
+set -a; . ./.env.production.local; set +a
+BETTER_AUTH_URL=<url de production> BETTER_AUTH_SECRET=<32 caractères quelconques> pnpm create-owner
+rm .env.production.local
+```
+
+Les variables marquées secrètes sur Vercel ne sont pas récupérées par `env pull`. Le script n'utilise pas le secret, mais il en a besoin pour démarrer.
+
 ## Vérifier
 
 ```bash
