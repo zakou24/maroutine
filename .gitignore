@@ -1,0 +1,19 @@
+# dépendances et builds
+node_modules/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+
+# environnement
+.env*
+!.env.example
+.vercel/
+
+# outils
+.superpowers/
+.impeccable/questions/
+.impeccable/live/
+.DS_Store
