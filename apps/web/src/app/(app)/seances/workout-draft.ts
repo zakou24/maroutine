@@ -141,7 +141,12 @@ export function draftReducer(state: WorkoutDraft, action: DraftAction): WorkoutD
         const last = e.sets.at(-1);
         return {
           ...e,
-          sets: [...e.sets, { ...(last ?? draftSet()), key: newKey(), prefilled: false }],
+          // Une nouvelle série est toujours une série de travail, même copiée d'une ancienne série
+          // d'échauffement (D14).
+          sets: [
+            ...e.sets,
+            { ...(last ?? draftSet()), key: newKey(), prefilled: false, isWarmup: false },
+          ],
         };
       });
     case "updateSet":

@@ -23,6 +23,17 @@ function levelOf(count: number): 0 | 1 | 2 {
   return count === 0 ? 0 : count === 1 ? 1 : 2;
 }
 
+// Nom du mois au-dessus de la colonne qui contient le 1er du mois, et au-dessus de la première
+// colonne sauf si la suivante en porte déjà un (les deux se chevaucheraient sur iPhone).
+export function monthLabels(weeks: string[][]): string[] {
+  const labels = weeks.map((week) => {
+    const first = week.find((day) => day.endsWith("-01"));
+    return first ? formatMonthShort(first) : "";
+  });
+  if (labels[0] === "" && labels[1] === "") labels[0] = formatMonthShort(weeks[0]![0]!);
+  return labels;
+}
+
 // Calendrier d'activité des 3 derniers mois (D17) : une colonne par semaine, une case par jour.
 export function ActivityCalendar({ today }: { today: string }) {
   const weeks = activityWeeks(today, WEEKS);
@@ -37,12 +48,7 @@ export function ActivityCalendar({ today }: { today: string }) {
   const total = workouts.data?.length ?? 0;
   const selectedWorkouts = selected ? (byDay.get(selected) ?? []) : [];
 
-  // Nom du mois au-dessus de la première colonne et de celle qui contient le 1er du mois.
-  const monthLabels = weeks.map((week, w) => {
-    const first = week.find((day) => day.endsWith("-01"));
-    if (first) return formatMonthShort(first);
-    return w === 0 ? formatMonthShort(week[0]!) : "";
-  });
+  const labels = monthLabels(weeks);
 
   return (
     <section aria-labelledby="activity-title" className="flex flex-col gap-3">
@@ -66,7 +72,7 @@ export function ActivityCalendar({ today }: { today: string }) {
             style={{ gridTemplateColumns: `1.25rem repeat(${WEEKS}, minmax(0, 1fr))` }}
           >
             <span aria-hidden />
-            {monthLabels.map((label, w) => (
+            {labels.map((label, w) => (
               <span
                 key={weeks[w]![0]}
                 aria-hidden

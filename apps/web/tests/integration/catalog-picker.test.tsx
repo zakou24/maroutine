@@ -50,6 +50,8 @@ describe("CatalogPicker (D16)", () => {
     await userEvent.click(screen.getByRole("checkbox", { name: "Presse à cuisses" }));
     await userEvent.click(screen.getByRole("button", { name: "Ajouter (3)" }));
     await waitFor(() => expect(push).toHaveBeenCalledWith("/exercices"));
+    // L'écran reste monté (caché) après la navigation : la sélection repart de zéro.
+    expect(screen.getByRole("button", { name: "Ajouter" })).toBeDisabled();
     expect(apiFetch).toHaveBeenCalledWith("/api/v1/exercises/batch", {
       method: "POST",
       body: {

@@ -101,6 +101,35 @@ describe("draftReducer", () => {
     expect(new Set(draft.exercises[0]!.sets.map((s) => s.key)).size).toBe(2);
   });
 
+  it("une série ajoutée après une ancienne série d'échauffement est une série de travail (D14)", () => {
+    const draft = withSquat({
+      performedOn: "2026-10-20",
+      sets: [{ weightKg: 40, reps: 10, isWarmup: true }],
+    });
+    // lastSets ne renvoie plus d'échauffement ; on simule une ancienne séance chargée telle quelle.
+    const loaded = draftReducer(draft, {
+      type: "load",
+      workout: {
+        id: "w0",
+        performedOn: "2026-10-20",
+        note: null,
+        warmupDone: false,
+        cardioMinutes: null,
+        exercises: [
+          {
+            exerciseId: SQUAT.id,
+            name: "Squat",
+            archived: false,
+            sets: [{ weightKg: 40, reps: 10, isWarmup: true }],
+          },
+        ],
+      },
+    });
+    const ex = loaded.exercises[0]!;
+    const next = draftReducer(loaded, { type: "addSet", exerciseKey: ex.key });
+    expect(next.exercises[0]!.sets.map((s) => s.isWarmup)).toEqual([true, false]);
+  });
+
   it("removeSet garde au moins une série", () => {
     const single = withSquat();
     const ex = single.exercises[0]!;

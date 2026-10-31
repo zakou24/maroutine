@@ -41,6 +41,8 @@ export function CatalogPicker() {
       }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["exercises"] });
+      // L'écran reste monté (caché) après la navigation : la sélection repart de zéro.
+      setSelected(new Set());
       router.push("/exercices");
     },
     onError: () => setError("Ajout impossible. Réessaie."),

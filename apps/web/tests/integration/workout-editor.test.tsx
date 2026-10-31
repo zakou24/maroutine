@@ -290,3 +290,65 @@ describe("WorkoutEditor", () => {
     );
   });
 });
+
+describe("WorkoutEditor, séance existante", () => {
+  const WORKOUT_ID = "44444444-4444-4444-8444-444444444444";
+  const legacy = {
+    id: WORKOUT_ID,
+    performedOn: "2026-10-20",
+    note: null,
+    warmupDone: false,
+    cardioMinutes: 25,
+    exercises: [
+      {
+        exerciseId: squat.id,
+        name: "Squat",
+        archived: false,
+        sets: [
+          { weightKg: 40, reps: 10, isWarmup: true },
+          { weightKg: 80, reps: 6, isWarmup: false },
+        ],
+      },
+    ],
+  };
+
+  function openEdit() {
+    return renderWithQuery(<WorkoutEditor mode="edit" workoutId={WORKOUT_ID} />);
+  }
+
+  it("garde une ancienne série d'échauffement à l'enregistrement, et ajoute une série de travail (Review Focus 1)", async () => {
+    routeApi((path, init) => {
+      if (path === `/api/v1/workouts/${WORKOUT_ID}` && init?.method === "PUT") return legacy;
+      if (path === `/api/v1/workouts/${WORKOUT_ID}`) return legacy;
+      return undefined;
+    });
+    openEdit();
+    const card = await screen.findByRole("region", { name: "Squat" });
+    expect(
+      within(card).getByText("Série 1 : échauffement d'une ancienne saisie, hors stats."),
+    ).toBeInTheDocument();
+    await userEvent.click(within(card).getByRole("button", { name: "Ajouter une série" }));
+    await userEvent.click(screen.getByRole("button", { name: "Enregistrer la séance" }));
+    await screen.findByText("Séance enregistrée.");
+    const put = apiFetch.mock.calls.find(([, init]) => init?.method === "PUT")!;
+    const body = put[1].body as { exercises: { sets: { isWarmup: boolean }[] }[] };
+    expect(body.exercises[0]!.sets.map((s) => s.isWarmup)).toEqual([true, false, false]);
+  });
+
+  it("une durée de cardio hors des choix rapides reste visible après « Annuler les modifications »", async () => {
+    routeApi((path) => (path === `/api/v1/workouts/${WORKOUT_ID}` ? legacy : undefined));
+    const edited = {
+      id: WORKOUT_ID,
+      performedOn: "2026-10-20",
+      note: "",
+      warmupDone: false,
+      cardio: "15",
+      exercises: [],
+    };
+    localStorage.setItem(draftStorageKey(WORKOUT_ID), JSON.stringify(edited));
+    openEdit();
+    await userEvent.click(await screen.findByRole("button", { name: "Annuler les modifications" }));
+    expect(screen.getByRole("textbox", { name: "Durée du cardio (min)" })).toHaveValue("25");
+    expect(screen.getByRole("button", { name: "Autre" })).toHaveAttribute("aria-pressed", "true");
+  });
+});

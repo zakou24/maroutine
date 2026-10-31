@@ -2,7 +2,7 @@ import { CalendarRange, Dumbbell, Ellipsis, PencilLine, type LucideIcon } from "
 
 export type NavItem = { href: string; label: string; icon: LucideIcon; covers: string[] };
 
-// `covers` : les pages rattachées à l'onglet (le calendrier vit sous « Plus », une séance passée sous « Semaine »).
+// `covers` : les pages rattachées à l'onglet (le calendrier vit sous « Plus », une séance passée sous « Accueil »).
 export const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Accueil", icon: CalendarRange, covers: ["/seances"] },
   { href: "/saisie", label: "Séance", icon: PencilLine, covers: [] },

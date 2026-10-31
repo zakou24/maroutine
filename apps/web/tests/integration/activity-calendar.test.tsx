@@ -4,7 +4,8 @@ import type { WorkoutSummary } from "@maroutine/core";
 import { cleanup, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ActivityCalendar } from "@/app/(app)/activity-calendar";
+import { activityWeeks } from "@maroutine/core";
+import { ActivityCalendar, monthLabels } from "@/app/(app)/activity-calendar";
 import { renderWithQuery } from "../helpers/render";
 
 const { apiFetch } = vi.hoisted(() => ({ apiFetch: vi.fn() }));
@@ -70,5 +71,16 @@ describe("ActivityCalendar (D17)", () => {
         .getAllByRole("link")
         .map((l) => l.getAttribute("href")),
     ).toEqual(["/seances/b", "/seances/c"]);
+  });
+});
+
+describe("monthLabels", () => {
+  it("n'étiquette pas la première colonne si la suivante commence un mois (pas de chevauchement)", () => {
+    const labels = monthLabels(activityWeeks("2026-11-16", 13));
+    expect(labels[0]).toBe("");
+    expect(labels[1]).toBe("sept.");
+  });
+  it("étiquette la première colonne sinon", () => {
+    expect(monthLabels(activityWeeks("2026-11-04", 13))[0]).toBe("août");
   });
 });

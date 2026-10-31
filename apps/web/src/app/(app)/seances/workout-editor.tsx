@@ -97,7 +97,7 @@ function EditEditor({ workoutId }: { workoutId: string }) {
           <p className="text-[17px] text-muted-foreground">
             Cette séance n&apos;existe pas.{" "}
             <Link href="/" className="text-action underline underline-offset-4">
-              Retour à la semaine
+              Retour à l&apos;accueil
             </Link>
           </p>
         ) : (
@@ -599,8 +599,10 @@ function SessionExtras({
   act: (action: DraftAction) => void;
 }) {
   const cardioId = useId();
-  // « Autre » reste ouvert dès qu'une durée hors des choix rapides est tapée (ou vide).
-  const [custom, setCustom] = useState(cardio !== null && !CARDIO_CHOICES.includes(cardio));
+  // « Autre » est ouvert à la demande, et toujours dès que la durée sort des choix rapides
+  // (y compris après « Annuler les modifications », qui ne remonte pas ce bloc).
+  const [customChosen, setCustom] = useState(false);
+  const custom = customChosen || (cardio !== null && !CARDIO_CHOICES.includes(cardio));
   const chip = (selected: boolean) =>
     cn(
       "h-11 min-w-16 rounded-lg border px-3 text-[15px] tabular-nums",
