@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-> **Statut : en cours** (branche `lot-2`).
+> **Statut : terminé** (PR #4).
 
 **Goal :** calculer pour chaque exercice le max estimé, la meilleure série, le volume, la tendance et la suggestion de la prochaine séance. Les afficher à trois endroits :
 - sur une fiche exercice, avec la courbe du max estimé dans son couloir de tendance ;

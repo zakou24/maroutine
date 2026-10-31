@@ -200,6 +200,10 @@ L'objectif en vigueur un jour donné est le dernier objectif dont la date d'effe
 - **Seuil** : sous 5 séances distinctes dans l'un des deux groupes, aucun chiffre n'est affiché ([F-TDB-4](SPEC.md#tableau-de-bord-et-croisement)).
 - **Formulation** : toujours descriptive. « Après 3 jours bien suivis, ton max estimé a progressé en moyenne de +1,8 % (12 séances), contre −0,4 % sinon (7 séances). » Jamais « tu régresses à cause de ton alimentation ».
 
+### 6.9 Couloir de tendance
+
+Signature des courbes de la direction A ([D13, D18](decisions-ouvertes.md#décisions-du-propriétaire)). Pour chaque séance ayant un max estimé, le couloir va du plus petit au plus grand max estimé des 3 dernières séances ayant un max, celle-ci comprise. Il est calculé sur tout l'historique, puis coupé à la période affichée.
+
 ## 7. Modèle de données
 
 ```mermaid
@@ -302,8 +306,9 @@ Direction visuelle retenue : **A — Courbes** ([décision D13](decisions-ouvert
 | Saisie du soir | Un seul écran, trois sections repliables : Séance, Pesée, Alimentation. Date du jour par défaut, modifiable |
 | Séance (édition) | Exercices dans l'ordre, séries préremplies, suggestion affichée à côté de chaque exercice, ajout et suppression de séries |
 | Calendrier | Mois avec les jours de séance, total par semaine, accès à chaque séance |
-| Exercices | Liste avec tendance et dernier max estimé, création, archivage |
-| Fiche exercice | Courbe du max estimé (périodes), superposition optionnelle calories et protéines, volume, historique, suggestion, réglages (fourchette, pas, matériel) |
+| Exercices | Liste avec tendance établie et dernier max estimé, catalogue, création |
+| Fiche exercice | Tendance et dernier max, suggestion justifiée, courbe du max estimé dans son couloir (1 mois, 3 mois, 1 an, tout) avec résumé textuel, historique (meilleure série, max estimé, volume). Superposition calories et protéines au Lot 5. Lien « Réglages » |
+| Réglages d'un exercice | Nom, matériel, fourchette, pas d'augmentation, archivage (D21) |
 | Poids | Courbe des pesées et moyenne glissante, liste |
 | Alimentation (journal) | Jour sélectionné, entrées par repas, totaux et objectifs, recherche, ajout rapide, duplication |
 | Croisement | Comparaison après fenêtres engagées et non engagées, tous exercices et par exercice, effectifs, mention de prudence |

@@ -34,6 +34,10 @@ Chaque décision indique sa source :
 | D15 | Cardio | Facultatif, en fin de séance : durée en minutes (1 à 180), par choix rapides 10, 15, 20 min ou « Autre ». Pas de type de cardio. |
 | D16 | Catalogue d'exercices | 40 exercices courants en français, rangés par muscle, à cocher dans Exercices et à choisir dans la séance, pour ne pas taper les noms un par un. Le pas d'augmentation n'est plus demandé à la création (valeur du matériel), il reste dans les réglages. |
 | D17 | Calendrier d'activité | Sur l'accueil, au-dessus de la place du poids : les 13 dernières semaines façon GitHub, aux couleurs de la direction A. Onglet et titre « Accueil » ; « Saisie » devient « Séance ». |
+| D18 | Couloir de tendance | Validé avec le plan du Lot 2 (31/10/2026) : pour chaque séance, du plus petit au plus grand max estimé des 3 dernières séances ayant un max, celle-ci comprise ([architecture.md §6.9](architecture.md#69-couloir-de-tendance)). |
+| D19 | Suggestion en haut de fourchette | Quand la première série retenue est déjà au haut de la fourchette mais pas toutes, la règle 4 vise encore le haut et dit « Tu as fait 25 × 10 : refais 25 × 10 sur toutes tes séries. ». |
+| D20 | Lien de la règle 2 | Jusqu'au Lot 5 (F-TDB-5), « Voir l'historique » renvoie à l'historique de la fiche exercice ; il pointera ensuite vers le poids et l'alimentation des jours concernés. |
+| D21 | Fiche exercice | Les stats d'abord, les réglages derrière un lien « Réglages ». Le volume est une colonne de l'historique, pas un second graphique. La liste des exercices lit toutes les tendances en un appel (`GET /exercises/trends`). |
 
 ## Choix de conception (à relire)
 

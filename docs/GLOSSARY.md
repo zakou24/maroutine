@@ -88,6 +88,10 @@ _Avoid_ : Tonnage, Charge de travail
 État d'un exercice sur ses 6 dernières séances : en progression, en stagnation, en régression, inactif, ou pas assez de données.
 _Avoid_ : Statut, Évolution
 
+**Couloir de tendance** :
+Bande tracée derrière la courbe du max estimé, du plus petit au plus grand max estimé des 3 dernières séances. Signature visuelle de l'app.
+_Avoid_ : Zone de confiance, Intervalle
+
 **Double progression** :
 Méthode qui consiste à gagner des répétitions à charge constante jusqu'au haut de la fourchette, puis à monter la charge et repartir du bas.
 _Avoid_ : Progression linéaire (qui est une autre méthode)

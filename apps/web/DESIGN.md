@@ -195,9 +195,9 @@ components:
 
 MaRoutine se lit comme un carnet tenu proprement : un fond gris très clair, des feuilles blanches cerclées d'un filet bleu-gris, une encre bleu nuit, et une seule couleur qui agit, le bleu acier. Chaque écran donne une seule réponse (ce que j'ai fait cette semaine, la séance à enregistrer, la liste de mes exercices) et tout le reste se tait. La densité est celle d'un formulaire bien réglé, pas d'un tableau de bord : une colonne, des cartes empilées, des grilles de chiffres alignés.
 
-Le système refuse le tableau de bord de salle de sport saturé de cartes, de jauges et de badges (thèse de la direction A, décision D13). La profondeur vient du contraste fond/surface et du filet, jamais d'une ombre. L'orange brûlé existe dans les jetons mais reste silencieux tant qu'aucune régression de performance n'est calculée (Lot 2) : sa rareté est sa fonction.
+Le système refuse le tableau de bord de salle de sport saturé de cartes, de jauges et de badges (thèse de la direction A, décision D13). La profondeur vient du contraste fond/surface et du filet, jamais d'une ombre. L'orange brûlé ne sert qu'à la tendance « En régression » et à la suggestion d'un max estimé en baisse : sa rareté est sa fonction.
 
-La signature prévue, le couloir de tendance (`--corridor`), arrive au Lot 2 avec la fiche exercice. Au Lot 1, c'est la grille de séries tabulaire (N° | Charge × Rép. | Échauffement) qui en tient lieu.
+La signature, le couloir de tendance (`--corridor`), enveloppe la courbe du max estimé sur la fiche exercice (D18). La grille de séries tabulaire reste la signature de la saisie.
 
 **Key Characteristics:**
 
@@ -219,12 +219,12 @@ Une palette froide et sourde, presque monochrome, où une seule teinte saturée 
 
 ### Secondary
 
-- **Voile de couloir** (`corridor`) : fond d'état actif ou sélectionné (élément actif de la barre latérale, jour sélectionné du calendrier, sélection de texte) et du bandeau d'information « Brouillon non enregistré restauré ». Au Lot 2, il deviendra le couloir de tendance des courbes.
+- **Voile de couloir** (`corridor`) : fond d'état actif ou sélectionné (élément actif de la barre latérale, jour sélectionné du calendrier, sélection de texte) et du bandeau d'information « Brouillon non enregistré restauré ». Il est aussi le couloir de tendance des courbes et le fond des suggestions.
 - **Encre de couloir** (`corridor-ink`) : texte posé sur le voile de couloir, total hebdomadaire du calendrier, message de confirmation « Séance enregistrée. ».
 
 ### Tertiary
 
-- **Orange brûlé** (`regression`), **encre de régression** (`regression-ink`) et **voile de régression** (`regression-wash`) : réservés aux régressions de performance (Lot 2). Aucun écran du Lot 1 ne les emploie.
+- **Orange brûlé** (`regression`), **encre de régression** (`regression-ink`) et **voile de régression** (`regression-wash`) : réservés aux régressions de performance : puce et ligne « En régression », suggestion de la règle 2 (max estimé en baisse).
 
 ### Neutral
 
@@ -365,6 +365,14 @@ Sur l'accueil, façon graphe d'activité de GitHub mais aux couleurs de la direc
 ### Session extras (Lot 1.1)
 
 Sous les exercices, une surface à filet en deux lignes : « Échauffement fait » et « Cardio », chacun avec sa case à droite. Cardio coché : boutons de 44 px « 10 min », « 15 min », « 20 min », « Autre » (sélectionné sur voile de couloir, filet bleu acier, texte encre de couloir gras) ; « Autre » ouvre un champ minutes de 80 px.
+
+### Progress chart (Lot 2)
+
+Courbe du max estimé (Recharts) de 224 px de haut : ligne de 2 px et points de 3 px en bleu acier, couloir de tendance en aire `corridor` derrière, axes sans trait en 13 px encre douce, chiffres tabulaires. Au-dessus, quatre boutons de période de 44 px (« 1 mois », « 3 mois », « 1 an », « Tout », sélectionné sur voile de couloir, filet bleu acier, gras). Dessous, un résumé textuel en 15 px encre douce (« 6 séances sur 3 mois, de 116,7 à 128,3 kg. ») ; la courbe est décorative pour les lecteurs d'écran.
+
+### Trend badge and suggestion (Lot 2)
+
+Puce de tendance en 15 px gras, coins pleins, sur `muted` ; « En régression » sur voile de régression, encre de régression. Encart « Prochaine séance » de 12 px de rayon sur voile de couloir, encre de couloir : cible en 20 px gras (« 110 kg × 6 »), puis la justification en 15 px ; sur voile de régression pour la règle 2, avec « Voir l'historique » souligné. Dans la séance, la même note en plus compact sous les séries (« Suggestion : 110 kg × 6 »).
 
 ### Set grid (signature du Lot 1)
 
