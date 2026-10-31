@@ -40,7 +40,8 @@ export function ExerciseList() {
     <div className="flex flex-col gap-6">
       {active.data.length === 0 ? (
         <p className="text-[17px] text-muted-foreground">
-          Aucun exercice pour l&apos;instant. Crée le premier : il servira dans la saisie du soir.
+          Aucun exercice pour l&apos;instant. Coche ceux que tu fais dans le catalogue, ou crée le
+          tien.
         </p>
       ) : (
         <ul className="divide-y divide-rule overflow-hidden rounded-xl border border-rule bg-surface">

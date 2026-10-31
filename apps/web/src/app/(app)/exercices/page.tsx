@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { ListChecks, Plus } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Page } from "@/components/page";
@@ -8,18 +8,23 @@ export const metadata: Metadata = { title: "Exercices · MaRoutine" };
 
 export default function ExercisesPage() {
   return (
-    <Page
-      title="Exercices"
-      action={
+    <Page title="Exercices">
+      <div className="flex flex-wrap gap-2">
+        <Link
+          href="/exercices/catalogue"
+          className="inline-flex h-11 items-center gap-1.5 rounded-lg bg-action px-4 text-[15px] font-bold text-white hover:bg-action-strong"
+        >
+          <ListChecks aria-hidden className="size-5" strokeWidth={2} />
+          Depuis le catalogue
+        </Link>
         <Link
           href="/exercices/nouveau"
-          className="inline-flex h-11 items-center gap-1.5 rounded-lg bg-action px-4 text-[15px] font-bold text-white hover:bg-action-strong"
+          className="inline-flex h-11 items-center gap-1.5 rounded-lg border border-input bg-surface px-4 text-[15px] font-bold text-action hover:bg-muted"
         >
           <Plus aria-hidden className="size-5" strokeWidth={2} />
           Nouvel exercice
         </Link>
-      }
-    >
+      </div>
       <ExerciseList />
     </Page>
   );
