@@ -64,3 +64,10 @@ export {
   type CorridorPoint,
   type Trend,
 } from "./training/trend";
+export {
+  loadLabel,
+  suggestNext,
+  suggestionText,
+  targetLabel,
+  type Suggestion,
+} from "./training/suggestion";
