@@ -13,7 +13,7 @@ export default function ExercisesPage() {
       action={
         <Link
           href="/exercices/nouveau"
-          className="inline-flex h-11 items-center gap-1.5 rounded-lg bg-action px-4 text-[15px] font-bold text-white hover:bg-[#174a84]"
+          className="inline-flex h-11 items-center gap-1.5 rounded-lg bg-action px-4 text-[15px] font-bold text-white hover:bg-action-strong"
         >
           <Plus aria-hidden className="size-5" strokeWidth={2} />
           Nouvel exercice

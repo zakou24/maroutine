@@ -6,6 +6,7 @@ export const selectClass =
 
 export const labelClass = "text-[15px] text-muted-foreground";
 
-export const primaryButtonClass = "h-[52px] rounded-xl text-[17px] font-bold";
+export const primaryButtonClass =
+  "h-[52px] rounded-xl text-[17px] font-bold hover:bg-action-strong";
 
 export const secondaryButtonClass = "h-11 rounded-lg px-4 text-[15px]";

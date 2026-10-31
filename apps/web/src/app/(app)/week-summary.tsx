@@ -24,7 +24,7 @@ function Week({ today }: { today: string }) {
   const entryLink = (
     <Link
       href="/saisie"
-      className="inline-flex h-[52px] items-center justify-center gap-2 rounded-xl bg-action px-5 text-[17px] font-bold text-white hover:bg-[#174a84]"
+      className="inline-flex h-[52px] items-center justify-center gap-2 rounded-xl bg-action px-5 text-[17px] font-bold text-white hover:bg-action-strong"
     >
       <PencilLine aria-hidden className="size-5" strokeWidth={2} />
       Saisie du soir

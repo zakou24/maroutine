@@ -49,6 +49,7 @@
   --color-rule: var(--rule);
   --color-rule-soft: var(--rule-soft);
   --color-action: var(--action);
+  --color-action-strong: var(--action-strong);
   --color-corridor: var(--corridor);
   --color-corridor-ink: var(--corridor-ink);
   --color-regression: var(--regression);

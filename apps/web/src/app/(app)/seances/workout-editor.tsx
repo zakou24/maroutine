@@ -243,7 +243,7 @@ function EditorForm({
     const result = toWorkoutInput(draft);
     if (!result.ok) {
       setErrors(result.errors);
-      setSaveError(result.errors.exercises ?? "Corrige les séries signalées en rouge.");
+      setSaveError(result.errors.exercises ?? "Corrige les séries signalées sous chaque exercice.");
       return;
     }
     setErrors({});
