@@ -32,10 +32,17 @@ export function LoginForm() {
 
     setError(null);
     setPending(true);
-    const { error: authError } = await authClient.signIn.email(parsed.data);
-    if (authError) {
+    try {
+      const { error: authError } = await authClient.signIn.email(parsed.data);
+      if (authError) {
+        setPending(false);
+        setError(MESSAGES[authError.status ?? 0] ?? "Connexion impossible. Réessaie.");
+        return;
+      }
+    } catch {
+      // Réseau coupé : better-fetch lève une exception au lieu de renvoyer une erreur.
       setPending(false);
-      setError(MESSAGES[authError.status ?? 0] ?? "Connexion impossible. Réessaie.");
+      setError("Connexion impossible. Réessaie.");
       return;
     }
     router.replace("/");

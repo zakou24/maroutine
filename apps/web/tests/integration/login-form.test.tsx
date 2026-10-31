@@ -60,6 +60,13 @@ describe("LoginForm", () => {
     );
   });
 
+  it("sur une panne réseau, affiche une erreur et réactive le bouton", async () => {
+    signIn.mockRejectedValue(new TypeError("Failed to fetch"));
+    await submit();
+    expect(await screen.findByRole("alert")).toHaveTextContent("Connexion impossible. Réessaie.");
+    expect(screen.getByRole("button", { name: "Se connecter" })).toBeEnabled();
+  });
+
   it("désactive le bouton pendant l'envoi", async () => {
     signIn.mockReturnValue(new Promise(() => {}));
     await submit();
