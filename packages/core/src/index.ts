@@ -57,3 +57,10 @@ export {
   type SessionStats,
   type WeighIn,
 } from "./training/stats";
+export {
+  exerciseTrend,
+  trendCorridor,
+  trendLabel,
+  type CorridorPoint,
+  type Trend,
+} from "./training/trend";
