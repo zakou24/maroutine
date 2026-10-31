@@ -1,7 +1,5 @@
 import { expect, test } from "@playwright/test";
-
-// Propriétaire créé par `pnpm e2e:prepare` dans la base PGlite e2e.
-const OWNER = { email: "e2e@maroutine.test", password: "e2e-mot-de-passe-solide" };
+import { OWNER } from "./owner";
 
 test("le propriétaire se connecte, voit « Cette semaine » et se déconnecte", async ({ page }) => {
   await page.goto("/connexion");
