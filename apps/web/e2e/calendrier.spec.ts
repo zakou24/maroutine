@@ -61,6 +61,7 @@ for (const [path, heading] of [
     // Les boutons désactivés pendant le chargement ont une transition : on mesure l'état final.
     await page.waitForLoadState("networkidle");
     await expect(page.locator("button:disabled")).toHaveCount(0);
+    await page.waitForFunction(() => document.getAnimations().length === 0);
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
     ).toBe(true);
