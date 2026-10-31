@@ -13,7 +13,7 @@ import { LoadError, Loading } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 import { formatMax } from "@/lib/format";
-import { trendsQuery } from "@/lib/stats-queries";
+import { invalidateStats, trendsQuery } from "@/lib/stats-queries";
 import { cn } from "@/lib/utils";
 
 export function exercisesQuery(filter: "active" | "archived") {
@@ -49,7 +49,10 @@ export function ExerciseList() {
   const restore = useMutation({
     mutationFn: (id: string) =>
       apiFetch<Exercise>(`/api/v1/exercises/${id}`, { method: "PATCH", body: { archived: false } }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["exercises"] }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["exercises"] });
+      await invalidateStats(queryClient);
+    },
   });
 
   if (active.isPending) return <Loading />;

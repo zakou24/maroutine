@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError, apiFetch } from "@/lib/api";
+import { invalidateStats } from "@/lib/stats-queries";
 
 // À la création, le pas d'augmentation n'est pas demandé : le serveur prend celui du matériel.
 type ExerciseBody = Omit<Exercise, "id" | "archived" | "incrementKg"> & { incrementKg?: number };
@@ -87,6 +88,8 @@ export function ExerciseForm({
     onSuccess: async (exercise) => {
       await queryClient.invalidateQueries({ queryKey: ["exercises"] });
       queryClient.setQueryData(["exercise", exercise.id], exercise);
+      // Fourchette, pas et matériel changent la suggestion, le max estimé et la tendance.
+      await invalidateStats(queryClient);
       onSaved(exercise);
     },
     onError: (failure) => {

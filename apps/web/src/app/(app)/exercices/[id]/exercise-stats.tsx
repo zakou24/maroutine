@@ -87,7 +87,9 @@ export function ExerciseStats({ exercise }: { exercise: Exercise }) {
         ) : null}
       </div>
 
-      {suggestion.data ? <NextSession exercise={exercise} data={suggestion.data} /> : null}
+      {suggestion.data ? (
+        <NextSession exercise={exercise} data={suggestion.data} historyId={`${id}-history`} />
+      ) : null}
 
       {latest === null ? (
         <p className="text-[17px] text-muted-foreground">Pas encore de séance avec cet exercice.</p>
@@ -136,7 +138,7 @@ export function ExerciseStats({ exercise }: { exercise: Exercise }) {
 
           <section aria-labelledby={`${id}-history`} className="flex flex-col gap-3">
             <h2 id={`${id}-history`} className="scroll-mt-6 text-[20px] leading-7 font-bold">
-              <span id="historique">Historique</span>
+              Historique
             </h2>
             {history.length > 0 ? (
               <ul
@@ -185,7 +187,17 @@ export function ExerciseStats({ exercise }: { exercise: Exercise }) {
 }
 
 // Encart « Prochaine séance » : cible et justification (F-STA-4).
-function NextSession({ exercise, data }: { exercise: Exercise; data: SuggestionResponse }) {
+// `historyId` vient de useId : Next.js garde les fiches déjà vues montées et cachées, un id fixe
+// pourrait viser la fiche d'un autre exercice.
+function NextSession({
+  exercise,
+  data,
+  historyId,
+}: {
+  exercise: Exercise;
+  data: SuggestionResponse;
+  historyId: string;
+}) {
   const id = useId();
   const declining = data.suggestion.rule === "declining";
   const target = targetLabel(data.suggestion, exercise.equipment);
@@ -203,7 +215,7 @@ function NextSession({ exercise, data }: { exercise: Exercise; data: SuggestionR
       {target ? <p className="text-[20px] leading-7 font-bold tabular-nums">{target}</p> : null}
       <p className="text-[15px]">{data.text}</p>
       {declining ? (
-        <a href="#historique" className="text-[15px] font-bold underline underline-offset-4">
+        <a href={`#${historyId}`} className="text-[15px] font-bold underline underline-offset-4">
           Voir l&apos;historique
         </a>
       ) : null}

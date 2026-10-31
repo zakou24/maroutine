@@ -11,6 +11,7 @@ import { Page } from "@/components/page";
 import { LoadError, Loading } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
 import { ApiError, apiFetch } from "@/lib/api";
+import { invalidateStats } from "@/lib/stats-queries";
 import { ExerciseForm } from "../../exercise-form";
 
 // Réglages d'un exercice (D16, choix 4 du Lot 2) : nom, matériel, fourchette, pas, archivage.
@@ -29,6 +30,7 @@ export function ExerciseSettings() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["exercises"] });
       await queryClient.invalidateQueries({ queryKey: ["exercise", id] });
+      await invalidateStats(queryClient);
       router.push("/exercices");
     },
     onError: () => setError("Modification impossible. Réessaie."),

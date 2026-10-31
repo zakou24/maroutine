@@ -108,10 +108,14 @@ describe("ExerciseStats (fiche exercice)", () => {
     expect(await screen.findByText("En régression")).toHaveClass("text-regression-ink");
     const next = screen.getByRole("region", { name: "Prochaine séance" });
     expect(next).toHaveClass("bg-regression-wash");
-    expect(within(next).getByRole("link", { name: "Voir l'historique" })).toHaveAttribute(
-      "href",
-      "#historique",
-    );
+    // Identifiant propre à la fiche : Next.js garde les fiches déjà vues montées et cachées.
+    const href = within(next)
+      .getByRole("link", { name: "Voir l'historique" })
+      .getAttribute("href")!;
+    expect(href).not.toBe("#historique");
+    const target = document.getElementById(href.slice(1));
+    expect(target?.tagName).toBe("H2");
+    expect(target).toHaveTextContent("Historique");
   });
 
   it("sans séance, l'invite à commencer", async () => {
