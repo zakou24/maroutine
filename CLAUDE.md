@@ -5,8 +5,8 @@ Projet perso et portfolio (profil fullstack) : application web installable (PWA)
 ## État actuel
 
 - **Lot 0 (socle) livré** (PR #1), en production sur https://maroutine-nu.vercel.app. Le propriétaire est créé et l'app est installée sur son iPhone.
-- **Lot 1 (séances) en cours** sur la branche `lot-1`, plan [docs/plans/lot-1.md](docs/plans/lot-1.md).
-- Direction visuelle **A — Courbes** (D13, [canevas](https://claude.ai/artifact/WStbXSegxDLEsFJhceFYXC)). `PRODUCT.md` (racine) est la fiche produit lue par la skill de design impeccable. Au premier vrai écran du Lot 1, enregistrer la direction A comme contrat de direction impeccable et produire `DESIGN.md`.
+- **Lot 1 (séances) livré** (PR #2) : exercices, saisie du soir préremplie, séances passées, calendrier, semaine. Reste la recette du propriétaire sur iPhone (critère de fin du [plan](docs/plans/lot-1.md)). Prochaine étape : plan du Lot 2 (stats et suggestion).
+- Direction visuelle **A — Courbes** (D13, [canevas](https://claude.ai/artifact/WStbXSegxDLEsFJhceFYXC)). `PRODUCT.md` (racine) est la fiche produit lue par la skill de design impeccable ; le système construit est décrit dans [apps/web/DESIGN.md](apps/web/DESIGN.md), et le contrat de direction des écrans de l'app dans `apps/web/.impeccable/surfaces/`. L'orange est réservé aux régressions (Lot 2).
 - Machine de développement : Mac, 8 Go de RAM, pas de Docker ([ADR 0009](docs/adr/0009-base-de-donnees-dev-et-tests.md)). Le shell par défaut est en Node 23 : utiliser Node 24 (`~/.nvm/versions/node/v24.11.0/bin` en tête du PATH).
 - Vercel : projet `maroutine` (racine `apps/web`, Node 24, fonctions à Paris `cdg1`), base Neon `maroutine-db` (offre gratuite, Francfort), réservée à la production. Les aperçus la partagent en lecture : ne jamais y saisir.
 - Développement local et e2e : PGlite en fichier (`DATABASE_URL=pglite:./.data/dev`, [ADR 0010](docs/adr/0010-pglite-pour-le-developpement-et-les-e2e.md)). Les migrations de production s'appliquent au build de production.
@@ -17,7 +17,7 @@ Projet perso et portfolio (profil fullstack) : application web installable (PWA)
 ```bash
 pnpm install
 pnpm lint && pnpm typecheck && pnpm test          # tout le monorepo (Vitest, PGlite)
-pnpm --filter @maroutine/web test:e2e             # Playwright iPhone + ordinateur (build de prod, base PGlite e2e neuve)
+pnpm --filter @maroutine/web test:e2e             # Playwright iPhone + ordinateur (build de prod, base PGlite e2e neuve, connexion unique)
 pnpm --filter @maroutine/web dev                  # nécessite apps/web/.env.local (DATABASE_URL=pglite:./.data/dev)
 pnpm --filter @maroutine/web db:generate          # migration Drizzle depuis le schéma
 pnpm --filter @maroutine/web db:migrate           # applique sur DATABASE_URL_UNPOOLED, sinon DATABASE_URL (pglite: compris)
@@ -38,7 +38,8 @@ Création du propriétaire en production : voir le README.
 | [docs/adr/](docs/adr/)                                   | 10 décisions d'architecture                                                                      |
 | [docs/threat-model.md](docs/threat-model.md)             | Analyse STRIDE, menaces T-01 à T-12, priorités par lot                                           |
 | [docs/plans/lot-0.md](docs/plans/lot-0.md)               | Plan du Lot 0 (socle), exécuté                                                                   |
-| [docs/plans/lot-1.md](docs/plans/lot-1.md)               | Plan du Lot 1 (séances)                                                                          |
+| [docs/plans/lot-1.md](docs/plans/lot-1.md)               | Plan du Lot 1 (séances), exécuté                                                                 |
+| [apps/web/DESIGN.md](apps/web/DESIGN.md)                 | Système visuel construit (direction A)                                                           |
 
 En cas de contradiction : `decisions-ouvertes.md` et les ADRs priment, et `SPEC.md` les consolide.
 

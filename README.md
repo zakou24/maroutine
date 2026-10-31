@@ -26,10 +26,6 @@ Le développement local tourne sur une base PGlite en fichier dans `apps/web/.da
 
 Les migrations de production s'appliquent d'elles-mêmes au déploiement de production (`pnpm build`, avec `DATABASE_URL_UNPOOLED`). Les aperçus Vercel partagent la base de production et ne migrent pas : ils servent à regarder, pas à saisir.
 
-```bash
-
-```
-
 Créer le propriétaire en production (une seule fois) : depuis la racine, `vercel env pull apps/web/.env.production.local --environment=production`, puis dans `apps/web` :
 
 ```bash

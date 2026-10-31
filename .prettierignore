@@ -1,3 +1,5 @@
 docs/
 pnpm-lock.yaml
 **/drizzle/
+apps/web/e2e/.auth/
+apps/web/.data/
