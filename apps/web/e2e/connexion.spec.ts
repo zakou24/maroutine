@@ -10,6 +10,7 @@ test("le propriétaire se connecte, voit « Cette semaine » et se déconnecte",
   await page.getByRole("button", { name: "Se connecter" }).click();
   await expect(page.getByRole("heading", { name: "Cette semaine" })).toBeVisible();
 
+  await page.getByRole("link", { name: "Plus" }).click();
   await page.getByRole("button", { name: "Se déconnecter" }).click();
   await expect(page).toHaveURL(/\/connexion$/);
 });
