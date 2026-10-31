@@ -49,6 +49,8 @@ export function createApiHandler(deps: {
   };
 }
 
+export type ApiHandler = ReturnType<typeof createApiHandler>;
+
 export const apiHandler = createApiHandler({
   getSession: getSessionInfo,
   appOrigin: env.BETTER_AUTH_URL,
