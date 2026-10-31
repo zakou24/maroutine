@@ -1,7 +1,7 @@
 import { ZodError } from "zod";
 import { env } from "@/env";
 import { getSessionInfo, type SessionInfo } from "@/server/auth";
-import { NotFoundError } from "./errors";
+import { BadRequestError, NotFoundError } from "./errors";
 
 type ApiContext<P> = { request: Request; session: SessionInfo; params: P };
 type Handler<P> = (ctx: ApiContext<P>) => Promise<Response>;
@@ -34,11 +34,15 @@ export function createApiHandler(deps: {
         if (error instanceof ZodError) {
           return Response.json({ error: "invalid", issues: error.issues }, { status: 400 });
         }
+        if (error instanceof BadRequestError) {
+          return Response.json({ error: error.code }, { status: error.status });
+        }
         if (error instanceof NotFoundError) {
           return Response.json({ error: "not_found" }, { status: 404 });
         }
         // Jamais le corps de la requête ni le message interne dans la réponse (T-11).
-        console.error(`[api] ${request.method} ${new URL(request.url).pathname} → 500`);
+        const name = error instanceof Error ? error.name : typeof error;
+        console.error(`[api] ${request.method} ${new URL(request.url).pathname} → 500 (${name})`);
         return Response.json({ error: "internal" }, { status: 500 });
       }
     };

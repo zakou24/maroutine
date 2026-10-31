@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-  DATABASE_URL: z.string().min(1),
-  BETTER_AUTH_SECRET: z.string().min(32),
-  BETTER_AUTH_URL: z.url(),
+  DATABASE_URL: z.string().trim().min(1),
+  BETTER_AUTH_SECRET: z.string().trim().min(32),
+  BETTER_AUTH_URL: z.string().trim().pipe(z.url()),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -17,7 +17,7 @@ export function parseEnv(source: Record<string, string | undefined>): Env {
       : undefined;
   const result = envSchema.safeParse({
     ...source,
-    BETTER_AUTH_URL: source.BETTER_AUTH_URL || previewUrl,
+    BETTER_AUTH_URL: source.BETTER_AUTH_URL?.trim() || previewUrl,
   });
   if (!result.success) {
     const names = [...new Set(result.error.issues.map((issue) => String(issue.path[0])))];

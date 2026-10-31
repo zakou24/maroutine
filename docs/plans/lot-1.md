@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-> **Statut : non démarré.**
+> **Statut : en cours** (branche `lot-1`).
 
 **Goal :** le propriétaire gère sa liste d'exercices, saisit chaque soir sa séance (séries `charge × répétitions` préremplies depuis la dernière fois), modifie ou supprime une séance passée, et voit ses jours de séance dans un calendrier, sur iPhone comme sur ordinateur.
 

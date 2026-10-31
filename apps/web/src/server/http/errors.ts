@@ -5,3 +5,28 @@ export class NotFoundError extends Error {
     this.name = "NotFoundError";
   }
 }
+
+// Erreurs de requête qui portent leur code de réponse : { error: code }.
+export class BadRequestError extends Error {
+  readonly status: number = 400;
+  constructor(readonly code: string) {
+    super(code);
+    this.name = "BadRequestError";
+  }
+}
+
+export class ConflictError extends BadRequestError {
+  override readonly status = 409;
+  constructor(code: string) {
+    super(code);
+    this.name = "ConflictError";
+  }
+}
+
+export class UnsupportedMediaTypeError extends BadRequestError {
+  override readonly status = 415;
+  constructor() {
+    super("unsupported_media_type");
+    this.name = "UnsupportedMediaTypeError";
+  }
+}

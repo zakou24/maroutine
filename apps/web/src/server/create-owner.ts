@@ -24,7 +24,8 @@ export async function createOwner(
     .limit(1);
   if (existing.length > 0) return { ok: false, reason: "Un propriétaire existe déjà." };
 
-  await createAuth(db, { allowSignUp: true }).api.signUpEmail({
+  // autoSignIn: false : l'inscription ne doit pas ouvrir de session orpheline.
+  await createAuth(db, { allowSignUp: true, autoSignIn: false }).api.signUpEmail({
     body: { email: login.data.email, password: login.data.password, name: "Propriétaire" },
   });
   return { ok: true };

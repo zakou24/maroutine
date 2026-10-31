@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "tsx scripts/migrate-on-deploy.ts && next build",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
@@ -13,10 +13,12 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "create-owner": "tsx --env-file-if-exists=.env.local scripts/create-owner.ts",
+    "e2e:prepare": "tsx scripts/e2e-prepare.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
+    "@electric-sql/pglite": "0.5.14",
     "@maroutine/core": "workspace:*",
     "@neondatabase/serverless": "1.2.0",
     "better-auth": "1.7.14",
@@ -33,7 +35,6 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
-    "@electric-sql/pglite": "0.5.14",
     "@playwright/test": "1.64.1",
     "@tailwindcss/turbopack": "4.3.3",
     "@testing-library/dom": "^10.4.2",

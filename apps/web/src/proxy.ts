@@ -11,7 +11,8 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   // Tout sauf la connexion, l'API, les fichiers de Next et ceux de la PWA.
+  // Chaque exclusion est ancrée : /apixyz ou /icons-test restent protégés.
   matcher: [
-    "/((?!connexion|api|_next/static|_next/image|favicon.ico|manifest.webmanifest|icons|apple-icon).*)",
+    "/((?!(?:connexion|api|icons|_next/static|_next/image)(?:/|$)|(?:favicon\\.ico|manifest\\.webmanifest|robots\\.txt|apple-icon(?:\\.png)?)$).*)",
   ],
 };

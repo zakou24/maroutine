@@ -13,8 +13,9 @@ export function generateStaticParams() {
 
 export async function GET(_request: Request, { params }: RouteContext<"/icons/[size]">) {
   const { size } = await params;
+  // Object.hasOwn : « constructor » ou « toString » ne sont pas des tailles.
+  if (!Object.hasOwn(VARIANTS, size)) return new Response("Not found", { status: 404 });
   const variant = VARIANTS[size as keyof typeof VARIANTS];
-  if (!variant) return new Response("Not found", { status: 404 });
   return new ImageResponse(<IconArt size={variant.size} inset={variant.inset} />, {
     width: variant.size,
     height: variant.size,
