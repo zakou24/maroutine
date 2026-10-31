@@ -8,7 +8,7 @@ import {
   type WorkoutInput,
 } from "@maroutine/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowDown, ArrowUp, Plus, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, CalendarDays, Plus, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useReducer, useRef, useState } from "react";
@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { readStored, removeStored, writeStored } from "@/lib/draft-storage";
-import { formatDayMonth } from "@/lib/format";
+import { formatDayMonth, formatShortDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useIsClient } from "@/lib/use-is-client";
 import {
@@ -139,7 +139,6 @@ function EditorForm({
 }) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const dateId = useId();
   const noteId = useId();
   const deleteDialog = useRef<HTMLDialogElement>(null);
 
@@ -243,22 +242,16 @@ function EditorForm({
   }
 
   return (
-    <Page title={title} className="pb-0">
-      <div className="flex flex-col gap-2">
-        <label htmlFor={dateId} className={labelClass}>
-          Date
-        </label>
-        <Input
-          id={dateId}
-          type="date"
+    <Page
+      title={title}
+      className="pb-0"
+      action={
+        <DateButton
           value={draft.performedOn}
-          onChange={(e) => {
-            if (e.target.value) act({ type: "setDate", performedOn: e.target.value });
-          }}
-          className={`${fieldClass} w-48`}
+          onChange={(performedOn) => act({ type: "setDate", performedOn })}
         />
-      </div>
-
+      }
+    >
       {restored ? (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl bg-corridor px-4 py-3 text-[15px] text-corridor-ink">
           <span>Brouillon non enregistré restauré.</span>
@@ -322,7 +315,7 @@ function EditorForm({
         <div>
           <Button
             variant="outline"
-            className={`${secondaryButtonClass} text-regression-ink`}
+            className={secondaryButtonClass}
             onClick={() => deleteDialog.current?.showModal()}
           >
             <Trash2 aria-hidden className="size-5" strokeWidth={2} />
@@ -348,7 +341,7 @@ function EditorForm({
                 Annuler
               </Button>
               <Button
-                className={`${secondaryButtonClass} bg-regression font-bold text-white hover:bg-regression-ink`}
+                className={`${secondaryButtonClass} bg-ink font-bold text-white hover:bg-ink/85`}
                 disabled={remove.isPending}
                 onClick={() => remove.mutate()}
               >
@@ -360,7 +353,7 @@ function EditorForm({
       ) : null}
 
       {/* Bouton fixé au-dessus de la barre d'onglets sur iPhone. */}
-      <div className="sticky bottom-[calc(52px+env(safe-area-inset-bottom))] -mx-4 mt-auto flex flex-col gap-2 border-t border-rule bg-background px-4 pt-3 pb-3 sm:-mx-6 sm:px-6 md:bottom-0">
+      <div className="sticky bottom-[calc(52px+env(safe-area-inset-bottom))] -mx-4 mt-auto flex flex-col gap-2 border-t border-rule bg-background px-4 pt-3 pb-3 sm:-mx-6 sm:px-6 md:bottom-0 md:mx-0 md:px-0">
         <FormError>{saveError}</FormError>
         {status ? (
           <p role="status" className="text-[15px] text-corridor-ink">
@@ -424,8 +417,8 @@ function ExerciseCard({
         <span aria-hidden className="text-[13px] text-muted-foreground">
           Rép.
         </span>
-        <span aria-hidden className="text-center text-[13px] text-muted-foreground">
-          Éch.
+        <span aria-hidden className="-mx-2 text-center text-[13px] text-muted-foreground">
+          Échauf.
         </span>
         <span aria-hidden />
 
@@ -444,7 +437,11 @@ function ExerciseCard({
                 autoComplete="off"
                 value={set.weight}
                 onChange={(e) => update({ weight: e.target.value })}
-                className={`${fieldClass} text-right tabular-nums`}
+                className={cn(
+                  fieldClass,
+                  "text-right tabular-nums",
+                  set.prefilled && "text-muted-foreground",
+                )}
               />
               <span aria-hidden className="text-center text-muted-foreground">
                 ×
@@ -458,7 +455,11 @@ function ExerciseCard({
                 autoComplete="off"
                 value={set.reps}
                 onChange={(e) => update({ reps: e.target.value })}
-                className={`${fieldClass} text-right tabular-nums`}
+                className={cn(
+                  fieldClass,
+                  "text-right tabular-nums",
+                  set.prefilled && "text-muted-foreground",
+                )}
               />
               <label className="flex size-11 items-center justify-center">
                 <input
@@ -466,7 +467,7 @@ function ExerciseCard({
                   aria-label={`Échauffement, série ${n}`}
                   checked={set.isWarmup}
                   onChange={(e) => update({ isWarmup: e.target.checked })}
-                  className="size-5 accent-[var(--action)]"
+                  className="check"
                 />
               </label>
               <button
@@ -486,7 +487,7 @@ function ExerciseCard({
       </div>
 
       {setErrors.length > 0 ? (
-        <ul className="px-1 text-[15px] text-regression-ink">
+        <ul className="flex flex-col gap-1 px-1 text-[15px] font-bold text-foreground">
           {setErrors.map((message) => (
             <li key={message}>{message}</li>
           ))}
@@ -533,6 +534,33 @@ function ExerciseCard({
         </div>
       </div>
     </section>
+  );
+}
+
+// Date de la séance sur la ligne du titre : un bouton qui ouvre le sélecteur natif,
+// posé sous un champ date transparent (le toucher ouvre le sélecteur d'iOS).
+function DateButton({ value, onChange }: { value: string; onChange: (date: string) => void }) {
+  return (
+    <span className="relative inline-flex h-11 shrink-0 items-center gap-2 rounded-lg border border-input bg-surface px-3 text-[15px] font-bold">
+      <CalendarDays aria-hidden className="size-5 text-action" strokeWidth={2} />
+      <span aria-hidden>{formatShortDate(value)}</span>
+      <input
+        type="date"
+        aria-label="Date de la séance"
+        value={value}
+        onChange={(e) => {
+          if (e.target.value) onChange(e.target.value);
+        }}
+        onClick={(e) => {
+          try {
+            e.currentTarget.showPicker();
+          } catch {
+            // Navigateur sans showPicker : le toucher ouvre déjà le sélecteur.
+          }
+        }}
+        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+      />
+    </span>
   );
 }
 

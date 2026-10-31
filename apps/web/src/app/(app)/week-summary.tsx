@@ -48,10 +48,7 @@ function Week({ today }: { today: string }) {
         <p className="text-[17px]">Pas encore de séance cette semaine.</p>
       ) : (
         <>
-          <p className="text-[17px]">
-            <span className="font-bold">{countLabel(list.length, "séance", "séances")}</span> cette
-            semaine
-          </p>
+          <p className="text-[17px] font-bold">{countLabel(list.length, "séance", "séances")}</p>
           <ul
             aria-label="Séances de la semaine"
             className="divide-y divide-rule overflow-hidden rounded-xl border border-rule bg-surface"

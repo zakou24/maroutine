@@ -4,6 +4,12 @@ const dayMonth = new Intl.DateTimeFormat("fr-FR", {
   month: "short",
   timeZone: "UTC",
 });
+const shortDate = new Intl.DateTimeFormat("fr-FR", {
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+  timeZone: "UTC",
+});
 const longDate = new Intl.DateTimeFormat("fr-FR", {
   weekday: "long",
   day: "numeric",
@@ -15,14 +21,24 @@ function utc(date: string) {
   return new Date(`${date}T00:00:00Z`);
 }
 
+// Le premier du mois s'écrit « 1er » en français.
+function firstOfMonth(text: string, date: string): string {
+  return date.endsWith("-01") ? text.replace(/(^|\s)1(?=\s)/, "$11er") : text;
+}
+
 // « 30 oct. »
 export function formatDayMonth(date: string): string {
-  return dayMonth.format(utc(date));
+  return firstOfMonth(dayMonth.format(utc(date)), date);
 }
 
 // « vendredi 30 octobre »
 export function formatLongDate(date: string): string {
-  return longDate.format(utc(date));
+  return firstOfMonth(longDate.format(utc(date)), date);
+}
+
+// « sam. 31 oct. »
+export function formatShortDate(date: string): string {
+  return firstOfMonth(shortDate.format(utc(date)), date);
 }
 
 const dayMonthLong = new Intl.DateTimeFormat("fr-FR", {
@@ -36,9 +52,9 @@ const monthYear = new Intl.DateTimeFormat("fr-FR", {
   timeZone: "UTC",
 });
 
-// « 26 octobre »
+// « 26 octobre », « 1er novembre »
 export function formatDayMonthLong(date: string): string {
-  return dayMonthLong.format(utc(date));
+  return firstOfMonth(dayMonthLong.format(utc(date)), date);
 }
 
 // « 2026-11 » → « novembre 2026 »

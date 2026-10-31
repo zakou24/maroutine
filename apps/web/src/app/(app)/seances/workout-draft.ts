@@ -11,7 +11,14 @@ import {
 } from "@maroutine/core";
 
 // Brouillon de saisie : le texte tapé est gardé tel quel (« 62,5 ») et n'est converti qu'à l'envoi.
-export type DraftSet = { key: string; weight: string; reps: string; isWarmup: boolean };
+export type DraftSet = {
+  key: string;
+  weight: string;
+  reps: string;
+  isWarmup: boolean;
+  // Reprise telle quelle de la dernière séance : affichée en retrait jusqu'à ce qu'on la modifie.
+  prefilled?: boolean;
+};
 
 export type DraftExercise = {
   key: string;
@@ -51,9 +58,10 @@ export function emptyDraft(performedOn: string): WorkoutDraft {
   return { performedOn, note: "", exercises: [] };
 }
 
-function draftSet(set?: SetInput): DraftSet {
+function draftSet(set?: SetInput, prefilled = false): DraftSet {
   return {
     key: newKey(),
+    prefilled,
     weight: set ? formatKg(set.weightKg) : "",
     reps: set ? String(set.reps) : "",
     isWarmup: set?.isWarmup ?? false,
@@ -79,7 +87,7 @@ export function draftReducer(state: WorkoutDraft, action: DraftAction): WorkoutD
       return { ...state, note: action.note };
     case "addExercise": {
       if (state.exercises.some((e) => e.exerciseId === action.exercise.id)) return state;
-      const sets = action.lastSets.sets.map(draftSet);
+      const sets = action.lastSets.sets.map((set) => draftSet(set, true));
       return {
         ...state,
         exercises: [
@@ -107,12 +115,17 @@ export function draftReducer(state: WorkoutDraft, action: DraftAction): WorkoutD
     case "addSet":
       return mapExercise(state, action.exerciseKey, (e) => {
         const last = e.sets.at(-1);
-        return { ...e, sets: [...e.sets, { ...(last ?? draftSet()), key: newKey() }] };
+        return {
+          ...e,
+          sets: [...e.sets, { ...(last ?? draftSet()), key: newKey(), prefilled: false }],
+        };
       });
     case "updateSet":
       return mapExercise(state, action.exerciseKey, (e) => ({
         ...e,
-        sets: e.sets.map((s) => (s.key === action.setKey ? { ...s, ...action.patch } : s)),
+        sets: e.sets.map((s) =>
+          s.key === action.setKey ? { ...s, ...action.patch, prefilled: false } : s,
+        ),
       }));
     case "removeSet":
       return mapExercise(state, action.exerciseKey, (e) =>
@@ -126,7 +139,7 @@ export function draftReducer(state: WorkoutDraft, action: DraftAction): WorkoutD
           key: newKey(),
           exerciseId: e.exerciseId,
           name: e.name,
-          sets: e.sets.map(draftSet),
+          sets: e.sets.map((set) => draftSet(set)),
           prefilledFrom: null,
         })),
       };

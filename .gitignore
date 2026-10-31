@@ -14,7 +14,8 @@ test-results/
 
 # outils
 .superpowers/
-.impeccable/questions/
-.impeccable/live/
+**/.impeccable/questions/
+**/.impeccable/live/
+**/.impeccable/review/
 .DS_Store
 .vercel

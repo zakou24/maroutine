@@ -42,6 +42,25 @@ describe("draftReducer", () => {
     });
   });
 
+  it("une série préremplie le reste jusqu'à ce qu'on la modifie", () => {
+    let draft = withSquat({
+      performedOn: "2026-10-30",
+      sets: [{ weightKg: 65, reps: 6, isWarmup: false }],
+    });
+    const ex = draft.exercises[0]!;
+    expect(ex.sets[0]!.prefilled).toBe(true);
+    draft = draftReducer(draft, {
+      type: "updateSet",
+      exerciseKey: ex.key,
+      setKey: ex.sets[0]!.key,
+      patch: { reps: "7" },
+    });
+    expect(draft.exercises[0]!.sets[0]!.prefilled).toBe(false);
+    draft = draftReducer(draft, { type: "addSet", exerciseKey: ex.key });
+    expect(draft.exercises[0]!.sets[1]!.prefilled).toBe(false);
+    expect(withSquat().exercises[0]!.sets[0]!.prefilled).toBe(false);
+  });
+
   it("addExercise écrit les charges avec une virgule", () => {
     const draft = withSquat({
       performedOn: "2026-10-30",

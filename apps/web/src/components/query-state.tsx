@@ -12,7 +12,7 @@ export function Loading({ label = "Chargement…" }: { label?: string }) {
 export function LoadError({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
     <div role="alert" className="flex flex-col items-start gap-3 py-4">
-      <p className="text-[15px] text-regression-ink">{message}</p>
+      <p className="text-[15px] font-bold text-foreground">{message}</p>
       <Button variant="outline" className="h-11 rounded-lg px-4 text-[15px]" onClick={onRetry}>
         Réessayer
       </Button>
