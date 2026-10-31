@@ -65,6 +65,12 @@ function routeApi(
     if (path.startsWith("/api/v1/exercises?filter=all")) return [squat, curl];
     if (path === "/api/v1/exercises/batch") return { created: [dips], existing: [] };
     if (path.includes("/last-sets")) return { performedOn: null, sets: [] };
+    if (path.includes("/suggestion")) {
+      return {
+        suggestion: { rule: "first" },
+        text: "Première fois : choisis une charge confortable.",
+      };
+    }
     throw new Error(`appel inattendu : ${path}`);
   });
 }
@@ -270,12 +276,19 @@ describe("WorkoutEditor", () => {
     ).toEqual(["Squat bulgare"]);
   });
 
-  it("choisir un exercice le préremplit depuis la dernière séance avant la date", async () => {
-    routeApi((path) =>
-      path.includes("/last-sets")
-        ? { performedOn: "2026-10-28", sets: [{ weightKg: 80, reps: 6, isWarmup: false }] }
-        : undefined,
-    );
+  it("choisir un exercice le préremplit depuis la dernière séance avant la date, avec la suggestion (F-SEA-3)", async () => {
+    routeApi((path) => {
+      if (path.includes("/last-sets")) {
+        return { performedOn: "2026-10-28", sets: [{ weightKg: 80, reps: 6, isWarmup: false }] };
+      }
+      if (path.includes("/suggestion")) {
+        return {
+          suggestion: { rule: "add-rep", weightKg: 80, reps: 7, done: { weightKg: 80, reps: 6 } },
+          text: "Tu as fait 80 × 6 : vise 80 × 7.",
+        };
+      }
+      return undefined;
+    });
     openEditor();
     await userEvent.click(await screen.findByRole("button", { name: "Ajouter un exercice" }));
     await userEvent.click(
@@ -287,6 +300,11 @@ describe("WorkoutEditor", () => {
     expect(within(card).getByRole("textbox", { name: "Charge (kg), série 1" })).toHaveValue("80");
     expect(apiFetch).toHaveBeenCalledWith(
       `/api/v1/exercises/${squat.id}/last-sets?before=${TODAY}`,
+    );
+    expect(await within(card).findByText("Suggestion : 80 kg × 7")).toBeVisible();
+    expect(within(card).getByText("Tu as fait 80 × 6 : vise 80 × 7.")).toBeVisible();
+    expect(apiFetch).toHaveBeenCalledWith(
+      `/api/v1/exercises/${squat.id}/suggestion?before=${TODAY}`,
     );
   });
 });

@@ -81,3 +81,47 @@ test("fiche d'un exercice au poids du corps sans pesée", async ({ page, request
     "poids du corps × 9",
   );
 });
+
+test("tendance dans la liste, suggestion dans la séance, fiche à jour après l'enregistrement", async ({
+  page,
+  request,
+}, testInfo) => {
+  const name = unique("Suivi", testInfo.project.name);
+  const id = await createExercise(request, name);
+  for (const [daysAgo, weightKg] of [
+    [40, 100],
+    [33, 100],
+    [26, 100],
+    [19, 105],
+    [12, 105],
+    [5, 110],
+  ] as const) {
+    await createWorkout(request, parisDate(-daysAgo), [
+      { exerciseId: id, sets: [{ weightKg, reps: 5 }] },
+    ]);
+  }
+
+  await page.goto("/exercices");
+  const row = page.getByRole("link", { name: new RegExp(`^${name}`) });
+  await expect(row).toContainText("En progression · 128,3 kg");
+  await row.click();
+  await expect(page.getByText("Dernier max estimé : 128,3 kg")).toBeVisible();
+
+  // Navigation dans l'app, sans rechargement : la fiche reste montée, cachée.
+  await page.getByRole("link", { name: "Séance", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Séance du soir" })).toBeVisible();
+  await page.getByRole("button", { name: "Ajouter un exercice" }).click();
+  await page.getByRole("list", { name: "Tes exercices" }).getByRole("button", { name }).click();
+  const card = page.getByRole("region", { name });
+  await expect(card).toContainText("Suggestion : 110 kg × 6");
+  await expect(card).toContainText("Tu as fait 110 × 5 : vise 110 × 6.");
+  await card.getByRole("textbox", { name: "Répétitions, série 1" }).fill("6");
+  await page.getByRole("button", { name: "Enregistrer la séance" }).click();
+  await expect(page).toHaveURL(/\/seances\/[0-9a-f-]{36}$/);
+
+  await page.goBack();
+  await page.goBack();
+  await expect(page).toHaveURL(new RegExp(`/exercices/${id}$`));
+  // 110 × 6 → 132,0
+  await expect(page.getByText("Dernier max estimé : 132,0 kg")).toBeVisible();
+});

@@ -1,12 +1,20 @@
 "use client";
 
-import { equipmentLabel, type Exercise } from "@maroutine/core";
+import {
+  equipmentLabel,
+  trendLabel,
+  type Exercise,
+  type ExerciseTrendSummary,
+} from "@maroutine/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { LoadError, Loading } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
+import { formatMax } from "@/lib/format";
+import { trendsQuery } from "@/lib/stats-queries";
+import { cn } from "@/lib/utils";
 
 export function exercisesQuery(filter: "active" | "archived") {
   return {
@@ -19,9 +27,24 @@ function summary(exercise: Exercise) {
   return `${equipmentLabel(exercise.equipment)} · ${exercise.repMin}–${exercise.repMax} rép.`;
 }
 
+// « En progression · 27,5 kg » ; rien tant qu'il n'y a ni tendance ni max estimé.
+function progress(trend: ExerciseTrendSummary | undefined): string | null {
+  if (!trend) return null;
+  const parts = [
+    trend.trend === "insufficient" ? null : trendLabel(trend.trend),
+    trend.latestMax === null
+      ? null
+      : `${formatMax(trend.latestMax)} kg${trend.approximate ? " approx." : ""}`,
+  ].filter(Boolean);
+  return parts.length > 0 ? parts.join(" · ") : null;
+}
+
 export function ExerciseList() {
   const active = useQuery(exercisesQuery("active"));
   const archived = useQuery(exercisesQuery("archived"));
+  // Facultatif : si les tendances ne chargent pas, la liste reste affichée sans elles.
+  const trends = useQuery(trendsQuery);
+  const trendOf = new Map(trends.data?.map((t) => [t.exerciseId, t]));
   const queryClient = useQueryClient();
   const restore = useMutation({
     mutationFn: (id: string) =>
@@ -54,6 +77,7 @@ export function ExerciseList() {
                 <span className="flex flex-1 flex-col">
                   <span className="text-[17px] font-bold">{exercise.name}</span>
                   <span className="text-[15px] text-muted-foreground">{summary(exercise)}</span>
+                  <Progress trend={trendOf.get(exercise.id)} />
                 </span>
                 <ChevronRight
                   aria-hidden
@@ -82,6 +106,7 @@ export function ExerciseList() {
                 <span className="flex flex-1 flex-col">
                   <span className="text-[17px]">{exercise.name}</span>
                   <span className="text-[15px] text-muted-foreground">{summary(exercise)}</span>
+                  <Progress trend={trendOf.get(exercise.id)} />
                 </span>
                 <Button
                   variant="outline"
@@ -98,5 +123,21 @@ export function ExerciseList() {
         </details>
       ) : null}
     </div>
+  );
+}
+
+function Progress({ trend }: { trend: ExerciseTrendSummary | undefined }) {
+  const text = progress(trend);
+  if (!text) return null;
+  return (
+    <span
+      className={cn(
+        "text-[15px] tabular-nums",
+        // L'orange est réservé aux régressions (D13).
+        trend?.trend === "regressing" ? "font-bold text-regression-ink" : "text-corridor-ink",
+      )}
+    >
+      {text}
+    </span>
   );
 }

@@ -6,7 +6,6 @@ import {
   trendLabel,
   type Equipment,
   type Exercise,
-  type ExerciseStatsResponse,
   type Period,
   type SessionStats,
   type SuggestionResponse,
@@ -17,8 +16,8 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useId, useState } from "react";
 import { LoadError, Loading } from "@/components/query-state";
-import { apiFetch } from "@/lib/api";
 import { countLabel, formatLongDate, formatMax, formatVolume } from "@/lib/format";
+import { statsQuery, suggestionQuery } from "@/lib/stats-queries";
 import { cn } from "@/lib/utils";
 import { ProgressChart } from "./progress-chart";
 
@@ -28,25 +27,6 @@ const PERIOD_LABELS: Record<Period, string> = {
   "1y": "1 an",
   all: "Tout",
 };
-
-export function statsQuery(exerciseId: string, period: Period) {
-  return {
-    queryKey: ["exercise-stats", exerciseId, period],
-    queryFn: () =>
-      apiFetch<ExerciseStatsResponse>(`/api/v1/exercises/${exerciseId}/stats?period=${period}`),
-  };
-}
-
-// Suggestion à partir de toutes les séances de l'exercice, ou de celles avant `before`.
-export function suggestionQuery(exerciseId: string, before?: string) {
-  return {
-    queryKey: ["suggestion", exerciseId, before ?? null],
-    queryFn: () =>
-      apiFetch<SuggestionResponse>(
-        `/api/v1/exercises/${exerciseId}/suggestion${before ? `?before=${before}` : ""}`,
-      ),
-  };
-}
 
 export function TrendBadge({ trend }: { trend: Trend }) {
   return (
