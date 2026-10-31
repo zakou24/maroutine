@@ -54,11 +54,15 @@ export const workout = pgTable(
       .references(() => user.id, { onDelete: "cascade" }),
     performedOn: date("performed_on", { mode: "string" }).notNull(),
     note: text("note"),
+    // Échauffement noté pour la séance (D14) et cardio de fin de séance en minutes (D15).
+    warmupDone: boolean("warmup_done").default(false).notNull(),
+    cardioMinutes: integer("cardio_minutes"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     index("workout_user_performed_on_idx").on(t.userId, t.performedOn),
     check("workout_note_length", sql`char_length(${t.note}) <= 500`),
+    check("workout_cardio_minutes", sql`${t.cardioMinutes} between 1 and 180`),
   ],
 );
 

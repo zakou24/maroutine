@@ -157,6 +157,7 @@ describe("WorkoutEditor", () => {
         id: DRAFT_ID,
         performedOn: TODAY,
         note: null,
+        warmupDone: false,
         exercises: [{ exerciseId: squat.id, sets: [{ weightKg: 62.5, reps: 8, isWarmup: false }] }],
       },
     });

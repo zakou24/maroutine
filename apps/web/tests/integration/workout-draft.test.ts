@@ -141,6 +141,8 @@ describe("draftReducer", () => {
       id: "w1",
       performedOn: "2026-10-28",
       note: "Bonne forme",
+      warmupDone: true,
+      cardioMinutes: 15,
       exercises: [
         {
           exerciseId: SQUAT.id,
@@ -188,6 +190,7 @@ describe("toWorkoutInput", () => {
       input: {
         performedOn: "2026-10-31",
         note: null,
+        warmupDone: false,
         exercises: [{ exerciseId: SQUAT.id, sets: [{ weightKg: 62.5, reps: 8, isWarmup: false }] }],
       },
     });

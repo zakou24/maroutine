@@ -41,13 +41,24 @@ async function insertContent(db: AppDatabase, workoutId: string, input: WorkoutI
   );
 }
 
-function noteOf(input: WorkoutInput): string | null {
-  return input.note ? input.note : null;
+function headOf(input: WorkoutInput) {
+  return {
+    performedOn: input.performedOn,
+    note: input.note ? input.note : null,
+    warmupDone: input.warmupDone,
+    cardioMinutes: input.cardioMinutes ?? null,
+  };
 }
 
 export async function getWorkout(db: AppDatabase, userId: string, id: string): Promise<Workout> {
   const [head] = await db
-    .select({ id: workout.id, performedOn: workout.performedOn, note: workout.note })
+    .select({
+      id: workout.id,
+      performedOn: workout.performedOn,
+      note: workout.note,
+      warmupDone: workout.warmupDone,
+      cardioMinutes: workout.cardioMinutes,
+    })
     .from(workout)
     .where(and(eq(workout.id, id), eq(workout.userId, userId)));
   if (!head) throw new NotFoundError();
@@ -95,7 +106,7 @@ export async function createWorkout(
   return db.transaction(async (tx) => {
     const [row] = await tx
       .insert(workout)
-      .values({ id: input.id, userId, performedOn: input.performedOn, note: noteOf(input) })
+      .values({ id: input.id, userId, ...headOf(input) })
       .onConflictDoNothing({ target: workout.id })
       .returning({ id: workout.id });
     if (!row) return { workout: await getWorkout(tx, userId, input.id!), created: false };
@@ -115,7 +126,7 @@ export async function replaceWorkout(
   return db.transaction(async (tx) => {
     const updated = await tx
       .update(workout)
-      .set({ performedOn: input.performedOn, note: noteOf(input) })
+      .set(headOf(input))
       .where(and(eq(workout.id, id), eq(workout.userId, userId)))
       .returning({ id: workout.id });
     if (updated.length === 0) throw new NotFoundError();
@@ -144,6 +155,8 @@ export async function listWorkouts(
     .select({
       id: workout.id,
       performedOn: workout.performedOn,
+      warmupDone: workout.warmupDone,
+      cardioMinutes: workout.cardioMinutes,
       exerciseCount: sql<number>`count(distinct ${workoutExercise.id})::int`,
       // Les échauffements n'entrent jamais dans les stats (C4).
       workingSetCount: sql<number>`(count(${workoutSet.id}) filter (where not ${workoutSet.isWarmup}))::int`,
@@ -185,7 +198,8 @@ export async function lastSets(
   const sets: SetInput[] = await db
     .select({ weightKg: workoutSet.weightKg, reps: workoutSet.reps, isWarmup: workoutSet.isWarmup })
     .from(workoutSet)
-    .where(eq(workoutSet.workoutExerciseId, latest.linkId))
+    // Les anciennes séries d'échauffement ne se reprennent pas : l'échauffement se note pour la séance (D14).
+    .where(and(eq(workoutSet.workoutExerciseId, latest.linkId), eq(workoutSet.isWarmup, false)))
     .orderBy(asc(workoutSet.position));
   return { performedOn: latest.performedOn, sets };
 }

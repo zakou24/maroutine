@@ -14,7 +14,14 @@ vi.mock("@/lib/api", async (original) => ({
 }));
 
 function summary(id: string, performedOn: string): WorkoutSummary {
-  return { id, performedOn, exerciseCount: 3, workingSetCount: 9 };
+  return {
+    id,
+    performedOn,
+    exerciseCount: 3,
+    workingSetCount: 9,
+    warmupDone: false,
+    cardioMinutes: null,
+  };
 }
 
 function serve(workouts: WorkoutSummary[]) {

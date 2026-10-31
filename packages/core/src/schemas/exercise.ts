@@ -27,6 +27,11 @@ export const exerciseInputSchema = z
 
 export type ExerciseInput = z.output<typeof exerciseInputSchema>;
 
+// Ajout de plusieurs exercices d'un coup, depuis le catalogue (D16).
+export const exerciseBatchSchema = z.object({
+  exercises: z.array(exerciseInputSchema).min(1).max(50),
+});
+
 // Champs facultatifs, sans défaut : la cohérence repMax ≥ repMin se vérifie sur la valeur fusionnée.
 export const exercisePatchSchema = z.object({
   name: fields.name.optional(),
