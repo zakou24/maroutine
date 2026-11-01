@@ -89,7 +89,7 @@ _Avoid_ : Tonnage, Charge de travail
 _Avoid_ : Statut, Évolution
 
 **Couloir de tendance** :
-Bande tracée derrière la courbe du max estimé, du plus petit au plus grand max estimé des 3 dernières séances. Signature visuelle de l'app.
+Bande tracée derrière une courbe : pour le max estimé, du plus petit au plus grand max estimé des 3 dernières séances ; pour le poids, de la plus petite à la plus grande pesée des 7 derniers jours. Signature visuelle de l'app.
 _Avoid_ : Zone de confiance, Intervalle
 
 **Double progression** :

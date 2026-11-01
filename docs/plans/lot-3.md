@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-> **Statut : en cours** (branche `lot-3`). Le propriétaire a délégué la rédaction et l'exécution de ce plan le 01/11/2026 (« je te laisse en charge du plan du lot 3… met en prod »).
+> **Statut : terminé** (PR #5). Le propriétaire a délégué la rédaction et l'exécution de ce plan le 01/11/2026 (« je te laisse en charge du plan du lot 3… met en prod »).
 
 **Goal :** noter une pesée par jour et suivre son poids : sa courbe, sa moyenne glissante sur 7 jours, son couloir de tendance. Les pesées complètent aussi les exercices au poids du corps, qui gagnent leur max estimé (C5).
 
