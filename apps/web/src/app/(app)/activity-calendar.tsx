@@ -1,10 +1,17 @@
 "use client";
 
-import { activityWeeks, type WorkoutSummary } from "@maroutine/core";
+import {
+  activityWeeks,
+  muscleGroupLabel,
+  sortMuscleGroups,
+  type MuscleGroup,
+  type WorkoutSummary,
+} from "@maroutine/core";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { LoadError } from "@/components/query-state";
 import { countLabel, formatDayMonthLong, formatLongDate, formatMonthShort } from "@/lib/format";
+import { MUSCLE_COLOR, squareBackground } from "@/lib/muscle-colors";
 import { cn } from "@/lib/utils";
 import { workoutsQuery } from "@/lib/workouts-query";
 import { WorkoutLink } from "./calendrier/calendar-view";
@@ -13,14 +20,9 @@ const WEEKS = 13;
 // Initiales des jours affichées à gauche, une ligne sur deux (comme le graphe d'activité de GitHub).
 const DAY_LABELS = ["L", "", "M", "", "V", "", ""];
 
-const LEVEL_CLASS = {
-  0: "bg-rule-soft",
-  1: "bg-action",
-  2: "bg-action-strong",
-} as const;
-
-function levelOf(count: number): 0 | 1 | 2 {
-  return count === 0 ? 0 : count === 1 ? 1 : 2;
+// Muscles d'un jour : ceux de toutes ses séances réunies, dans l'ordre des groupes (Lot 4.2).
+function dayMuscles(workouts: WorkoutSummary[]): MuscleGroup[] {
+  return sortMuscleGroups(workouts.flatMap((w) => w.muscleGroups));
 }
 
 // Nom du mois au-dessus de la colonne qui contient le 1er du mois, et au-dessus de la première
@@ -49,6 +51,10 @@ export function ActivityCalendar({ today }: { today: string }) {
   const selectedWorkouts = selected ? (byDay.get(selected) ?? []) : [];
 
   const labels = monthLabels(weeks);
+  // Légende : les muscles présents sur les 3 mois, et « Sans muscle » si une séance n'en a aucun.
+  const shown = [...byDay.values()].map(dayMuscles);
+  const legend = sortMuscleGroups(shown.flat());
+  const unclassified = shown.some((groups) => groups.length === 0);
 
   return (
     <section aria-labelledby="activity-title" className="flex flex-col gap-3">
@@ -93,11 +99,29 @@ export function ActivityCalendar({ today }: { today: string }) {
               />
             ))}
           </div>
-          <p aria-hidden className="mt-3 flex items-center gap-2 text-[12px] text-muted-foreground">
-            Aucune <span className={cn("size-3 rounded-[3px]", LEVEL_CLASS[0])} />1 séance
-            <span className={cn("size-3 rounded-[3px]", LEVEL_CLASS[1])} />2 et plus
-            <span className={cn("size-3 rounded-[3px]", LEVEL_CLASS[2])} />
-          </p>
+          {legend.length > 0 || unclassified ? (
+            <ul
+              aria-label="Couleurs des muscles"
+              className="mt-3 flex flex-wrap gap-x-3 gap-y-1 border-t border-rule-soft pt-3 text-[13px] sm:w-[400px]"
+            >
+              {legend.map((group) => (
+                <li key={group} className="flex items-center gap-1.5">
+                  <span
+                    aria-hidden
+                    className="size-3 rounded-[3px]"
+                    style={{ background: MUSCLE_COLOR[group] }}
+                  />
+                  {muscleGroupLabel(group)}
+                </li>
+              ))}
+              {unclassified ? (
+                <li className="flex items-center gap-1.5">
+                  <span aria-hidden className="size-3 rounded-[3px] bg-rule" />
+                  Sans muscle
+                </li>
+              ) : null}
+            </ul>
+          ) : null}
         </div>
       )}
 
@@ -108,7 +132,7 @@ export function ActivityCalendar({ today }: { today: string }) {
         >
           {selectedWorkouts.map((w) => (
             <li key={w.id}>
-              <WorkoutLink workout={w} showSets={false} />
+              <WorkoutLink workout={w} showSets={false} showMuscles />
             </li>
           ))}
         </ul>
@@ -138,25 +162,52 @@ function Row({
         {label}
       </span>
       {days.map((day) => {
-        const cell = "aspect-square w-full rounded-[3px]";
+        const cell =
+          "flex aspect-square w-full items-center justify-center rounded-[4px] text-[11px] leading-none tabular-nums";
         if (day > today) return <span key={day} aria-hidden className={cell} />;
-        const count = byDay.get(day)?.length ?? 0;
-        if (count === 0) return <span key={day} aria-hidden className={cn(cell, LEVEL_CLASS[0])} />;
-        const level = levelOf(count);
+        const number = Number(day.slice(8));
+        const isToday = day === today;
+        // Aujourd'hui : un contour en pointillés ; le jour choisi : un contour plein, plus épais.
+        const todayMark = isToday && "outline-1 outline-offset-1 outline-ink outline-dashed";
+        const sessions = byDay.get(day) ?? [];
+        if (sessions.length === 0) {
+          return (
+            <span
+              key={day}
+              aria-hidden
+              className={cn(cell, "bg-rule-soft text-muted-foreground", todayMark)}
+            >
+              {number}
+            </span>
+          );
+        }
+        const groups = dayMuscles(sessions);
+        const name = [
+          formatDayMonthLong(day),
+          countLabel(sessions.length, "séance", "séances"),
+          ...groups.map(muscleGroupLabel),
+        ].join(", ");
         return (
           <button
             key={day}
             type="button"
-            data-level={level}
-            aria-label={`${formatDayMonthLong(day)}, ${countLabel(count, "séance", "séances")}`}
+            data-muscles={groups.join(" ")}
             aria-pressed={selected === day}
             onClick={() => onSelect(day)}
+            style={groups.length > 0 ? { background: squareBackground(groups) } : undefined}
             className={cn(
               cell,
-              LEVEL_CLASS[level],
-              selected === day && "ring-2 ring-ink ring-offset-1 ring-offset-surface",
+              "font-bold",
+              groups.length > 0 ? "text-white" : "bg-rule text-foreground",
+              todayMark,
+              selected === day && "outline-2 outline-offset-1 outline-ink outline-solid",
             )}
-          />
+          >
+            {/* Nom porté par le texte et non par aria-label : « 1er novembre » ne contient pas le
+                « 1 » affiché (label-content-name-mismatch), comme dans l'écran Calendrier. */}
+            <span aria-hidden>{number}</span>
+            <span className="sr-only">{name}</span>
+          </button>
         );
       })}
     </>

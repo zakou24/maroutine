@@ -19,6 +19,15 @@
   --regression: #b4470e;
   --regression-ink: #8a3409;
   --regression-wash: #fdf3ec;
+  /* Une couleur par groupe musculaire, pour le calendrier d'activité (Lot 4.2) : toutes à 4,5:1
+     au moins avec un chiffre blanc, aucune orange (réservé aux régressions). */
+  --muscle-chest: #1f5fa8;
+  --muscle-back: #0b6e63;
+  --muscle-shoulders: #2a78b5;
+  --muscle-biceps: #6d45bd;
+  --muscle-triceps: #b0367f;
+  --muscle-legs: #2f7a2b;
+  --muscle-abs: #5b6878;
 
   --background: var(--ground);
   --foreground: var(--ink);
