@@ -201,6 +201,9 @@ function Row({
               groups.length > 0 ? "text-white" : "bg-rule text-foreground",
               todayMark,
               selected === day && "outline-2 outline-offset-1 outline-ink outline-solid",
+              // Ces marques sont des contours : le focus clavier reprend le sien par-dessus
+              // (revue du Lot 4.2, WCAG 2.4.7).
+              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action focus-visible:outline-solid",
             )}
           >
             {/* Nom porté par le texte et non par aria-label : « 1er novembre » ne contient pas le

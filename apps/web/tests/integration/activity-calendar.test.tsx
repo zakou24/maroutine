@@ -114,6 +114,22 @@ describe("ActivityCalendar (D17)", () => {
   });
 });
 
+describe("ActivityCalendar, clavier (revue du Lot 4.2)", () => {
+  it("le focus clavier garde son propre contour sur le jour choisi et sur aujourd'hui", async () => {
+    // « aujourd'hui » (4 novembre) a une séance : son carré est un bouton marqué en pointillés.
+    apiFetch.mockResolvedValue([summary("t", TODAY, ["legs"])]);
+    cleanup();
+    renderWithQuery(<ActivityCalendar today={TODAY} />);
+    const today = await screen.findByRole("button", { name: /^4 novembre/ });
+    await userEvent.click(today);
+    expect(today).toHaveAttribute("aria-pressed", "true");
+    // Les marques « choisi » et « aujourd'hui » sont des contours : le focus doit les remplacer.
+    expect(today.className).toContain("focus-visible:outline-action");
+    expect(today.className).toContain("focus-visible:outline-solid");
+    expect(today.className).toContain("focus-visible:outline-offset-2");
+  });
+});
+
 describe("monthLabels", () => {
   it("n'étiquette pas la première colonne si la suivante commence un mois (pas de chevauchement)", () => {
     const labels = monthLabels(activityWeeks("2026-11-16", 13));
