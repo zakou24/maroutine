@@ -113,8 +113,8 @@ Préfixe `/api/v1`. JSON, validation par schémas Zod partagés dans `packages/c
 | Préremplissage | `GET /exercises/{id}/last-sets` |
 | Stats | `GET /exercises/{id}/stats?period=1m\|3m\|1y\|all`, `GET /exercises/{id}/suggestion?before`, `GET /exercises/trends` (tendance et dernier max de chaque exercice actif, D21) |
 | Pesées | `GET /body-weights?from&to` (bornes facultatives : sans `from`, tout l'historique), `PUT /body-weights/{date}` (`{ weightKg }`, 20 à 300 kg, une décimale, date non future), `DELETE /body-weights/{date}` (204, idempotent) |
-| Aliments | `GET /foods/search?q`, `GET /foods/recent`, `POST /foods` (aliment perso), `PATCH/DELETE /foods/{id}` |
-| Journal | `GET /food-entries?date`, `POST /food-entries`, `PATCH/DELETE /food-entries/{id}`, `POST /food-entries/copy` |
+| Aliments | `GET /foods/search?q` (2 caractères au moins, 403 pour la démo), `GET /foods/recent`, `GET /foods` (aliments perso, écran « Mes aliments »), `POST /foods` (aliment perso), `PATCH/DELETE /foods/{id}` |
+| Journal | `GET /food-entries?date` (entrées, totaux et objectif en vigueur), `POST /food-entries`, `PATCH/DELETE /food-entries/{id}`, `POST /food-entries/copy` (`{ fromDate, toDate, meal? }`) |
 | Objectifs | `GET /nutrition-targets`, `POST /nutrition-targets` |
 | Tableau de bord | `GET /dashboard?week`, `GET /insights/nutrition-performance?exerciseId` |
 

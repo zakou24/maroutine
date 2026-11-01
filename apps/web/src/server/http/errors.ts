@@ -30,3 +30,12 @@ export class UnsupportedMediaTypeError extends BadRequestError {
     this.name = "UnsupportedMediaTypeError";
   }
 }
+
+// Action refusée à cette session (compte démo sur la recherche d'aliments, T-09).
+export class ForbiddenError extends BadRequestError {
+  override readonly status = 403;
+  constructor(code: string) {
+    super(code);
+    this.name = "ForbiddenError";
+  }
+}

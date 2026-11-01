@@ -1,4 +1,11 @@
-import { CalendarRange, Dumbbell, Ellipsis, PencilLine, type LucideIcon } from "lucide-react";
+import {
+  Apple,
+  CalendarRange,
+  Dumbbell,
+  Ellipsis,
+  PencilLine,
+  type LucideIcon,
+} from "lucide-react";
 
 export type NavItem = { href: string; label: string; icon: LucideIcon; covers: string[] };
 
@@ -6,8 +13,15 @@ export type NavItem = { href: string; label: string; icon: LucideIcon; covers: s
 export const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Accueil", icon: CalendarRange, covers: ["/seances"] },
   { href: "/saisie", label: "Séance", icon: PencilLine, covers: [] },
+  // « Repas » plutôt qu'« Alimentation » : cinq onglets de 75 px à 375 px de large (D24).
+  { href: "/alimentation", label: "Repas", icon: Apple, covers: [] },
   { href: "/exercices", label: "Exercices", icon: Dumbbell, covers: [] },
-  { href: "/plus", label: "Plus", icon: Ellipsis, covers: ["/calendrier"] },
+  {
+    href: "/plus",
+    label: "Plus",
+    icon: Ellipsis,
+    covers: ["/calendrier", "/poids", "/objectifs", "/aliments"],
+  },
 ];
 
 function under(pathname: string, prefix: string) {

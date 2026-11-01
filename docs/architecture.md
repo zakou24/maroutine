@@ -278,7 +278,7 @@ erDiagram
         date eaten_on
         string meal "breakfast, lunch, dinner, snack"
         uuid food_id FK "null = ajout rapide"
-        string label
+        string label "toujours renseigné : nom de l'aliment figé, ou libellé de l'ajout rapide"
         numeric quantity_g "null = ajout rapide"
         numeric kcal "figé"
         numeric protein_g "figé"
@@ -312,9 +312,12 @@ Direction visuelle retenue : **A — Courbes** ([décision D13](decisions-ouvert
 | Fiche exercice | Tendance et dernier max, suggestion justifiée, courbe du max estimé dans son couloir (1 mois, 3 mois, 1 an, tout) avec résumé textuel, historique (meilleure série, max estimé, volume). Superposition calories et protéines au Lot 5. Lien « Réglages » |
 | Réglages d'un exercice | Nom, matériel, fourchette, pas d'augmentation, archivage (D21) |
 | Poids | Saisie à une date passée (remplace la pesée du jour), courbe des pesées avec moyenne glissante et couloir (1 mois, 3 mois, 1 an, tout) et résumé textuel, liste avec suppression |
-| Alimentation (journal) | Jour sélectionné, entrées par repas, totaux et objectifs, recherche, ajout rapide, duplication |
+| Repas (journal, onglet D24) | Jour sélectionné (jour précédent, jour suivant), totaux face aux objectifs en barres, entrées par repas avec modification et suppression en place, « Copier depuis » (D26) |
+| Ajouter (repas) | Repas, recherche temporisée (récents quand le champ est vide), quantité avec aperçu des valeurs, ajout rapide, nouvel aliment perso, mention ODbL (D25) |
+| Mes aliments | Aliments perso : création, modification, suppression sans effet sur les entrées passées |
 | Croisement | Comparaison après fenêtres engagées et non engagées, tous exercices et par exercice, effectifs, mention de prudence |
-| Réglages | Objectifs nutritionnels et leur historique, déconnexion, mention Open Food Facts (ODbL) |
+| Objectifs | Objectifs kcal et protéines avec une date d'effet, historique avec « En vigueur » |
+| Plus | Liens Poids, Objectifs, Mes aliments, Calendrier ; mention Open Food Facts (ODbL) ; déconnexion |
 
 ## 9. Environnements
 

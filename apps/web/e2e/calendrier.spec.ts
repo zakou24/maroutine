@@ -66,6 +66,10 @@ for (const [path, heading] of [
   ["/exercices", "Exercices"],
   ["/calendrier", "Calendrier"],
   ["/poids", "Poids"],
+  ["/alimentation", "Repas"],
+  ["/alimentation/ajouter?meal=breakfast", "Ajouter"],
+  ["/objectifs", "Objectifs"],
+  ["/aliments", "Mes aliments"],
 ] as const) {
   test(`aucune violation axe ni défilement horizontal : ${heading}`, async ({ page }) => {
     await page.goto(path);

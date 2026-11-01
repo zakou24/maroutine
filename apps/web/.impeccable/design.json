@@ -446,6 +446,14 @@
       "description": "Titre, lien « Voir la courbe », dernière pesée et moyenne sur 7 jours, champ « Pesée du jour (kg) » et bouton principal.",
       "html": "<section class=\"ds-weight\"><h2>Poids</h2><p>78,4 kg, le 31 octobre <span>· moyenne sur 7 jours 78,6 kg</span></p></section>",
       "css": ".ds-weight h2 { font-size: 20px; font-weight: 700; margin: 0; } .ds-weight p { font-size: 17px; font-variant-numeric: tabular-nums; } .ds-weight span { color: #5b6878; }"
+    },
+    {
+      "name": "Barre d'objectif",
+      "kind": "progress",
+      "refersTo": "journal-targets",
+      "description": "Valeur sur objectif en 17 px tabulaire, barre de 8 px bleu acier sur rule-soft, jamais orange.",
+      "html": "<div class=\"ds-goal\"><p>893 / 2 400 kcal</p><div class=\"ds-goal-bar\"><div style=\"width:37%\"></div></div></div>",
+      "css": ".ds-goal p { font-size: 17px; font-variant-numeric: tabular-nums; margin: 0 0 6px; } .ds-goal-bar { height: 8px; border-radius: 999px; background: #e9eef4; overflow: hidden; } .ds-goal-bar div { height: 100%; background: #1f5fa8; border-radius: 999px; }"
     }
   ],
   "narrative": {

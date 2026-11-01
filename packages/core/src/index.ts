@@ -86,3 +86,31 @@ export {
   type WeighInInput,
 } from "./schemas/body-weight";
 export { formatWeight, weightSeries, type WeightPoint } from "./training/weight";
+export { MEALS, mealLabel, toMeal, type Meal } from "./nutrition/meals";
+export {
+  dayTotals,
+  entryNutrients,
+  orderSearchResults,
+  scaleEntry,
+  targetOn,
+} from "./nutrition/nutrients";
+export { parseOffHit, type OffProduct } from "./nutrition/off";
+export {
+  copyEntriesSchema,
+  foodEntryInputSchema,
+  foodEntryPatchSchema,
+  foodInputSchema,
+  nutritionTargetInputSchema,
+  type CopyEntriesInput,
+  type DayJournal,
+  type Food,
+  type FoodEntry,
+  type FoodEntryInput,
+  type FoodEntryPatch,
+  type FoodInput,
+  type FoodResult,
+  type FoodSearchResponse,
+  type Nutrients,
+  type NutritionTarget,
+  type NutritionTargetInput,
+} from "./schemas/food";
