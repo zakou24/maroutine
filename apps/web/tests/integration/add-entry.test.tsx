@@ -7,12 +7,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AddEntry } from "@/app/(app)/alimentation/ajouter/add-entry";
 import { renderWithQuery } from "../helpers/render";
 
+const { ApiError } = await import("@/lib/api");
+
 const { apiFetch, push } = vi.hoisted(() => ({ apiFetch: vi.fn(), push: vi.fn() }));
 vi.mock("@/lib/api", async (original) => ({
   ...(await original<typeof import("@/lib/api")>()),
   apiFetch,
 }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push, replace: push }) }));
+// La caméra n'existe pas dans jsdom : le scanner est remplacé, la saisie du code reste réelle.
+vi.mock("@/app/(app)/alimentation/ajouter/barcode-scanner", () => ({
+  BarcodeScanner: () => null,
+}));
 
 const skyr: Food = {
   id: "11111111-1111-4111-8111-111111111111",
@@ -109,5 +115,66 @@ describe("ajout d'une entrée (F-ALI-1, F-ALI-3, F-ALI-6)", () => {
     expect(
       await screen.findByText("Open Food Facts ne répond pas : seuls tes aliments sont affichés."),
     ).toBeVisible();
+  });
+});
+
+describe("ajout par code-barres (D29)", () => {
+  function serveBarcode(answer: Food | Error) {
+    apiFetch.mockImplementation(async (path: string, init?: { method?: string }) => {
+      if (path === "/api/v1/foods/recent") return [];
+      if (path.startsWith("/api/v1/foods/barcode/")) {
+        if (answer instanceof Error) throw answer;
+        return answer;
+      }
+      if (path === "/api/v1/food-entries" && init?.method === "POST") return {};
+      throw new Error(path);
+    });
+  }
+
+  async function typeCode(code: string) {
+    await userEvent.click(screen.getByRole("button", { name: "Scanner" }));
+    await userEvent.type(screen.getByRole("textbox", { name: "Code-barres" }), code);
+    await userEvent.click(screen.getByRole("button", { name: "Chercher le code" }));
+  }
+
+  it("un code saisi à la main ouvre la quantité du produit trouvé", async () => {
+    serveBarcode(skyr);
+    renderWithQuery(<AddEntry date="2026-10-30" meal="breakfast" />);
+    await typeCode("3017 6204 22003");
+    expect(apiFetch).toHaveBeenCalledWith("/api/v1/foods/barcode/3017620422003");
+    expect(await screen.findByRole("textbox", { name: "Quantité (g)" })).toBeVisible();
+    expect(screen.getByText(/Skyr/)).toBeVisible();
+  });
+
+  it("refuse un code invalide avant tout envoi", async () => {
+    serveBarcode(skyr);
+    renderWithQuery(<AddEntry date="2026-10-30" meal="breakfast" />);
+    await typeCode("3017620422004");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Code-barres invalide.");
+    expect(apiFetch).not.toHaveBeenCalledWith(expect.stringMatching(/barcode/));
+  });
+
+  it("produit introuvable : propose l'ajout rapide ou de créer l'aliment", async () => {
+    serveBarcode(new ApiError(404, "not_found"));
+    renderWithQuery(<AddEntry date="2026-10-30" meal="breakfast" />);
+    await typeCode("3017620422003");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Produit introuvable sur Open Food Facts.",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Ajout rapide", pressed: false }));
+    expect(screen.getByRole("button", { name: "Ajout rapide" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
+  it("Open Food Facts ne répond pas : message et pas d'écran figé", async () => {
+    serveBarcode(new ApiError(503, "off_unavailable"));
+    renderWithQuery(<AddEntry date="2026-10-30" meal="breakfast" />);
+    await typeCode("3017620422003");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Open Food Facts ne répond pas. Réessaie ou saisis l'aliment.",
+    );
+    expect(screen.getByRole("button", { name: "Chercher le code" })).toBeEnabled();
   });
 });

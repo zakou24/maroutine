@@ -35,3 +35,8 @@ it("/apixyz et /icons-test sont protégés, /api/v1/health et /icons/192 ne le s
 it("/robots.txt n'est pas redirigé", () => {
   expect(matches("/robots.txt")).toBe(false);
 });
+
+it("le lecteur de codes-barres /zxing/ n'est pas redirigé, /zxingx l'est (D29)", () => {
+  expect(matches("/zxing/zxing_reader.wasm")).toBe(false);
+  expect(matches("/zxingx")).toBe(true);
+});
