@@ -1,10 +1,13 @@
 // @vitest-environment jsdom
 import "@testing-library/jest-dom/vitest";
-import type {
-  Exercise,
-  ExerciseStatsResponse,
-  SessionStats,
-  SuggestionResponse,
+import {
+  periodStart,
+  todayIn,
+  type Exercise,
+  type ExerciseStatsResponse,
+  type NutritionDay,
+  type SessionStats,
+  type SuggestionResponse,
 } from "@maroutine/core";
 import { cleanup, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -49,12 +52,28 @@ function session(
   };
 }
 
-function serve(stats: ExerciseStatsResponse, suggestion: SuggestionResponse) {
+function serve(
+  stats: ExerciseStatsResponse,
+  suggestion: SuggestionResponse,
+  days: NutritionDay[] = [],
+) {
   apiFetch.mockImplementation(async (path: string) => {
+    if (path.includes("/nutrition/days")) return days;
+    if (path === "/api/v1/body-weights") return [];
     if (path.includes("/stats")) return stats;
     if (path.includes("/suggestion")) return suggestion;
     throw new Error(path);
   });
+}
+
+const target = { kcal: 2400, proteinG: 150 };
+function nutritionDay(
+  date: string,
+  kcal: number,
+  proteinG: number,
+  status: NutritionDay["status"],
+) {
+  return { date, kcal, proteinG, entryCount: kcal > 0 ? 3 : 0, target, status };
 }
 
 const sessions = [session(0, 116.7), session(1, 120), session(2, 128.3)];
@@ -97,13 +116,18 @@ describe("ExerciseStats (fiche exercice)", () => {
     expect(await screen.findByText("3 séances sur 1 mois, de 116,7 à 128,3 kg.")).toBeVisible();
   });
 
-  it("signale la régression en orange et renvoie vers l'historique (règle 2)", async () => {
+  it("signale la régression en orange et renvoie au poids et à l'alimentation (règle 2, D20)", async () => {
     serve(
       { trend: "regressing", latest: sessions[2]!, sessions, corridor: [] },
       {
         suggestion: { rule: "declining", weightKg: 100, reps: 5 },
         text: "Ton max estimé baisse depuis 2 séances : garde la charge et regarde ta récupération et ton alimentation.",
       },
+      [
+        nutritionDay("2026-10-09", 2400, 150, "engaged"),
+        nutritionDay("2026-10-10", 1500, 80, "notEngaged"),
+        nutritionDay("2026-10-11", 0, 0, "unrecorded"),
+      ],
     );
     renderWithQuery(<ExerciseStats exercise={squat} />);
     expect(await screen.findByText("En régression")).toHaveClass("text-regression-ink");
@@ -111,12 +135,63 @@ describe("ExerciseStats (fiche exercice)", () => {
     expect(next).toHaveClass("bg-regression-wash");
     // Identifiant propre à la fiche : Next.js garde les fiches déjà vues montées et cachées.
     const href = within(next)
-      .getByRole("link", { name: "Voir l'historique" })
+      .getByRole("link", { name: "Voir le poids et l'alimentation" })
       .getAttribute("href")!;
-    expect(href).not.toBe("#historique");
-    const target = document.getElementById(href.slice(1));
-    expect(target?.tagName).toBe("H2");
-    expect(target).toHaveTextContent("Historique");
+    const heading = document.getElementById(href.slice(1));
+    expect(heading?.tagName).toBe("H2");
+    expect(heading).toHaveTextContent("Autour de la baisse");
+  });
+
+  it("encart de régression : les 3 jours avant la dernière séance, nommés, avec leurs liens (F-TDB-5)", async () => {
+    serve({ trend: "regressing", latest: sessions[2]!, sessions, corridor: [] }, addRep, [
+      nutritionDay("2026-10-09", 2400, 150, "engaged"),
+      nutritionDay("2026-10-10", 1500, 80, "notEngaged"),
+      nutritionDay("2026-10-11", 0, 0, "unrecorded"),
+    ]);
+    renderWithQuery(<ExerciseStats exercise={squat} />);
+    const panel = await screen.findByRole("region", { name: "Autour de la baisse" });
+    expect(apiFetch).toHaveBeenCalledWith("/api/v1/nutrition/days?from=2026-10-09&to=2026-10-11");
+    const days = await within(panel).findAllByRole("listitem");
+    expect(days.map((d) => d.textContent)).toEqual([
+      expect.stringMatching(/^vendredi 9 octobre.*Engagé/),
+      expect.stringMatching(/^samedi 10 octobre.*Non engagé/),
+      expect.stringMatching(/^dimanche 11 octobre.*Non renseigné/),
+    ]);
+    expect(within(days[0]!).getByRole("link")).toHaveAttribute(
+      "href",
+      "/alimentation?date=2026-10-09",
+    );
+    expect(within(panel).getByRole("link", { name: /Poids/ })).toHaveAttribute("href", "/poids");
+  });
+
+  it("pas d'encart ni de requête alimentaire hors régression", async () => {
+    serve({ trend: "progressing", latest: sessions[2]!, sessions, corridor: [] }, addRep);
+    renderWithQuery(<ExerciseStats exercise={squat} />);
+    await screen.findByText("En progression");
+    expect(screen.queryByRole("region", { name: "Autour de la baisse" })).toBeNull();
+    expect(apiFetch).not.toHaveBeenCalledWith(expect.stringContaining("/nutrition/days"));
+  });
+
+  it("superpose les protéines à la courbe, avec leur moyenne sur la période (F-TDB-2)", async () => {
+    serve({ trend: "progressing", latest: sessions[2]!, sessions, corridor: [] }, addRep, [
+      nutritionDay("2026-10-11", 2400, 150, "engaged"),
+      nutritionDay("2026-10-12", 0, 0, "unrecorded"),
+      nutritionDay("2026-10-13", 2200, 154, "engaged"),
+    ]);
+    renderWithQuery(<ExerciseStats exercise={squat} />);
+    const overlay = await screen.findByRole("group", { name: "Superposer" });
+    expect(within(overlay).getByRole("button", { name: "Rien" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await userEvent.click(within(overlay).getByRole("button", { name: "Protéines" }));
+    const today = todayIn("Europe/Paris", new Date());
+    expect(apiFetch).toHaveBeenCalledWith(
+      `/api/v1/nutrition/days?from=${periodStart(today, "3m")}&to=${today}`,
+    );
+    expect(
+      await screen.findByText("152 g de protéines par jour en moyenne sur 2 jours renseignés."),
+    ).toBeInTheDocument();
   });
 
   it("sans séance, l'invite à commencer", async () => {

@@ -109,6 +109,7 @@ export {
 } from "./training/crossing";
 export { MEALS, mealLabel, toMeal, type Meal } from "./nutrition/meals";
 export {
+  averageIntake,
   dayTotals,
   entryNutrients,
   orderSearchResults,

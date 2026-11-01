@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { mealLabel, MEALS } from "./meals";
-import { dayTotals, entryNutrients, orderSearchResults, scaleEntry, targetOn } from "./nutrients";
+import {
+  averageIntake,
+  dayTotals,
+  entryNutrients,
+  orderSearchResults,
+  scaleEntry,
+  targetOn,
+} from "./nutrients";
 import { parseOffHit } from "./off";
 
 const skyr = { kcalPer100g: 62, proteinPer100g: 11 };
@@ -103,5 +110,19 @@ describe("orderSearchResults (F-ALI-2)", () => {
 describe("repas (C7)", () => {
   it("quatre repas en français", () => {
     expect(MEALS.map(mealLabel)).toEqual(["Petit-déjeuner", "Déjeuner", "Dîner", "Collation"]);
+  });
+});
+
+describe("moyenne quotidienne (F-TDB-2)", () => {
+  const d = (kcal: number, proteinG: number, entryCount = 2) => ({ kcal, proteinG, entryCount });
+  it("sur les seuls jours renseignés", () => {
+    expect(averageIntake([d(2000, 140), d(0, 0, 0), d(2600, 160)])).toEqual({
+      kcal: 2300,
+      proteinG: 150,
+      days: 2,
+    });
+  });
+  it("null sans jour renseigné", () => {
+    expect(averageIntake([d(0, 0, 0)])).toBeNull();
   });
 });

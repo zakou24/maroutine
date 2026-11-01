@@ -1,7 +1,11 @@
 "use client";
 
 import {
+  addDays,
+  averageIntake,
+  daysBetween,
   loadLabel,
+  periodStart,
   targetLabel,
   trendLabel,
   type Equipment,
@@ -16,10 +20,19 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useId, useState } from "react";
 import { LoadError, Loading } from "@/components/query-state";
-import { countLabel, formatLongDate, formatMax, formatVolume } from "@/lib/format";
-import { statsQuery, suggestionQuery } from "@/lib/stats-queries";
+import {
+  countLabel,
+  formatGrams,
+  formatKcal,
+  formatLongDate,
+  formatMax,
+  formatVolume,
+} from "@/lib/format";
+import { nutritionDaysQuery, statsQuery, suggestionQuery } from "@/lib/stats-queries";
+import { useToday } from "@/lib/use-today";
 import { cn } from "@/lib/utils";
 import { ProgressChart } from "./progress-chart";
+import { RegressionContext } from "./regression-context";
 
 const PERIOD_LABELS: Record<Period, string> = {
   "1m": "1 mois",
@@ -56,10 +69,35 @@ function chartSummary(sessions: SessionStats[], period: Period): string {
   return `${count} sur ${span}, de ${formatMax(Math.min(...maxima))} à ${formatMax(Math.max(...maxima))} kg.`;
 }
 
+type Overlay = "none" | "kcal" | "protein";
+
+const OVERLAY_LABELS: Record<Overlay, string> = {
+  none: "Rien",
+  kcal: "Calories",
+  protein: "Protéines",
+};
+
+// La route des jours alimentaires couvre 400 jours au plus.
+const MAX_OVERLAY_DAYS = 400;
+
+// Jours alimentaires superposés à la courbe (F-TDB-2) : la période affichée jusqu'à aujourd'hui.
+function overlayRange(period: Period, today: string, firstSession: string | undefined) {
+  const start = periodStart(today, period) ?? firstSession ?? today;
+  const floor = addDays(today, -MAX_OVERLAY_DAYS);
+  return { from: daysBetween(floor, start) < 0 ? floor : start, to: today };
+}
+
 export function ExerciseStats({ exercise }: { exercise: Exercise }) {
   const [period, setPeriod] = useState<Period>("3m");
+  const [overlay, setOverlay] = useState<Overlay>("none");
   const stats = useQuery({ ...statsQuery(exercise.id, period), placeholderData: (prev) => prev });
   const suggestion = useQuery(suggestionQuery(exercise.id));
+  const today = useToday();
+  const range = today ? overlayRange(period, today, stats.data?.sessions[0]?.performedOn) : null;
+  const food = useQuery({
+    ...nutritionDaysQuery(range?.from ?? "", range?.to ?? ""),
+    enabled: overlay !== "none" && range !== null,
+  });
   const id = useId();
 
   if (stats.isPending) return <Loading />;
@@ -70,6 +108,18 @@ export function ExerciseStats({ exercise }: { exercise: Exercise }) {
   const { trend, latest, sessions } = stats.data;
   const withMax = sessions.some((s) => s.estimatedMax !== null);
   const history = [...sessions].reverse();
+  // Signal de régression (F-TDB-5) : tendance en baisse, ou règle 2 de la suggestion (D20).
+  const declining = suggestion.data?.suggestion.rule === "declining";
+  const lastWithMax = [...sessions].reverse().find((s) => s.estimatedMax !== null) ?? null;
+  const contextDate =
+    (trend === "regressing" || declining) && lastWithMax ? lastWithMax.performedOn : null;
+  const intake = overlay !== "none" && food.data ? averageIntake(food.data) : null;
+  const foodPoints =
+    overlay !== "none" && food.data
+      ? food.data
+          .filter((d) => d.entryCount > 0)
+          .map((d) => ({ date: d.date, value: overlay === "kcal" ? d.kcal : d.proteinG }))
+      : undefined;
 
   return (
     <div className="flex flex-col gap-6">
@@ -88,7 +138,16 @@ export function ExerciseStats({ exercise }: { exercise: Exercise }) {
       </div>
 
       {suggestion.data ? (
-        <NextSession exercise={exercise} data={suggestion.data} historyId={`${id}-history`} />
+        <NextSession
+          exercise={exercise}
+          data={suggestion.data}
+          targetId={contextDate ? `${id}-context` : `${id}-history`}
+          targetLabel={contextDate ? "Voir le poids et l'alimentation" : "Voir l'historique"}
+        />
+      ) : null}
+
+      {contextDate ? (
+        <RegressionContext sessionDate={contextDate} headingId={`${id}-context`} />
       ) : null}
 
       {latest === null ? (
@@ -124,10 +183,42 @@ export function ExerciseStats({ exercise }: { exercise: Exercise }) {
               </p>
             ) : withMax ? (
               <>
-                <ProgressChart points={stats.data.corridor} />
+                <div
+                  className="flex flex-wrap items-center gap-2"
+                  role="group"
+                  aria-label="Superposer"
+                >
+                  <span className="text-[15px] text-muted-foreground">Superposer</span>
+                  {(Object.keys(OVERLAY_LABELS) as Overlay[]).map((o) => (
+                    <button
+                      key={o}
+                      type="button"
+                      aria-pressed={o === overlay}
+                      onClick={() => setOverlay(o)}
+                      className={cn(
+                        "min-h-11 rounded-lg border border-rule px-3 text-[15px]",
+                        o === overlay
+                          ? "border-action bg-corridor font-bold text-corridor-ink"
+                          : "bg-surface hover:bg-muted",
+                      )}
+                    >
+                      {OVERLAY_LABELS[o]}
+                    </button>
+                  ))}
+                </div>
+                <ProgressChart points={stats.data.corridor} food={foodPoints} />
                 <p className="text-[15px] text-muted-foreground">
                   {chartSummary(sessions, period)}
                 </p>
+                {intake === null ? null : (
+                  <p className="text-[15px] text-muted-foreground tabular-nums">
+                    {overlay === "kcal"
+                      ? formatKcal(intake.kcal)
+                      : `${formatGrams(intake.proteinG)} de protéines`}{" "}
+                    par jour en moyenne sur{" "}
+                    {countLabel(intake.days, "jour renseigné", "jours renseignés")}.
+                  </p>
+                )}
               </>
             ) : (
               <p className="text-[15px] text-muted-foreground">
@@ -192,11 +283,13 @@ export function ExerciseStats({ exercise }: { exercise: Exercise }) {
 function NextSession({
   exercise,
   data,
-  historyId,
+  targetId,
+  targetLabel: linkLabel,
 }: {
   exercise: Exercise;
   data: SuggestionResponse;
-  historyId: string;
+  targetId: string;
+  targetLabel: string;
 }) {
   const id = useId();
   const declining = data.suggestion.rule === "declining";
@@ -215,8 +308,8 @@ function NextSession({
       {target ? <p className="text-[20px] leading-7 font-bold tabular-nums">{target}</p> : null}
       <p className="text-[15px]">{data.text}</p>
       {declining ? (
-        <a href={`#${historyId}`} className="text-[15px] font-bold underline underline-offset-4">
-          Voir l&apos;historique
+        <a href={`#${targetId}`} className="text-[15px] font-bold underline underline-offset-4">
+          {linkLabel}
         </a>
       ) : null}
     </section>
