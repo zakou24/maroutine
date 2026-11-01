@@ -40,3 +40,11 @@ export function parisDate(offset = 0): string {
   const now = new Date(Date.now() + offset * 24 * 60 * 60 * 1000);
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris" }).format(now);
 }
+
+export async function putBodyWeight(request: APIRequestContext, date: string, weightKg: number) {
+  const res = await request.put(`/api/v1/body-weights/${date}`, {
+    headers: { origin: ORIGIN },
+    data: { weightKg },
+  });
+  if (res.status() !== 200) throw new Error(`pesée non enregistrée : ${res.status()}`);
+}

@@ -60,7 +60,8 @@ test("fiche exercice : tendance, suggestion, courbe et historique", async ({
 test("fiche d'un exercice au poids du corps sans pesée", async ({ page, request }, testInfo) => {
   const name = unique("Dips", testInfo.project.name);
   const id = await createExercise(request, name, "bodyweight");
-  await createWorkout(request, parisDate(-2), [
+  // Aucune pesée e2e dans les 14 jours avant J-70 (poids.spec.ts pèse à J-3, J-40 et J-41).
+  await createWorkout(request, parisDate(-70), [
     {
       exerciseId: id,
       sets: [

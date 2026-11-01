@@ -4,7 +4,6 @@ import {
   formatWeight,
   periodStart,
   weightSeries,
-  type BodyWeight,
   type Period,
 } from "@maroutine/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -32,11 +31,6 @@ export function WeightScreen() {
   const today = useToday();
   if (today === null) return <Loading />;
   return <WeightView today={today} />;
-}
-
-// Moyenne glissante du jour (J-6 à J), pour l'accueil ; null sous 3 pesées en 7 jours.
-export function averageOn(weighIns: BodyWeight[], day: string): number | null {
-  return weightSeries(weighIns, day, day)[0]?.average ?? null;
 }
 
 export function WeightView({ today }: { today: string }) {

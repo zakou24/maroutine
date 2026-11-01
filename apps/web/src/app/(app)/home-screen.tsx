@@ -9,16 +9,18 @@ import { countLabel, formatDayMonthLong } from "@/lib/format";
 import { useToday } from "@/lib/use-today";
 import { workoutsQuery } from "@/lib/workouts-query";
 import { ActivityCalendar } from "./activity-calendar";
+import { HomeWeight } from "./home-weight";
 import { WorkoutLink } from "./calendrier/calendar-view";
 
-// Accueil : calendrier d'activité des 3 derniers mois (D17), puis la semaine en cours.
-// La place du poids, sous le calendrier, arrive au Lot 3.
+// Accueil : calendrier d'activité des 3 derniers mois (D17), le poids juste dessous (D23),
+// puis la semaine en cours.
 export function HomeScreen() {
   const today = useToday();
   if (today === null) return <Loading />;
   return (
     <div className="flex flex-col gap-8">
       <ActivityCalendar today={today} />
+      <HomeWeight today={today} />
       <Week today={today} />
     </div>
   );
