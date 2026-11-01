@@ -71,6 +71,12 @@ beforeEach(async () => {
 });
 
 describe("GET /api/v1/exercises/{id}/stats", () => {
+  it("donne la date de la dernière séance avec un max, sur tout l'historique (revue du Lot 5)", async () => {
+    await workoutOn(daysAgo(60), squat, 100);
+    const res = await stats(owner, squat, "?period=1m");
+    expect(res.body).toMatchObject({ sessions: [], lastMaxOn: daysAgo(60) });
+  });
+
   it("calcule tendance, dernière séance et séances de la période", async () => {
     // 6 séances progressives, dont une il y a plus d'un mois.
     for (const [i, kg] of [100, 100, 100, 105, 105, 110].entries()) {
@@ -107,7 +113,13 @@ describe("GET /api/v1/exercises/{id}/stats", () => {
 
   it("répond vide pour un exercice sans séance", async () => {
     const res = await stats(owner, squat);
-    expect(res.body).toEqual({ trend: "insufficient", latest: null, sessions: [], corridor: [] });
+    expect(res.body).toEqual({
+      trend: "insufficient",
+      latest: null,
+      lastMaxOn: null,
+      sessions: [],
+      corridor: [],
+    });
   });
 });
 

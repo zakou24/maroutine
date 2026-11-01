@@ -89,7 +89,16 @@ afterEach(cleanup);
 
 describe("ExerciseStats (fiche exercice)", () => {
   it("montre tendance, dernier max, suggestion, résumé de la courbe et historique", async () => {
-    serve({ trend: "progressing", latest: sessions[2]!, sessions, corridor: [] }, addRep);
+    serve(
+      {
+        trend: "progressing",
+        latest: sessions[2]!,
+        lastMaxOn: "2026-10-12",
+        sessions,
+        corridor: [],
+      },
+      addRep,
+    );
     renderWithQuery(<ExerciseStats exercise={squat} />);
     expect(await screen.findByText("En progression")).toBeVisible();
     expect(screen.getByText("Dernier max estimé : 128,3 kg")).toBeVisible();
@@ -106,7 +115,16 @@ describe("ExerciseStats (fiche exercice)", () => {
   });
 
   it("change de période", async () => {
-    serve({ trend: "progressing", latest: sessions[2]!, sessions, corridor: [] }, addRep);
+    serve(
+      {
+        trend: "progressing",
+        latest: sessions[2]!,
+        lastMaxOn: "2026-10-12",
+        sessions,
+        corridor: [],
+      },
+      addRep,
+    );
     renderWithQuery(<ExerciseStats exercise={squat} />);
     await screen.findByText("En progression");
     expect(screen.getByRole("button", { name: "3 mois" })).toHaveAttribute("aria-pressed", "true");
@@ -118,7 +136,13 @@ describe("ExerciseStats (fiche exercice)", () => {
 
   it("signale la régression en orange et renvoie au poids et à l'alimentation (règle 2, D20)", async () => {
     serve(
-      { trend: "regressing", latest: sessions[2]!, sessions, corridor: [] },
+      {
+        trend: "regressing",
+        latest: sessions[2]!,
+        lastMaxOn: "2026-10-12",
+        sessions,
+        corridor: [],
+      },
       {
         suggestion: { rule: "declining", weightKg: 100, reps: 5 },
         text: "Ton max estimé baisse depuis 2 séances : garde la charge et regarde ta récupération et ton alimentation.",
@@ -143,11 +167,21 @@ describe("ExerciseStats (fiche exercice)", () => {
   });
 
   it("encart de régression : les 3 jours avant la dernière séance, nommés, avec leurs liens (F-TDB-5)", async () => {
-    serve({ trend: "regressing", latest: sessions[2]!, sessions, corridor: [] }, addRep, [
-      nutritionDay("2026-10-09", 2400, 150, "engaged"),
-      nutritionDay("2026-10-10", 1500, 80, "notEngaged"),
-      nutritionDay("2026-10-11", 0, 0, "unrecorded"),
-    ]);
+    serve(
+      {
+        trend: "regressing",
+        latest: sessions[2]!,
+        lastMaxOn: "2026-10-12",
+        sessions,
+        corridor: [],
+      },
+      addRep,
+      [
+        nutritionDay("2026-10-09", 2400, 150, "engaged"),
+        nutritionDay("2026-10-10", 1500, 80, "notEngaged"),
+        nutritionDay("2026-10-11", 0, 0, "unrecorded"),
+      ],
+    );
     renderWithQuery(<ExerciseStats exercise={squat} />);
     const panel = await screen.findByRole("region", { name: "Autour de la baisse" });
     expect(apiFetch).toHaveBeenCalledWith("/api/v1/nutrition/days?from=2026-10-09&to=2026-10-11");
@@ -164,8 +198,33 @@ describe("ExerciseStats (fiche exercice)", () => {
     expect(within(panel).getByRole("link", { name: /Poids/ })).toHaveAttribute("href", "/poids");
   });
 
+  it("l'encart garde la dernière séance avec un max, même hors de la période affichée (revue du Lot 5)", async () => {
+    serve(
+      {
+        trend: "regressing",
+        latest: sessions[2]!,
+        lastMaxOn: "2026-10-12",
+        sessions: [],
+        corridor: [],
+      },
+      addRep,
+    );
+    renderWithQuery(<ExerciseStats exercise={squat} />);
+    expect(await screen.findByRole("region", { name: "Autour de la baisse" })).toBeInTheDocument();
+    expect(apiFetch).toHaveBeenCalledWith("/api/v1/nutrition/days?from=2026-10-09&to=2026-10-11");
+  });
+
   it("pas d'encart ni de requête alimentaire hors régression", async () => {
-    serve({ trend: "progressing", latest: sessions[2]!, sessions, corridor: [] }, addRep);
+    serve(
+      {
+        trend: "progressing",
+        latest: sessions[2]!,
+        lastMaxOn: "2026-10-12",
+        sessions,
+        corridor: [],
+      },
+      addRep,
+    );
     renderWithQuery(<ExerciseStats exercise={squat} />);
     await screen.findByText("En progression");
     expect(screen.queryByRole("region", { name: "Autour de la baisse" })).toBeNull();
@@ -173,11 +232,21 @@ describe("ExerciseStats (fiche exercice)", () => {
   });
 
   it("superpose les protéines à la courbe, avec leur moyenne sur la période (F-TDB-2)", async () => {
-    serve({ trend: "progressing", latest: sessions[2]!, sessions, corridor: [] }, addRep, [
-      nutritionDay("2026-10-11", 2400, 150, "engaged"),
-      nutritionDay("2026-10-12", 0, 0, "unrecorded"),
-      nutritionDay("2026-10-13", 2200, 154, "engaged"),
-    ]);
+    serve(
+      {
+        trend: "progressing",
+        latest: sessions[2]!,
+        lastMaxOn: "2026-10-12",
+        sessions,
+        corridor: [],
+      },
+      addRep,
+      [
+        nutritionDay("2026-10-11", 2400, 150, "engaged"),
+        nutritionDay("2026-10-12", 0, 0, "unrecorded"),
+        nutritionDay("2026-10-13", 2200, 154, "engaged"),
+      ],
+    );
     renderWithQuery(<ExerciseStats exercise={squat} />);
     const overlay = await screen.findByRole("group", { name: "Superposer" });
     expect(within(overlay).getByRole("button", { name: "Rien" })).toHaveAttribute(
@@ -196,7 +265,7 @@ describe("ExerciseStats (fiche exercice)", () => {
 
   it("sans séance, l'invite à commencer", async () => {
     serve(
-      { trend: "insufficient", latest: null, sessions: [], corridor: [] },
+      { trend: "insufficient", latest: null, lastMaxOn: null, sessions: [], corridor: [] },
       { suggestion: { rule: "first" }, text: "Première fois : choisis une charge confortable." },
     );
     renderWithQuery(<ExerciseStats exercise={squat} />);
@@ -209,7 +278,7 @@ describe("ExerciseStats (fiche exercice)", () => {
     const dips = { ...squat, equipment: "bodyweight" as const, name: "Dips" };
     const bw = [session(0, null, { weightKg: 0, reps: 11 })];
     serve(
-      { trend: "insufficient", latest: bw[0]!, sessions: bw, corridor: [] },
+      { trend: "insufficient", latest: bw[0]!, lastMaxOn: null, sessions: bw, corridor: [] },
       {
         suggestion: { rule: "add-rep", weightKg: 0, reps: 12, done: { weightKg: 0, reps: 11 } },
         text: "x",

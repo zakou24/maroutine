@@ -12,6 +12,8 @@ export const periodSchema = z.enum(PERIODS).default("3m");
 export type ExerciseStatsResponse = {
   trend: Trend;
   latest: SessionStats | null;
+  // Date de la dernière séance qui a un max estimé, sur tout l'historique (encart de régression).
+  lastMaxOn: string | null;
   sessions: SessionStats[];
   corridor: CorridorPoint[];
 };

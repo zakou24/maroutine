@@ -91,6 +91,10 @@ describe("CrossingScreen, par exercice", () => {
     const items = within(list).getAllByRole("listitem");
     expect(items[0]).toHaveTextContent("Squat");
     expect(items[0]).toHaveTextContent("+1,8 %");
+    // F-TDB-3 : les comptes de chaque groupe, même sous le seuil.
+    expect(items[0]).toHaveTextContent("Bien suivis : 20 progressions · 12 séances");
+    expect(items[0]).toHaveTextContent("Sinon : 9 progressions · 7 séances");
+    expect(items[1]).toHaveTextContent("Bien suivis : 4 progressions · 3 séances");
     expect(items[1]).toHaveTextContent("Développé couché");
     expect(items[1]).toHaveTextContent("Pas encore assez de données");
     expect(within(items[0]!).getByRole("link", { name: "Squat" })).toHaveAttribute(

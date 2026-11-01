@@ -54,8 +54,9 @@ export function weightChange(weighIns: BodyWeight[], today: string, days = 7): n
 }
 
 export function weightChangeText(change: number): string {
-  // L'écart brut décide : 0,05 kg reste « stable » même s'il s'arrondit à 0,1.
-  if (Math.abs(change) < 0.1) return "stable sur 7 jours";
+  // Comparé en centièmes : 0,05 kg reste « stable » même s'il s'arrondit à 0,1, et 80,1 − 80,0
+  // (0,0999… en virgule flottante) compte bien 0,1 kg.
+  if (Math.round(Math.abs(change) * 100) < 10) return "stable sur 7 jours";
   const rounded = round1(change);
   return `${rounded > 0 ? "+" : "−"}${formatWeight(Math.abs(rounded))} kg en 7 jours`;
 }

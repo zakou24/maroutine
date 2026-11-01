@@ -8,6 +8,29 @@ const TICK = { fontSize: 13, fill: "var(--muted-foreground)" };
 
 type Row = { date: string; value?: number; band?: [number, number]; food?: number };
 
+// Une ligne par séance (deux séances le même jour gardent chacune leur point, F-SEA-6) ; l'apport
+// d'un jour se pose sur sa première séance, et les jours sans séance ont leur propre ligne. Les
+// barres ne couvrent que la période de la courbe.
+export function chartRows(
+  points: CorridorPoint[],
+  food: { date: string; value: number }[] = [],
+): Row[] {
+  const rows: Row[] = points.map((p) => ({
+    date: p.performedOn,
+    value: p.value,
+    band: [p.low, p.high],
+  }));
+  const first = points[0]?.performedOn;
+  for (const f of food) {
+    if (first && f.date < first) continue;
+    const row = rows.find((r) => r.date === f.date);
+    if (row) row.food = f.value;
+    else rows.push({ date: f.date, food: f.value });
+  }
+  // Tri stable : les séances d'un même jour gardent leur ordre.
+  return rows.sort((x, y) => x.date.localeCompare(y.date));
+}
+
 // Courbe du max estimé dans son couloir de tendance (D13, D18), avec en option les calories ou
 // les protéines de chaque jour en barres discrètes, sur leur propre échelle (F-TDB-2).
 // Décorative pour les lecteurs d'écran : le résumé textuel porte les mêmes chiffres (NF-8).
@@ -18,17 +41,7 @@ export function ProgressChart({
   points: CorridorPoint[];
   food?: { date: string; value: number }[];
 }) {
-  const rows = new Map<string, Row>();
-  for (const p of points) {
-    rows.set(p.performedOn, { date: p.performedOn, value: p.value, band: [p.low, p.high] });
-  }
-  // Les barres ne couvrent que la période de la courbe.
-  const first = points[0]?.performedOn;
-  for (const f of food ?? []) {
-    if (first && f.date < first) continue;
-    rows.set(f.date, { ...(rows.get(f.date) ?? { date: f.date }), food: f.value });
-  }
-  const data = [...rows.values()].sort((a, b) => a.date.localeCompare(b.date));
+  const data = chartRows(points, food);
   return (
     <div aria-hidden className="h-56 w-full tabular-nums">
       <ResponsiveContainer width="100%" height="100%">

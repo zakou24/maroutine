@@ -70,5 +70,7 @@ describe("tendance du poids (Lot 5)", () => {
     expect(weightChangeText(-0.4)).toBe("−0,4 kg en 7 jours");
     expect(weightChangeText(0.3)).toBe("+0,3 kg en 7 jours");
     expect(weightChangeText(0.05)).toBe("stable sur 7 jours");
+    // 80,1 − 80,0 en virgule flottante vaut 0,09999… : c'est bien 0,1 kg (revue du Lot 5).
+    expect(weightChangeText(80.1 - 80)).toBe("+0,1 kg en 7 jours");
   });
 });

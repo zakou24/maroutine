@@ -110,9 +110,9 @@ export function ExerciseStats({ exercise }: { exercise: Exercise }) {
   const history = [...sessions].reverse();
   // Signal de régression (F-TDB-5) : tendance en baisse, ou règle 2 de la suggestion (D20).
   const declining = suggestion.data?.suggestion.rule === "declining";
-  const lastWithMax = [...sessions].reverse().find((s) => s.estimatedMax !== null) ?? null;
-  const contextDate =
-    (trend === "regressing" || declining) && lastWithMax ? lastWithMax.performedOn : null;
+  // Sur tout l'historique : la période affichée ne doit pas faire disparaître l'encart.
+  const lastMaxOn = stats.data.lastMaxOn;
+  const contextDate = (trend === "regressing" || declining) && lastMaxOn ? lastMaxOn : null;
   const intake = overlay !== "none" && food.data ? averageIntake(food.data) : null;
   const foodPoints =
     overlay !== "none" && food.data

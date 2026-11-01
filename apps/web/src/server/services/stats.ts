@@ -110,6 +110,7 @@ export async function exerciseStats(
   return {
     trend: exerciseTrend(stats, today),
     latest: stats.at(-1) ?? null,
+    lastMaxOn: stats.filter((s) => s.estimatedMax !== null).at(-1)?.performedOn ?? null,
     sessions: stats.filter((s) => inPeriod(s.performedOn)),
     // Calculé sur tout l'historique, pour que le début de la période ait déjà son couloir.
     corridor: trendCorridor(stats).filter((p) => inPeriod(p.performedOn)),

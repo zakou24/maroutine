@@ -60,6 +60,11 @@ export function CrossingScreen() {
                   {item.name}
                 </Link>
                 <p className="text-[15px]">{crossingText(item.crossing)}</p>
+                {/* F-TDB-3 : les comptes de chaque groupe, affichés même sous le seuil. */}
+                <p className="text-[13px] text-muted-foreground tabular-nums">
+                  Bien suivis : {counts(item.crossing.engaged)} · Sinon :{" "}
+                  {counts(item.crossing.notEngaged)}
+                </p>
               </li>
             ))}
           </ul>
@@ -84,6 +89,10 @@ export function CrossingScreen() {
   );
 }
 
+function counts(group: CrossingGroup) {
+  return `${countLabel(group.progressions, "progression", "progressions")} · ${countLabel(group.sessions, "séance", "séances")}`;
+}
+
 function Group({ label, group }: { label: string; group: CrossingGroup }) {
   return (
     <div
@@ -95,10 +104,7 @@ function Group({ label, group }: { label: string; group: CrossingGroup }) {
       <span className="text-[28px] leading-9 font-bold tabular-nums">
         {group.mean === null ? "—" : formatChange(group.mean)}
       </span>
-      <span className="text-[13px] text-muted-foreground tabular-nums">
-        {countLabel(group.progressions, "progression", "progressions")} ·{" "}
-        {countLabel(group.sessions, "séance", "séances")}
-      </span>
+      <span className="text-[13px] text-muted-foreground tabular-nums">{counts(group)}</span>
     </div>
   );
 }
