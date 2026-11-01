@@ -86,7 +86,7 @@ export {
   type WeighInInput,
 } from "./schemas/body-weight";
 export { formatWeight, weightSeries, type WeightPoint } from "./training/weight";
-export { MEALS, mealLabel, type Meal } from "./nutrition/meals";
+export { MEALS, mealLabel, toMeal, type Meal } from "./nutrition/meals";
 export {
   dayTotals,
   entryNutrients,

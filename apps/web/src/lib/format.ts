@@ -83,3 +83,13 @@ export function formatMax(value: number): string {
 export function formatVolume(value: number): string {
   return `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(value)} kg`;
 }
+
+// « 1 850 kcal » : kilocalories entières, séparateur de milliers.
+export function formatKcal(value: number): string {
+  return `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(value)} kcal`;
+}
+
+// « 16,5 g » : une décimale au plus.
+export function formatGrams(value: number): string {
+  return `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 }).format(value)} g`;
+}

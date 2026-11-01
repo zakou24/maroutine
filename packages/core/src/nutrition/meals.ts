@@ -13,3 +13,15 @@ const LABELS: Record<Meal, string> = {
 export function mealLabel(meal: Meal): string {
   return LABELS[meal];
 }
+
+const TO: Record<Meal, string> = {
+  breakfast: "au petit-déjeuner",
+  lunch: "au déjeuner",
+  dinner: "au dîner",
+  snack: "à la collation",
+};
+
+// « Ajouter au petit-déjeuner », « Ajouter à la collation ».
+export function toMeal(meal: Meal): string {
+  return TO[meal];
+}
