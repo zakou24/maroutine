@@ -10,7 +10,7 @@ export async function createExercise(
 ): Promise<string> {
   const res = await request.post("/api/v1/exercises", {
     headers: { origin: ORIGIN },
-    data: { name, equipment },
+    data: { name, equipment, muscleGroup: "legs" },
   });
   if (res.status() !== 201) throw new Error(`exercice non créé : ${res.status()}`);
   return ((await res.json()) as { id: string }).id;

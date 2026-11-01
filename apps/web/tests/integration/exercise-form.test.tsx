@@ -21,6 +21,7 @@ const curl: Exercise = {
   id: "00000000-0000-4000-8000-00000000000c",
   name: "Curl",
   equipment: "dumbbell",
+  muscleGroup: "legs",
   repMin: 8,
   repMax: 12,
   incrementKg: 2,

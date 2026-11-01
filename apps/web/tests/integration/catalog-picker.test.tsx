@@ -18,6 +18,7 @@ const squat: Exercise = {
   id: "00000000-0000-4000-8000-00000000000a",
   name: "squat",
   equipment: "barbell",
+  muscleGroup: "legs",
   repMin: 6,
   repMax: 10,
   incrementKg: 2.5,

@@ -51,11 +51,12 @@ function one(session: SessionInfo, method: "GET" | "PATCH", id: string, body?: u
 
 describe("API des exercices", () => {
   it("crée un exercice avec les valeurs par défaut : 201", async () => {
-    const res = await create(owner, { name: " Squat ", equipment: "barbell" });
+    const res = await create(owner, { name: " Squat ", muscleGroup: "legs", equipment: "barbell" });
     expect(res.status).toBe(201);
     expect(res.body).toEqual({
       id: expect.any(String),
       name: "Squat",
+      muscleGroup: "legs",
       equipment: "barbell",
       repMin: 6,
       repMax: 10,
@@ -65,25 +66,48 @@ describe("API des exercices", () => {
   });
 
   it("refuse un doublon sans tenir compte de la casse : 409 duplicate_name", async () => {
-    await create(owner, { name: "Squat", equipment: "barbell" });
-    const res = await create(owner, { name: "squat", equipment: "machine" });
+    await create(owner, { name: "Squat", muscleGroup: "legs", equipment: "barbell" });
+    const res = await create(owner, { name: "squat", muscleGroup: "legs", equipment: "machine" });
     expect(res.status).toBe(409);
     expect(res.body).toEqual({ error: "duplicate_name" });
   });
 
+  it("demande un groupe musculaire à la création : 400 sans, ou avec « arms » (D27)", async () => {
+    expect((await create(owner, { name: "Squat", equipment: "barbell" })).status).toBe(400);
+    expect(
+      (await create(owner, { name: "Curl", muscleGroup: "arms", equipment: "dumbbell" })).status,
+    ).toBe(400);
+  });
+
+  it("change le groupe musculaire et le relit", async () => {
+    const id = (
+      (await create(owner, { name: "Dips", muscleGroup: "chest", equipment: "bodyweight" }))
+        .body as ExerciseBody
+    ).id;
+    const res = await one(owner, "PATCH", id, { muscleGroup: "triceps" });
+    expect(res.status).toBe(200);
+    expect((await one(owner, "GET", id)).body).toMatchObject({ muscleGroup: "triceps" });
+    expect((await one(owner, "PATCH", id, { muscleGroup: null })).status).toBe(400);
+    expect((await one(other, "PATCH", id, { muscleGroup: "chest" })).status).toBe(404);
+  });
+
   it("deux utilisateurs peuvent avoir un exercice du même nom", async () => {
-    await create(owner, { name: "Squat", equipment: "barbell" });
-    expect((await create(other, { name: "Squat", equipment: "barbell" })).status).toBe(201);
+    await create(owner, { name: "Squat", muscleGroup: "legs", equipment: "barbell" });
+    expect(
+      (await create(other, { name: "Squat", muscleGroup: "legs", equipment: "barbell" })).status,
+    ).toBe(201);
   });
 
   it("refuse un corps invalide : 400", async () => {
-    expect((await create(owner, { name: "", equipment: "barbell" })).status).toBe(400);
+    expect(
+      (await create(owner, { name: "", muscleGroup: "legs", equipment: "barbell" })).status,
+    ).toBe(400);
   });
 
   it("liste les exercices actifs triés, sans les archivés", async () => {
-    await create(owner, { name: "Squat", equipment: "barbell" });
-    await create(owner, { name: "Développé couché", equipment: "barbell" });
-    const curl = (await create(owner, { name: "Curl", equipment: "dumbbell" }))
+    await create(owner, { name: "Squat", muscleGroup: "legs", equipment: "barbell" });
+    await create(owner, { name: "Développé couché", muscleGroup: "legs", equipment: "barbell" });
+    const curl = (await create(owner, { name: "Curl", muscleGroup: "legs", equipment: "dumbbell" }))
       .body as ExerciseBody;
     await one(owner, "PATCH", curl.id, { archived: true });
 
@@ -99,8 +123,9 @@ describe("API des exercices", () => {
   });
 
   it("archive puis restaure un exercice", async () => {
-    const squat = (await create(owner, { name: "Squat", equipment: "barbell" }))
-      .body as ExerciseBody;
+    const squat = (
+      await create(owner, { name: "Squat", muscleGroup: "legs", equipment: "barbell" })
+    ).body as ExerciseBody;
     const archived = await one(owner, "PATCH", squat.id, { archived: true });
     expect((archived.body as ExerciseBody).archived).toBe(true);
     const restored = await one(owner, "PATCH", squat.id, { archived: false });
@@ -109,8 +134,9 @@ describe("API des exercices", () => {
   });
 
   it("modifie les réglages et relit l'exercice", async () => {
-    const squat = (await create(owner, { name: "Squat", equipment: "barbell" }))
-      .body as ExerciseBody;
+    const squat = (
+      await create(owner, { name: "Squat", muscleGroup: "legs", equipment: "barbell" })
+    ).body as ExerciseBody;
     await one(owner, "PATCH", squat.id, { repMin: 5, repMax: 8, incrementKg: 1.25 });
     expect((await one(owner, "GET", squat.id)).body).toMatchObject({
       repMin: 5,
@@ -120,23 +146,25 @@ describe("API des exercices", () => {
   });
 
   it("refuse une fourchette incohérente après fusion du PATCH : 400", async () => {
-    const squat = (await create(owner, { name: "Squat", equipment: "barbell" }))
-      .body as ExerciseBody;
+    const squat = (
+      await create(owner, { name: "Squat", muscleGroup: "legs", equipment: "barbell" })
+    ).body as ExerciseBody;
     const res = await one(owner, "PATCH", squat.id, { repMin: 12 });
     expect(res.status).toBe(400);
     expect((await one(owner, "GET", squat.id)).body).toMatchObject({ repMin: 6 });
   });
 
   it("refuse de renommer vers un nom déjà pris : 409", async () => {
-    await create(owner, { name: "Squat", equipment: "barbell" });
-    const curl = (await create(owner, { name: "Curl", equipment: "dumbbell" }))
+    await create(owner, { name: "Squat", muscleGroup: "legs", equipment: "barbell" });
+    const curl = (await create(owner, { name: "Curl", muscleGroup: "legs", equipment: "dumbbell" }))
       .body as ExerciseBody;
     expect((await one(owner, "PATCH", curl.id, { name: "SQUAT" })).status).toBe(409);
   });
 
   it("isolation (T-01) : l'exercice d'un autre utilisateur répond 404 en GET et en PATCH", async () => {
-    const theirs = (await create(other, { name: "Squat", equipment: "barbell" }))
-      .body as ExerciseBody;
+    const theirs = (
+      await create(other, { name: "Squat", muscleGroup: "legs", equipment: "barbell" })
+    ).body as ExerciseBody;
     expect((await one(owner, "GET", theirs.id)).status).toBe(404);
     expect((await one(owner, "PATCH", theirs.id, { archived: true })).status).toBe(404);
     expect((await one(other, "GET", theirs.id)).body).toMatchObject({ archived: false });
@@ -147,7 +175,7 @@ describe("API des exercices", () => {
   });
 
   it("isolation : la liste ne contient jamais les exercices d'un autre utilisateur", async () => {
-    await create(other, { name: "Squat", equipment: "barbell" });
+    await create(other, { name: "Squat", muscleGroup: "legs", equipment: "barbell" });
     expect((await list(owner)).body).toEqual([]);
   });
 

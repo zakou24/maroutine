@@ -1,4 +1,10 @@
-import type { Equipment, Exercise, ExerciseInput, ExercisePatch } from "@maroutine/core";
+import type {
+  Equipment,
+  Exercise,
+  ExerciseInput,
+  ExercisePatch,
+  MuscleGroup,
+} from "@maroutine/core";
 import { and, eq, type SQL } from "drizzle-orm";
 import type { AppDatabase } from "@/db/client";
 import { exercise } from "@/db/schema";
@@ -11,15 +17,26 @@ const columns = {
   id: exercise.id,
   name: exercise.name,
   equipment: exercise.equipment,
+  muscleGroup: exercise.muscleGroup,
   repMin: exercise.repMin,
   repMax: exercise.repMax,
   incrementKg: exercise.incrementKg,
   archived: exercise.archived,
 };
 
-// La colonne est un texte borné par une contrainte check : seules les valeurs de EQUIPMENT y entrent.
-function toExercise(row: Omit<Exercise, "equipment"> & { equipment: string }): Exercise {
-  return { ...row, equipment: row.equipment as Equipment };
+type ExerciseRow = Omit<Exercise, "equipment" | "muscleGroup"> & {
+  equipment: string;
+  muscleGroup: string | null;
+};
+
+// Les colonnes sont des textes bornés par des contraintes check : seules les valeurs de EQUIPMENT
+// et de MUSCLE_GROUPS y entrent.
+function toExercise(row: ExerciseRow): Exercise {
+  return {
+    ...row,
+    equipment: row.equipment as Equipment,
+    muscleGroup: row.muscleGroup as MuscleGroup | null,
+  };
 }
 
 function byName(a: Exercise, b: Exercise) {
@@ -103,8 +120,13 @@ export async function createExercises(
     const existing: Exercise[] = [];
     for (const input of inputs) {
       const key = input.name.toLowerCase();
-      const known = byName.get(key);
+      let known = byName.get(key);
       if (known) {
+        // Un exercice « Non classé » prend le groupe de l'entrée du catalogue (D27).
+        if (known.muscleGroup === null) {
+          known = await updateExercise(tx, userId, known.id, { muscleGroup: input.muscleGroup });
+          byName.set(key, known);
+        }
         if (!created.includes(known) && !existing.includes(known)) existing.push(known);
         continue;
       }

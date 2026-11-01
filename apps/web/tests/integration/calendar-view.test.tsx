@@ -21,6 +21,7 @@ function summary(id: string, performedOn: string): WorkoutSummary {
     workingSetCount: 9,
     warmupDone: false,
     cardioMinutes: null,
+    muscleGroups: [],
   };
 }
 

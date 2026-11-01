@@ -24,7 +24,7 @@ async function newExercise(session: SessionInfo, name: string) {
     method: "POST",
     url: "/api/v1/exercises",
     session,
-    body: { name, equipment: "barbell" },
+    body: { name, muscleGroup: "legs", equipment: "barbell" },
   });
   return (res.body as { id: string }).id;
 }
@@ -109,6 +109,7 @@ describe("API des séances", () => {
       note: "Bonne séance",
       warmupDone: false,
       cardioMinutes: null,
+      muscleGroups: [],
       exercises: [
         {
           exerciseId: bench,
@@ -152,6 +153,35 @@ describe("API des séances", () => {
     expect(updated.body).toMatchObject({ warmupDone: false, cardioMinutes: null });
     const summaries = (await list(owner, "from=2026-10-30&to=2026-10-30")).body as WorkoutSummary[];
     expect(summaries[0]).toMatchObject({ warmupDone: false, cardioMinutes: null });
+  });
+
+  it("enregistre les muscles travaillés, rangés, dans le détail et le résumé (D28)", async () => {
+    const created = (
+      await create(owner, {
+        performedOn: "2026-10-30",
+        muscleGroups: ["triceps", "shoulders"],
+        exercises: [{ exerciseId: squat, sets: sets([80, 6]) }],
+      })
+    ).body as Workout;
+    expect(created.muscleGroups).toEqual(["shoulders", "triceps"]);
+    expect((await one(owner, "GET", created.id)).body).toMatchObject({
+      muscleGroups: ["shoulders", "triceps"],
+    });
+    const summaries = (await list(owner, "from=2026-10-30&to=2026-10-30")).body as WorkoutSummary[];
+    expect(summaries[0]?.muscleGroups).toEqual(["shoulders", "triceps"]);
+
+    const cleared = await one(owner, "PUT", created.id, {
+      performedOn: "2026-10-30",
+      muscleGroups: [],
+      exercises: [{ exerciseId: squat, sets: sets([80, 6]) }],
+    });
+    expect((cleared.body as Workout).muscleGroups).toEqual([]);
+    const bad = await create(owner, {
+      performedOn: "2026-10-30",
+      muscleGroups: ["arms"],
+      exercises: [{ exerciseId: squat, sets: sets([80, 6]) }],
+    });
+    expect(bad.status).toBe(400);
   });
 
   it("refuse une durée de cardio hors de 1 à 180 minutes : 400", async () => {
@@ -347,6 +377,7 @@ describe("API des séances", () => {
         workingSetCount: 3,
         warmupDone: false,
         cardioMinutes: null,
+        muscleGroups: [],
       },
     ]);
   });

@@ -115,6 +115,7 @@ describe("draftReducer", () => {
         note: null,
         warmupDone: false,
         cardioMinutes: null,
+        muscleGroups: [],
         exercises: [
           {
             exerciseId: SQUAT.id,
@@ -172,6 +173,7 @@ describe("draftReducer", () => {
       note: "Bonne forme",
       warmupDone: true,
       cardioMinutes: 15,
+      muscleGroups: [],
       exercises: [
         {
           exerciseId: SQUAT.id,
@@ -243,6 +245,7 @@ describe("échauffement et cardio de la séance (D14, D15)", () => {
         note: null,
         warmupDone: true,
         cardioMinutes: 12,
+        muscleGroups: [],
         exercises: [
           {
             exerciseId: SQUAT.id,
@@ -283,6 +286,7 @@ describe("toWorkoutInput", () => {
         note: null,
         warmupDone: false,
         cardioMinutes: null,
+        muscleGroups: [],
         exercises: [{ exerciseId: SQUAT.id, sets: [{ weightKg: 62.5, reps: 8, isWarmup: false }] }],
       },
     });
