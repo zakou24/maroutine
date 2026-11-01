@@ -1,18 +1,13 @@
 "use client";
 
-import {
-  formatWeight,
-  periodStart,
-  weightSeries,
-  type Period,
-} from "@maroutine/core";
+import { formatWeight, periodStart, weightSeries, type Period } from "@maroutine/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 import { useId, useState } from "react";
 import { FormError } from "@/components/form-error";
 import { LoadError, Loading } from "@/components/query-state";
 import { apiFetch } from "@/lib/api";
-import { bodyWeightsQuery } from "@/lib/body-weights-query";
+import { averageOn, bodyWeightsQuery } from "@/lib/body-weights-query";
 import { countLabel, formatDayMonthLong, formatLongDate } from "@/lib/format";
 import { invalidateStats } from "@/lib/stats-queries";
 import { useToday } from "@/lib/use-today";
@@ -61,7 +56,8 @@ export function WeightView({ today }: { today: string }) {
   const from = periodStart(today, period) ?? all[0]?.date ?? today;
   const inPeriod = all.filter((w) => w.date >= from && w.date <= today);
   const series = weightSeries(all, from, today);
-  const average = series.filter((p) => p.average !== null).at(-1)?.average ?? null;
+  // La moyenne des 7 derniers jours, pas la dernière trouvée dans la période (revue du Lot 3).
+  const average = averageOn(all, today);
   const span = period === "all" ? "toute la période" : PERIOD_LABELS[period];
   const summary = `${countLabel(inPeriod.length, "pesée", "pesées")} sur ${span}. ${
     average === null

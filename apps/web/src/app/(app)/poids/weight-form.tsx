@@ -50,10 +50,20 @@ export function WeightForm({
   const queryClient = useQueryClient();
   const id = useId();
   const [date, setDate] = useState(today);
+  // L'app reste en mémoire d'un soir à l'autre : au changement de jour, la saisie repart du
+  // nouveau jour. Sans ça, la pesée du soir écraserait celle de la veille (revue du Lot 3).
+  const [shownToday, setShownToday] = useState(today);
   // null : champ non touché, il montre la pesée déjà notée à cette date.
   const [text, setText] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+  if (shownToday !== today) {
+    setShownToday(today);
+    setDate(today);
+    setText(null);
+    setError(null);
+    setStatus(null);
+  }
   const existing = weighIns.find((w) => w.date === date);
   const value = text ?? (existing ? formatWeight(existing.weightKg) : "");
 
