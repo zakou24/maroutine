@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatWeight, weightSeries } from "./weight";
+import { formatWeight, weightChange, weightChangeText, weightSeries } from "./weight";
 
 const w = (date: string, weightKg: number) => ({ date, weightKg });
 
@@ -49,5 +49,26 @@ describe("formatWeight", () => {
   it("affiche une décimale", () => {
     expect(formatWeight(78.4)).toBe("78,4");
     expect(formatWeight(80)).toBe("80,0");
+  });
+});
+
+describe("tendance du poids (Lot 5)", () => {
+  const w = (date: string, weightKg: number) => ({ date, weightKg });
+  const week = (from: number, kg: number) =>
+    [0, 1, 2].map((i) => w(`2026-10-${String(from + i).padStart(2, "0")}`, kg));
+
+  it("compare la moyenne du jour à celle d'il y a 7 jours", () => {
+    expect(weightChange([...week(18, 80), ...week(25, 79.6)], "2026-10-27")).toBeCloseTo(-0.4);
+  });
+
+  it("null sans moyenne au jour ou 7 jours avant", () => {
+    expect(weightChange(week(25, 79.6), "2026-10-27")).toBeNull();
+    expect(weightChange(week(18, 80), "2026-10-27")).toBeNull();
+  });
+
+  it("dit la variation, ou « stable » sous 0,1 kg", () => {
+    expect(weightChangeText(-0.4)).toBe("−0,4 kg en 7 jours");
+    expect(weightChangeText(0.3)).toBe("+0,3 kg en 7 jours");
+    expect(weightChangeText(0.05)).toBe("stable sur 7 jours");
   });
 });

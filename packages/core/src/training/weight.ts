@@ -41,3 +41,21 @@ export function weightSeries(weighIns: BodyWeight[], from: string, to: string): 
 export function formatWeight(value: number): string {
   return value.toFixed(1).replace(".", ",");
 }
+
+const round1 = (value: number) => Math.round(value * 10) / 10;
+
+// Tendance du poids (Lot 5) : moyenne glissante du jour moins celle d'il y a `days` jours ;
+// null si l'une des deux manque (moins de 3 pesées dans sa fenêtre).
+export function weightChange(weighIns: BodyWeight[], today: string, days = 7): number | null {
+  const now = weightSeries(weighIns, today, today)[0]?.average ?? null;
+  const before = weightSeries(weighIns, addDays(today, -days), addDays(today, -days))[0]?.average;
+  if (now === null || before === null || before === undefined) return null;
+  return now - before;
+}
+
+export function weightChangeText(change: number): string {
+  // L'écart brut décide : 0,05 kg reste « stable » même s'il s'arrondit à 0,1.
+  if (Math.abs(change) < 0.1) return "stable sur 7 jours";
+  const rounded = round1(change);
+  return `${rounded > 0 ? "+" : "−"}${formatWeight(Math.abs(rounded))} kg en 7 jours`;
+}
