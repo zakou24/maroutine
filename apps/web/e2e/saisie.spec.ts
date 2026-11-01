@@ -120,8 +120,16 @@ test("modifier puis supprimer une séance passée", async ({ page, request }, te
   await page.reload();
   await expect(card.getByRole("textbox", { name: "Charge (kg), série 1" })).toHaveValue("14");
 
-  await page.getByRole("button", { name: "Supprimer la séance" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "Supprimer" }).click();
+  // Juste après le rechargement, WebKit peut recevoir le premier appui avant que le bouton soit
+  // actif : on rappuie jusqu'à voir la boîte de confirmation.
+  const dialog = page.getByRole("dialog");
+  await expect(async () => {
+    if (!(await dialog.isVisible())) {
+      await page.getByRole("button", { name: "Supprimer la séance" }).click();
+    }
+    await expect(dialog).toBeVisible({ timeout: 1000 });
+  }).toPass({ timeout: 10_000 });
+  await dialog.getByRole("button", { name: "Supprimer" }).click();
   await expect(page).toHaveURL(/\/$/);
   expect((await request.get(`/api/v1/workouts/${id}`)).status()).toBe(404);
 });

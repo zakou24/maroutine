@@ -1,11 +1,12 @@
-import type {
-  LastSets,
-  MuscleGroup,
-  NewWorkoutInput,
-  SetInput,
-  Workout,
-  WorkoutInput,
-  WorkoutSummary,
+import {
+  sessionMuscleGroups,
+  type LastSets,
+  type MuscleGroup,
+  type NewWorkoutInput,
+  type SetInput,
+  type Workout,
+  type WorkoutInput,
+  type WorkoutSummary,
 } from "@maroutine/core";
 import { and, asc, desc, eq, gte, inArray, lt, lte, ne, sql, type SQL } from "drizzle-orm";
 import type { AppDatabase } from "@/db/client";
@@ -161,20 +162,29 @@ export async function listWorkouts(
       warmupDone: workout.warmupDone,
       cardioMinutes: workout.cardioMinutes,
       muscleGroups: workout.muscleGroups,
+      exerciseGroups: sql<(string | null)[]>`array_agg(distinct ${exercise.muscleGroup})`,
       exerciseCount: sql<number>`count(distinct ${workoutExercise.id})::int`,
       // Les échauffements n'entrent jamais dans les stats (C4).
       workingSetCount: sql<number>`(count(${workoutSet.id}) filter (where not ${workoutSet.isWarmup}))::int`,
     })
     .from(workout)
     .leftJoin(workoutExercise, eq(workoutExercise.workoutId, workout.id))
+    .leftJoin(exercise, eq(exercise.id, workoutExercise.exerciseId))
     .leftJoin(workoutSet, eq(workoutSet.workoutExerciseId, workoutExercise.id))
     .where(
       and(eq(workout.userId, userId), gte(workout.performedOn, from), lte(workout.performedOn, to)),
     )
     .groupBy(workout.id)
     .orderBy(asc(workout.performedOn), asc(workout.createdAt));
-  // Texte borné par une contrainte check : seules les valeurs de MUSCLE_GROUPS y entrent.
-  return rows.map((row) => ({ ...row, muscleGroups: row.muscleGroups as MuscleGroup[] }));
+  // Textes bornés par des contraintes check : seules les valeurs de MUSCLE_GROUPS y entrent.
+  // Le résumé montre les muscles choisis, sinon ceux des exercices (Lot 4.2).
+  return rows.map(({ exerciseGroups, ...row }) => ({
+    ...row,
+    muscleGroups: sessionMuscleGroups(
+      row.muscleGroups as MuscleGroup[],
+      (exerciseGroups ?? []) as (MuscleGroup | null)[],
+    ),
+  }));
 }
 
 // Séries de la séance la plus récente qui contient l'exercice, strictement avant `before` si fourni.

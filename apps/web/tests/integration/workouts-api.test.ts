@@ -184,6 +184,30 @@ describe("API des séances", () => {
     expect(bad.status).toBe(400);
   });
 
+  it("sans muscles choisis, le résumé prend ceux des exercices ; le détail garde les choisis (Lot 4.2)", async () => {
+    const created = (
+      await create(owner, {
+        performedOn: "2026-10-29",
+        exercises: [
+          { exerciseId: squat, sets: sets([80, 6], [80, 6]) },
+          { exerciseId: bench, sets: sets([60, 8]) },
+        ],
+      })
+    ).body as Workout;
+    await db.execute(sql`update exercise set muscle_group = 'chest' where id = ${bench}`);
+    await create(owner, {
+      performedOn: "2026-10-29",
+      muscleGroups: ["abs"],
+      exercises: [{ exerciseId: squat, sets: sets([80, 6]) }],
+    });
+    const summaries = (await list(owner, "from=2026-10-29&to=2026-10-29")).body as WorkoutSummary[];
+    expect(summaries.map((w) => [w.muscleGroups, w.exerciseCount, w.workingSetCount])).toEqual([
+      [["chest", "legs"], 2, 3],
+      [["abs"], 1, 1],
+    ]);
+    expect(((await one(owner, "GET", created.id)).body as Workout).muscleGroups).toEqual([]);
+  });
+
   it("refuse une durée de cardio hors de 1 à 180 minutes : 400", async () => {
     const res = await create(owner, {
       performedOn: "2026-10-30",
@@ -377,7 +401,7 @@ describe("API des séances", () => {
         workingSetCount: 3,
         warmupDone: false,
         cardioMinutes: null,
-        muscleGroups: [],
+        muscleGroups: ["legs"],
       },
     ]);
   });

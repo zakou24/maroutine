@@ -1,12 +1,13 @@
 "use client";
 
-import { addMonths, monthGrid, type WorkoutSummary } from "@maroutine/core";
+import { addMonths, monthGrid, muscleGroupLabel, type WorkoutSummary } from "@maroutine/core";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { LoadError } from "@/components/query-state";
 import { countLabel, formatDayMonthLong, formatLongDate, formatMonth } from "@/lib/format";
+import { MUSCLE_COLOR } from "@/lib/muscle-colors";
 import { cn } from "@/lib/utils";
 import { workoutsQuery } from "@/lib/workouts-query";
 
@@ -215,14 +216,17 @@ function DayCell({
 
 // Ligne d'une séance : par défaut sa date, ou un titre fourni quand la date est déjà affichée.
 // `showSets` : l'accueil n'affiche pas le nombre de séries (retour du propriétaire, Lot 4.1).
+// `showMuscles` : l'accueil montre les muscles en pastilles de leur couleur (Lot 4.2).
 export function WorkoutLink({
   workout,
   title,
   showSets = true,
+  showMuscles = false,
 }: {
   workout: WorkoutSummary;
   title?: string;
   showSets?: boolean;
+  showMuscles?: boolean;
 }) {
   return (
     <Link
@@ -244,6 +248,23 @@ export function WorkoutLink({
             .filter(Boolean)
             .join(" · ")}
         </span>
+        {showMuscles && workout.muscleGroups.length > 0 ? (
+          <span className="mt-1.5 flex flex-wrap gap-1.5">
+            {workout.muscleGroups.map((group) => (
+              <span
+                key={group}
+                className="inline-flex items-center gap-1.5 rounded-full border border-rule px-2 py-0.5 text-[13px] font-bold"
+              >
+                <span
+                  aria-hidden
+                  className="size-2.5 rounded-full"
+                  style={{ background: MUSCLE_COLOR[group] }}
+                />
+                {muscleGroupLabel(group)}
+              </span>
+            ))}
+          </span>
+        ) : null}
       </span>
       <ChevronRight aria-hidden className="size-5 text-muted-foreground" strokeWidth={2} />
     </Link>

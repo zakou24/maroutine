@@ -243,6 +243,118 @@
           "oklch(84% 0.006 58)",
           "oklch(95% 0.002 58)"
         ]
+      },
+      "muscle-chest": {
+        "role": "data",
+        "displayName": "Muscle : Pectoraux (calendrier d'activité)",
+        "canonical": "#1f5fa8",
+        "oklch": "oklch(48.5% 0.133 255)",
+        "tonalRamp": [
+          "oklch(15% 0.020 255)",
+          "oklch(26% 0.063 255)",
+          "oklch(38% 0.107 255)",
+          "oklch(49% 0.133 255)",
+          "oklch(61% 0.133 255)",
+          "oklch(72% 0.099 255)",
+          "oklch(84% 0.056 255)",
+          "oklch(95% 0.020 255)"
+        ]
+      },
+      "muscle-back": {
+        "role": "data",
+        "displayName": "Muscle : Dos (calendrier d'activité)",
+        "canonical": "#0b6e63",
+        "oklch": "oklch(48.5% 0.084 183)",
+        "tonalRamp": [
+          "oklch(15% 0.013 183)",
+          "oklch(26% 0.039 183)",
+          "oklch(38% 0.067 183)",
+          "oklch(49% 0.084 183)",
+          "oklch(61% 0.084 183)",
+          "oklch(72% 0.062 183)",
+          "oklch(84% 0.035 183)",
+          "oklch(95% 0.013 183)"
+        ]
+      },
+      "muscle-shoulders": {
+        "role": "data",
+        "displayName": "Muscle : Épaules (calendrier d'activité)",
+        "canonical": "#2a78b5",
+        "oklch": "oklch(55.5% 0.121 246)",
+        "tonalRamp": [
+          "oklch(15% 0.018 246)",
+          "oklch(26% 0.057 246)",
+          "oklch(38% 0.097 246)",
+          "oklch(49% 0.121 246)",
+          "oklch(61% 0.121 246)",
+          "oklch(72% 0.089 246)",
+          "oklch(84% 0.051 246)",
+          "oklch(95% 0.018 246)"
+        ]
+      },
+      "muscle-biceps": {
+        "role": "data",
+        "displayName": "Muscle : Biceps (calendrier d'activité)",
+        "canonical": "#6d45bd",
+        "oklch": "oklch(50.1% 0.179 294)",
+        "tonalRamp": [
+          "oklch(15% 0.027 294)",
+          "oklch(26% 0.084 294)",
+          "oklch(38% 0.144 294)",
+          "oklch(49% 0.179 294)",
+          "oklch(61% 0.179 294)",
+          "oklch(72% 0.133 294)",
+          "oklch(84% 0.075 294)",
+          "oklch(95% 0.027 294)"
+        ]
+      },
+      "muscle-triceps": {
+        "role": "data",
+        "displayName": "Muscle : Triceps (calendrier d'activité)",
+        "canonical": "#b0367f",
+        "oklch": "oklch(53.5% 0.174 348)",
+        "tonalRamp": [
+          "oklch(15% 0.026 348)",
+          "oklch(26% 0.082 348)",
+          "oklch(38% 0.139 348)",
+          "oklch(49% 0.174 348)",
+          "oklch(61% 0.174 348)",
+          "oklch(72% 0.129 348)",
+          "oklch(84% 0.073 348)",
+          "oklch(95% 0.026 348)"
+        ]
+      },
+      "muscle-legs": {
+        "role": "data",
+        "displayName": "Muscle : Jambes (calendrier d'activité)",
+        "canonical": "#2f7a2b",
+        "oklch": "oklch(51.4% 0.136 142)",
+        "tonalRamp": [
+          "oklch(15% 0.020 142)",
+          "oklch(26% 0.064 142)",
+          "oklch(38% 0.109 142)",
+          "oklch(49% 0.136 142)",
+          "oklch(61% 0.136 142)",
+          "oklch(72% 0.101 142)",
+          "oklch(84% 0.057 142)",
+          "oklch(95% 0.020 142)"
+        ]
+      },
+      "muscle-abs": {
+        "role": "data",
+        "displayName": "Muscle : Abdominaux (calendrier d'activité)",
+        "canonical": "#5b6878",
+        "oklch": "oklch(51.2% 0.030 254)",
+        "tonalRamp": [
+          "oklch(15% 0.005 254)",
+          "oklch(26% 0.014 254)",
+          "oklch(38% 0.024 254)",
+          "oklch(49% 0.030 254)",
+          "oklch(61% 0.030 254)",
+          "oklch(72% 0.022 254)",
+          "oklch(84% 0.013 254)",
+          "oklch(95% 0.005 254)"
+        ]
       }
     },
     "typographyMeta": {

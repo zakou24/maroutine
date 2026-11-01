@@ -306,7 +306,7 @@ Direction visuelle retenue : **A — Courbes** ([décision D13](decisions-ouvert
 | Écran | Contenu clé |
 |---|---|
 | Connexion | Email, mot de passe, bouton « Essayer la démo » |
-| Tableau de bord (Accueil) | « Séance enregistrée. » après une nouvelle séance (D28), calendrier d'activité (D17), bloc Poids : dernière pesée, moyenne sur 7 jours, pesée du jour (D23), puis la semaine en cours, sans le nombre de séries. Au Lot 5 : tendance du poids, jours engagés, exercices par tendance, suggestions |
+| Tableau de bord (Accueil) | « Séance enregistrée. » après une nouvelle séance (D28), calendrier d'activité coloré par muscle avec le chiffre du jour (D17, D31), bloc Poids : dernière pesée, moyenne sur 7 jours, pesée du jour (D23), puis la semaine en cours, sans le nombre de séries. Au Lot 5 : tendance du poids, jours engagés, exercices par tendance, suggestions |
 | Saisie du soir | Un seul écran, trois sections repliables : Séance, Pesée, Alimentation. Date du jour par défaut, modifiable |
 | Séance (édition) | Muscles travaillés en tête, qui filtrent l'ajout d'exercice (D28), exercices dans l'ordre, séries préremplies, suggestion affichée à côté de chaque exercice, ajout et suppression de séries |
 | Calendrier | Mois avec les jours de séance, total par semaine, accès à chaque séance |

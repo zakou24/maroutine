@@ -209,6 +209,9 @@ describe("copie, ordre des entrées (revue du Lot 4)", () => {
     const labels = ["Café", "Pain", "Beurre", "Confiture", "Jus"];
     for (const label of labels) {
       await post(owner, { eatenOn: "2026-10-29", meal: "breakfast", label, kcal: 10, proteinG: 0 });
+      // L'horloge de PGlite n'a que la milliseconde : sans écart, deux entrées auraient la même
+      // heure et leur ordre de départ serait tiré au hasard (Neon a la microseconde).
+      await new Promise((resolve) => setTimeout(resolve, 2));
     }
     await copy(owner, { fromDate: "2026-10-29", toDate: "2026-10-30" });
     expect((await journal(owner, "2026-10-30")).entries.map((e) => e.label)).toEqual(labels);

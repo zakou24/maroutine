@@ -39,7 +39,10 @@ test("la séance saisie apparaît sur l'accueil (activité et semaine) et dans l
     .format(new Date())
     .replace(/^1 /, "1er ");
   const activity = page.getByRole("region", { name: "3 derniers mois" });
-  await activity.getByRole("button", { name: new RegExp(`^${dayLabel}, \\d+ séances?$`) }).click();
+  // Nom du jour : date, nombre de séances, puis ses muscles (Lot 4.2).
+  await activity
+    .getByRole("button", { name: new RegExp(`^${dayLabel}, \\d+ séances?(, |$)`) })
+    .click();
   await expect(activity.locator(`a[href="/seances/${id}"]`)).toBeVisible();
 
   await page.goto("/calendrier");
