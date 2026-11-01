@@ -1,24 +1,34 @@
 import {
+  addDays,
+  crossing,
   exerciseTrend,
+  progressions,
+  windowDays,
+  windowStatus,
   periodStart,
   sessionStats,
   suggestNext,
   suggestionText,
   todayIn,
   trendCorridor,
+  type CrossingResponse,
+  type DayStatus,
   type Exercise,
   type ExerciseSession,
   type ExerciseStatsResponse,
   type ExerciseTrendSummary,
+  type NextSuggestions,
   type Period,
+  type Progression,
   type SuggestionResponse,
   type WeighIn,
 } from "@maroutine/core";
-import { and, asc, eq, lt, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, lt, type SQL } from "drizzle-orm";
 import type { AppDatabase } from "@/db/client";
-import { workout, workoutExercise, workoutSet } from "@/db/schema";
+import { exercise as exerciseTable, workout, workoutExercise, workoutSet } from "@/db/schema";
 import { weighInsOf } from "./body-weights";
 import { getExercise, listExercises } from "./exercises";
+import { nutritionDays } from "./nutrition-days";
 
 // Les pesées ne servent qu'aux exercices au poids du corps (C5) : on ne les lit que pour eux.
 async function weighInsFor(
@@ -100,6 +110,7 @@ export async function exerciseStats(
   return {
     trend: exerciseTrend(stats, today),
     latest: stats.at(-1) ?? null,
+    lastMaxOn: stats.filter((s) => s.estimatedMax !== null).at(-1)?.performedOn ?? null,
     sessions: stats.filter((s) => inPeriod(s.performedOn)),
     // Calculé sur tout l'historique, pour que le début de la période ait déjà son couloir.
     corridor: trendCorridor(stats).filter((p) => inPeriod(p.performedOn)),
@@ -140,4 +151,71 @@ export async function exerciseTrends(
       approximate: withMax?.approximate ?? false,
     };
   });
+}
+
+// Croisement (F-TDB-3, §6.8) : progressions de tous les exercices, rapprochées de la fenêtre
+// alimentaire de leur séance. Archivés compris dans « tous exercices » : leur historique compte.
+export async function crossingStats(db: AppDatabase, userId: string): Promise<CrossingResponse> {
+  const [exercises, all] = await Promise.all([
+    listExercises(db, userId, "all"),
+    histories(db, userId),
+  ]);
+  const weighIns = await weighInsFor(db, userId, exercises);
+  const byExercise = new Map<string, Progression[]>();
+  for (const exercise of exercises) {
+    byExercise.set(
+      exercise.id,
+      progressions(exercise.id, statsOf(exercise, all.get(exercise.id) ?? [], weighIns)),
+    );
+  }
+  const list = [...byExercise.values()].flat();
+  const dates = list.map((p) => p.performedOn).sort();
+  const statuses = new Map<string, DayStatus>();
+  if (dates.length > 0) {
+    const days = await nutritionDays(db, userId, addDays(dates[0]!, -3), dates.at(-1)!);
+    for (const day of days) statuses.set(day.date, day.status);
+  }
+  const windowOf = (date: string) =>
+    windowStatus(windowDays(date).map((d) => statuses.get(d) ?? "unrecorded"));
+  return {
+    all: crossing(list, windowOf),
+    byExercise: exercises
+      .filter((e) => !e.archived && (byExercise.get(e.id)?.length ?? 0) > 0)
+      .map((e) => ({
+        exerciseId: e.id,
+        name: e.name,
+        crossing: crossing(byExercise.get(e.id) ?? [], windowOf),
+      })),
+  };
+}
+
+// Prochaine séance (F-TDB-1) : la suggestion de chaque exercice de la dernière séance, dans son
+// ordre, sur tout l'historique. Les exercices archivés depuis sont omis.
+export async function nextSuggestions(db: AppDatabase, userId: string): Promise<NextSuggestions> {
+  const [last] = await db
+    .select({ id: workout.id, performedOn: workout.performedOn })
+    .from(workout)
+    .where(eq(workout.userId, userId))
+    .orderBy(desc(workout.performedOn), desc(workout.createdAt), desc(workout.id))
+    .limit(1);
+  if (!last) return { workoutId: null, performedOn: null, items: [] };
+  const exercises = await db
+    .select({ id: exerciseTable.id, archived: exerciseTable.archived })
+    .from(workoutExercise)
+    .innerJoin(exerciseTable, eq(exerciseTable.id, workoutExercise.exerciseId))
+    .where(eq(workoutExercise.workoutId, last.id))
+    .orderBy(asc(workoutExercise.position));
+  const items = [];
+  for (const { id } of exercises.filter((e) => !e.archived)) {
+    const exercise = await getExercise(db, userId, id);
+    const { suggestion, text } = await exerciseSuggestion(db, userId, id, undefined);
+    items.push({
+      exerciseId: id,
+      name: exercise.name,
+      equipment: exercise.equipment,
+      suggestion,
+      text,
+    });
+  }
+  return { workoutId: last.id, performedOn: last.performedOn, items };
 }

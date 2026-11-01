@@ -2,7 +2,7 @@
 
 import { addDays, startOfWeek } from "@maroutine/core";
 import { useQuery } from "@tanstack/react-query";
-import { PencilLine } from "lucide-react";
+import { ChevronRight, PencilLine } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
@@ -12,11 +12,15 @@ import { cn } from "@/lib/utils";
 import { useToday } from "@/lib/use-today";
 import { workoutsQuery } from "@/lib/workouts-query";
 import { ActivityCalendar } from "./activity-calendar";
+import { HomeNext } from "./home-next";
+import { HomeNutrition } from "./home-nutrition";
+import { HomeTrends } from "./home-trends";
 import { HomeWeight } from "./home-weight";
 import { WorkoutLink } from "./calendrier/calendar-view";
 
-// Accueil : calendrier d'activité des 3 derniers mois (D17), le poids juste dessous (D23),
-// puis la semaine en cours.
+// Accueil, tableau de bord (F-TDB-1) : calendrier d'activité (D17), poids et sa tendance (D23),
+// la semaine en cours (séances, jours engagés), les exercices par tendance, la prochaine séance
+// et le croisement. Chaque bloc charge seul : un bloc en échec ne masque pas les autres.
 export function HomeScreen() {
   const today = useToday();
   if (today === null) return <Loading />;
@@ -28,6 +32,20 @@ export function HomeScreen() {
       <ActivityCalendar today={today} />
       <HomeWeight today={today} />
       <Week today={today} />
+      <HomeTrends />
+      <HomeNext />
+      <Link
+        href="/croisement"
+        className="flex min-h-14 items-center gap-3 rounded-xl border border-rule bg-surface px-4 py-3 hover:bg-muted"
+      >
+        <span className="flex flex-1 flex-col">
+          <span className="text-[17px] font-bold">Croisement</span>
+          <span className="text-[15px] text-muted-foreground">
+            Tes progressions après des jours bien suivis, et sinon
+          </span>
+        </span>
+        <ChevronRight aria-hidden className="size-5 text-muted-foreground" strokeWidth={2} />
+      </Link>
     </div>
   );
 }
@@ -129,6 +147,7 @@ function Week({ today }: { today: string }) {
         </>
       )}
       <div>{entryLink}</div>
+      <HomeNutrition start={start} today={today} />
     </section>
   );
 }

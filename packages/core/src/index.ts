@@ -76,7 +76,10 @@ export {
 } from "./training/suggestion";
 export {
   periodSchema,
+  type CrossingResponse,
   type ExerciseStatsResponse,
+  type NextSuggestions,
+  type NutritionDay,
   type ExerciseTrendSummary,
   type SuggestionResponse,
 } from "./schemas/stats";
@@ -88,9 +91,25 @@ export {
   type BodyWeight,
   type WeighInInput,
 } from "./schemas/body-weight";
-export { formatWeight, weightSeries, type WeightPoint } from "./training/weight";
+export {
+  formatWeight,
+  weightChange,
+  weightChangeText,
+  weightSeries,
+  type WeightPoint,
+} from "./training/weight";
+export {
+  crossing,
+  crossingText,
+  formatChange,
+  progressions,
+  type Crossing,
+  type CrossingGroup,
+  type Progression,
+} from "./training/crossing";
 export { MEALS, mealLabel, toMeal, type Meal } from "./nutrition/meals";
 export {
+  averageIntake,
   dayTotals,
   entryNutrients,
   orderSearchResults,
@@ -99,6 +118,14 @@ export {
 } from "./nutrition/nutrients";
 export { parseOffHit, type OffProduct } from "./nutrition/off";
 export { normalizeBarcode } from "./nutrition/barcode";
+export {
+  dayStatus,
+  dayStatusLabel,
+  windowDays,
+  windowStatus,
+  type DayStatus,
+  type WindowStatus,
+} from "./nutrition/engagement";
 export {
   copyEntriesSchema,
   foodEntryInputSchema,

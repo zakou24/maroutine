@@ -15,7 +15,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/plus",
     label: "Plus",
     icon: Ellipsis,
-    covers: ["/calendrier", "/exercices", "/objectifs", "/aliments"],
+    covers: ["/calendrier", "/exercices", "/objectifs", "/aliments", "/croisement"],
   },
 ];
 

@@ -2,9 +2,11 @@ import { isoDateSchema, periodSchema } from "@maroutine/core";
 import { z } from "zod";
 import { resourceId } from "@/server/http/params";
 import {
+  crossingStats,
   exerciseStats,
   exerciseSuggestion,
   exerciseTrends,
+  nextSuggestions,
   parisToday,
 } from "@/server/services/stats";
 import type { RouteDeps } from "./deps";
@@ -43,6 +45,24 @@ export function makeExerciseTrendsRoutes({ db, apiHandler }: RouteDeps) {
   return {
     GET: apiHandler(async ({ session }) =>
       Response.json(await exerciseTrends(db(), session.userId, parisToday())),
+    ),
+  };
+}
+
+// GET /api/v1/stats/crossing : croisement tous exercices et par exercice (F-TDB-3).
+export function makeCrossingRoutes({ db, apiHandler }: RouteDeps) {
+  return {
+    GET: apiHandler(async ({ session }) =>
+      Response.json(await crossingStats(db(), session.userId)),
+    ),
+  };
+}
+
+// GET /api/v1/stats/next : suggestions des exercices de la dernière séance (F-TDB-1).
+export function makeNextSuggestionsRoutes({ db, apiHandler }: RouteDeps) {
+  return {
+    GET: apiHandler(async ({ session }) =>
+      Response.json(await nextSuggestions(db(), session.userId)),
     ),
   };
 }

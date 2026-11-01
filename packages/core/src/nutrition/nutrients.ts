@@ -49,3 +49,14 @@ export function orderSearchResults(custom: Food[], recent: Food[], off: Food[]):
   }
   return results;
 }
+
+// Apport moyen par jour renseigné (F-TDB-2), arrondi à l'unité ; null sans jour renseigné.
+export function averageIntake(
+  days: { kcal: number; proteinG: number; entryCount: number }[],
+): { kcal: number; proteinG: number; days: number } | null {
+  const recorded = days.filter((d) => d.entryCount > 0);
+  if (recorded.length === 0) return null;
+  const mean = (key: "kcal" | "proteinG") =>
+    Math.round(recorded.reduce((sum, d) => sum + d[key], 0) / recorded.length);
+  return { kcal: mean("kcal"), proteinG: mean("proteinG"), days: recorded.length };
+}

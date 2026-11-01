@@ -19,9 +19,12 @@ export const targetsQuery = {
   queryFn: () => apiFetch<NutritionTarget[]>("/api/v1/nutrition-targets"),
 };
 
-// Après une écriture dans le journal : les journaux et les aliments récents changent.
+// Après une écriture dans le journal ou les objectifs : journaux, aliments récents, statuts des
+// jours et croisement changent.
 export async function invalidateJournal(queryClient: QueryClient) {
   await Promise.all(
-    ["journal", "foods-recent"].map((key) => queryClient.invalidateQueries({ queryKey: [key] })),
+    ["journal", "foods-recent", "nutrition-days", "crossing"].map((key) =>
+      queryClient.invalidateQueries({ queryKey: [key] }),
+    ),
   );
 }
