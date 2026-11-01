@@ -100,6 +100,14 @@ export {
 export { parseOffHit, type OffProduct } from "./nutrition/off";
 export { normalizeBarcode } from "./nutrition/barcode";
 export {
+  dayStatus,
+  dayStatusLabel,
+  windowDays,
+  windowStatus,
+  type DayStatus,
+  type WindowStatus,
+} from "./nutrition/engagement";
+export {
   copyEntriesSchema,
   foodEntryInputSchema,
   foodEntryPatchSchema,
