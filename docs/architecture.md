@@ -180,6 +180,8 @@ Règles de l'[ADR 0006](adr/0006-suggestions-par-regles.md), appliquées à la d
 
 Pour chaque jour J, la moyenne des pesées de J-6 à J, à condition qu'il y en ait au moins 3. Sinon, pas de valeur ce jour-là (la courbe s'interrompt).
 
+Le **couloir du poids** ([D22](decisions-ouvertes.md#décisions-du-propriétaire)) va, chaque jour qui a une moyenne, de la plus petite à la plus grande pesée de J-6 à J.
+
 ### 6.7 Jour engagé
 
 L'objectif en vigueur un jour donné est le dernier objectif dont la date d'effet est antérieure ou égale à ce jour.
@@ -302,14 +304,14 @@ Direction visuelle retenue : **A — Courbes** ([décision D13](decisions-ouvert
 | Écran | Contenu clé |
 |---|---|
 | Connexion | Email, mot de passe, bouton « Essayer la démo » |
-| Tableau de bord | Semaine en cours : séances faites, poids (tendance 7 jours), jours engagés, exercices par tendance, suggestions |
+| Tableau de bord (Accueil) | Calendrier d'activité (D17), bloc Poids : dernière pesée, moyenne sur 7 jours, pesée du jour (D23), puis la semaine en cours. Au Lot 5 : tendance du poids, jours engagés, exercices par tendance, suggestions |
 | Saisie du soir | Un seul écran, trois sections repliables : Séance, Pesée, Alimentation. Date du jour par défaut, modifiable |
 | Séance (édition) | Exercices dans l'ordre, séries préremplies, suggestion affichée à côté de chaque exercice, ajout et suppression de séries |
 | Calendrier | Mois avec les jours de séance, total par semaine, accès à chaque séance |
 | Exercices | Liste avec tendance établie et dernier max estimé, catalogue, création |
 | Fiche exercice | Tendance et dernier max, suggestion justifiée, courbe du max estimé dans son couloir (1 mois, 3 mois, 1 an, tout) avec résumé textuel, historique (meilleure série, max estimé, volume). Superposition calories et protéines au Lot 5. Lien « Réglages » |
 | Réglages d'un exercice | Nom, matériel, fourchette, pas d'augmentation, archivage (D21) |
-| Poids | Courbe des pesées et moyenne glissante, liste |
+| Poids | Saisie à une date passée (remplace la pesée du jour), courbe des pesées avec moyenne glissante et couloir (1 mois, 3 mois, 1 an, tout) et résumé textuel, liste avec suppression |
 | Alimentation (journal) | Jour sélectionné, entrées par repas, totaux et objectifs, recherche, ajout rapide, duplication |
 | Croisement | Comparaison après fenêtres engagées et non engagées, tous exercices et par exercice, effectifs, mention de prudence |
 | Réglages | Objectifs nutritionnels et leur historique, déconnexion, mention Open Food Facts (ODbL) |

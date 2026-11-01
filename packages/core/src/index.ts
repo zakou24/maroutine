@@ -77,3 +77,12 @@ export {
   type ExerciseTrendSummary,
   type SuggestionResponse,
 } from "./schemas/stats";
+export {
+  MAX_WEIGHT_KG,
+  MIN_WEIGHT_KG,
+  isTenthKg,
+  weighInInputSchema,
+  type BodyWeight,
+  type WeighInInput,
+} from "./schemas/body-weight";
+export { formatWeight, weightSeries, type WeightPoint } from "./training/weight";

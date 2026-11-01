@@ -374,6 +374,10 @@ Courbe du max estimé (Recharts) de 224 px de haut : ligne de 2 px et points de 
 
 Puce de tendance en 15 px gras, coins pleins, sur `muted` ; « En régression » sur voile de régression, encre de régression. Encart « Prochaine séance » de 12 px de rayon sur voile de couloir, encre de couloir : cible en 20 px gras (« 110 kg × 6 »), puis la justification en 15 px ; sur voile de régression pour la règle 2, avec « Voir l'historique » souligné. Dans la séance, la même note en plus compact sous les séries (« Suggestion : 110 kg × 6 »).
 
+### Weight (Lot 3)
+
+Bloc « Poids » de l'accueil sous le calendrier d'activité : titre 20 px gras et lien « Voir la courbe » en bleu acier à droite ; dernière pesée en 17 px tabulaire (« 78,4 kg, le 31 octobre ») suivie de la moyenne sur 7 jours en encre douce ; puis le champ « Pesée du jour (kg) » de 112 px et le bouton principal (« Enregistrer », ou « Remplacer » si la pesée du jour existe). Écran Poids : la même saisie avec un champ date, la courbe (pesées en points de 3 px bleu acier, moyenne glissante en ligne de 2 px interrompue sans valeur, couloir en aire `corridor`) avec les boutons de période et le résumé textuel, puis la liste des pesées avec un bouton corbeille de 44 px par ligne.
+
 ### Set grid (signature du Lot 1)
 
 Dans chaque carte d'exercice : nom en 17 px gras et fourchette « 6–10 rép. » en encre douce sur la même ligne, puis la grille N° | Charge (kg) × Rép. | Supprimer (plus de colonne échauffement depuis D14), en chiffres tabulaires alignés en colonnes, puis « Prérempli depuis le … » en encre douce, puis la rangée d'actions (ajouter une série à gauche, monter/descendre/retirer à droite). Elle tient lieu du couloir de tendance jusqu'au Lot 2.

@@ -17,10 +17,17 @@ import {
 import { and, asc, eq, lt, type SQL } from "drizzle-orm";
 import type { AppDatabase } from "@/db/client";
 import { workout, workoutExercise, workoutSet } from "@/db/schema";
+import { weighInsOf } from "./body-weights";
 import { getExercise, listExercises } from "./exercises";
 
-// Les pesées arrivent au Lot 3 : d'ici là, un exercice au poids du corps n'a pas de max estimé (C5).
-const NO_WEIGH_INS: WeighIn[] = [];
+// Les pesées ne servent qu'aux exercices au poids du corps (C5) : on ne les lit que pour eux.
+async function weighInsFor(
+  db: AppDatabase,
+  userId: string,
+  exercises: Exercise[],
+): Promise<WeighIn[]> {
+  return exercises.some((e) => e.equipment === "bodyweight") ? weighInsOf(db, userId) : [];
+}
 
 export function parisToday(): string {
   return todayIn("Europe/Paris", new Date());
@@ -72,9 +79,9 @@ async function histories(
 }
 
 // Seules les séances avec au moins une série de travail apparaissent dans les stats.
-function statsOf(exercise: Exercise, sessions: ExerciseSession[]) {
+function statsOf(exercise: Exercise, sessions: ExerciseSession[], weighIns: WeighIn[]) {
   return sessions
-    .map((s) => sessionStats(s, exercise.equipment, NO_WEIGH_INS))
+    .map((s) => sessionStats(s, exercise.equipment, weighIns))
     .filter((s) => s.workingSetCount > 0);
 }
 
@@ -87,7 +94,7 @@ export async function exerciseStats(
 ): Promise<ExerciseStatsResponse> {
   const exercise = await getExercise(db, userId, exerciseId);
   const sessions = (await histories(db, userId, { exerciseId })).get(exerciseId) ?? [];
-  const stats = statsOf(exercise, sessions);
+  const stats = statsOf(exercise, sessions, await weighInsFor(db, userId, [exercise]));
   const start = periodStart(today, period);
   const inPeriod = (date: string) => start === null || date >= start;
   return {
@@ -107,7 +114,8 @@ export async function exerciseSuggestion(
 ): Promise<SuggestionResponse> {
   const exercise = await getExercise(db, userId, exerciseId);
   const sessions = (await histories(db, userId, { exerciseId, before })).get(exerciseId) ?? [];
-  const stats = sessions.map((s) => sessionStats(s, exercise.equipment, NO_WEIGH_INS));
+  const weighIns = await weighInsFor(db, userId, [exercise]);
+  const stats = sessions.map((s) => sessionStats(s, exercise.equipment, weighIns));
   const suggestion = suggestNext(sessions, stats, exercise);
   return { suggestion, text: suggestionText(suggestion, exercise.equipment) };
 }
@@ -121,8 +129,9 @@ export async function exerciseTrends(
     listExercises(db, userId, "active"),
     histories(db, userId),
   ]);
+  const weighIns = await weighInsFor(db, userId, exercises);
   return exercises.map((exercise) => {
-    const stats = statsOf(exercise, all.get(exercise.id) ?? []);
+    const stats = statsOf(exercise, all.get(exercise.id) ?? [], weighIns);
     const withMax = stats.filter((s) => s.estimatedMax !== null).at(-1);
     return {
       exerciseId: exercise.id,

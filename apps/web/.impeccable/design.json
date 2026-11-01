@@ -438,6 +438,14 @@
       "description": "Voile de couloir, cible en 20 px gras puis justification en 15 px ; voile de régression pour un max estimé en baisse.",
       "html": "<section class=\"ds-next\"><h2>Prochaine séance</h2><p class=\"ds-next-target\">110 kg × 6</p><p>Tu as fait 110 × 5 : vise 110 × 6.</p></section>",
       "css": ".ds-next { background: #e3ecf7; color: #17406f; border-radius: 12px; padding: 12px 16px; font-size: 15px; } .ds-next h2 { font-size: 15px; font-weight: 400; margin: 0; } .ds-next-target { font-size: 20px; font-weight: 700; margin: 0; }"
+    },
+    {
+      "name": "Bloc Poids",
+      "kind": "card",
+      "refersTo": "home-weight",
+      "description": "Titre, lien « Voir la courbe », dernière pesée et moyenne sur 7 jours, champ « Pesée du jour (kg) » et bouton principal.",
+      "html": "<section class=\"ds-weight\"><h2>Poids</h2><p>78,4 kg, le 31 octobre <span>· moyenne sur 7 jours 78,6 kg</span></p></section>",
+      "css": ".ds-weight h2 { font-size: 20px; font-weight: 700; margin: 0; } .ds-weight p { font-size: 17px; font-variant-numeric: tabular-nums; } .ds-weight span { color: #5b6878; }"
     }
   ],
   "narrative": {

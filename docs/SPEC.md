@@ -112,7 +112,7 @@ Préfixe `/api/v1`. JSON, validation par schémas Zod partagés dans `packages/c
 | Séances | `GET /workouts?from&to`, `POST /workouts`, `GET/PUT/DELETE /workouts/{id}` (la séance complète, exercices et séries compris) |
 | Préremplissage | `GET /exercises/{id}/last-sets` |
 | Stats | `GET /exercises/{id}/stats?period=1m\|3m\|1y\|all`, `GET /exercises/{id}/suggestion?before`, `GET /exercises/trends` (tendance et dernier max de chaque exercice actif, D21) |
-| Pesées | `GET /body-weights?from&to`, `PUT /body-weights/{date}`, `DELETE /body-weights/{date}` |
+| Pesées | `GET /body-weights?from&to` (bornes facultatives : sans `from`, tout l'historique), `PUT /body-weights/{date}` (`{ weightKg }`, 20 à 300 kg, une décimale, date non future), `DELETE /body-weights/{date}` (204, idempotent) |
 | Aliments | `GET /foods/search?q`, `GET /foods/recent`, `POST /foods` (aliment perso), `PATCH/DELETE /foods/{id}` |
 | Journal | `GET /food-entries?date`, `POST /food-entries`, `PATCH/DELETE /food-entries/{id}`, `POST /food-entries/copy` |
 | Objectifs | `GET /nutrition-targets`, `POST /nutrition-targets` |

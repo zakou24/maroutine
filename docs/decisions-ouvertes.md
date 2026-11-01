@@ -38,6 +38,8 @@ Chaque décision indique sa source :
 | D19 | Suggestion en haut de fourchette | Quand la première série retenue est déjà au haut de la fourchette mais pas toutes, la règle 4 vise encore le haut et dit « Tu as fait 25 × 10 : refais 25 × 10 sur toutes tes séries. ». |
 | D20 | Lien de la règle 2 | Jusqu'au Lot 5 (F-TDB-5), « Voir l'historique » renvoie à l'historique de la fiche exercice ; il pointera ensuite vers le poids et l'alimentation des jours concernés. |
 | D21 | Fiche exercice | Les stats d'abord, les réglages derrière un lien « Réglages ». Le volume est une colonne de l'historique, pas un second graphique. La liste des exercices lit toutes les tendances en un appel (`GET /exercises/trends`). |
+| D22 | Couloir du poids | Choix de Claude, délégué par le propriétaire le 01/11/2026 : chaque jour ayant une moyenne glissante, le couloir va de la plus petite à la plus grande pesée de J-6 à J, comme le couloir du max estimé (D18). |
+| D23 | Saisie de la pesée | Choix de Claude, délégué : « Pesée du jour » sur l'accueil, sous le calendrier d'activité (place réservée par D17) ; écran Poids (depuis l'accueil et « Plus ») pour une autre date, la courbe et la liste. Pas de cinquième onglet. Pesée de 20 à 300 kg, une décimale, date non future. |
 
 ## Choix de conception (à relire)
 
