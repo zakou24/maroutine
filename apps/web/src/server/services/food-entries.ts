@@ -139,8 +139,12 @@ export async function copyEntries(
 ): Promise<{ created: number }> {
   const source = await entriesOn(db, userId, input.fromDate, input.meal);
   if (source.length === 0) return { created: 0 };
+  // Une seule insertion donnerait à toutes les copies le même created_at : l'ordre d'origine se
+  // perdrait. Chaque copie reçoit une milliseconde de plus (revue du Lot 4).
+  const base = Date.now();
   await db.insert(foodEntry).values(
-    source.map((entry) => ({
+    source.map((entry, i) => ({
+      createdAt: new Date(base + i),
       userId,
       eatenOn: input.toDate,
       meal: entry.meal,

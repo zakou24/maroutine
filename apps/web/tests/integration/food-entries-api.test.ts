@@ -204,6 +204,17 @@ describe("copie (F-ALI-7, Review Focus 5)", () => {
   });
 });
 
+describe("copie, ordre des entrées (revue du Lot 4)", () => {
+  it("garde l'ordre des entrées de chaque repas", async () => {
+    const labels = ["Café", "Pain", "Beurre", "Confiture", "Jus"];
+    for (const label of labels) {
+      await post(owner, { eatenOn: "2026-10-29", meal: "breakfast", label, kcal: 10, proteinG: 0 });
+    }
+    await copy(owner, { fromDate: "2026-10-29", toDate: "2026-10-30" });
+    expect((await journal(owner, "2026-10-30")).entries.map((e) => e.label)).toEqual(labels);
+  });
+});
+
 describe("isolation (T-01, T-02)", () => {
   it("ne lit, ne modifie ni n'utilise rien d'un autre utilisateur", async () => {
     const { id } = (

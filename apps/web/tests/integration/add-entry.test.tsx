@@ -87,6 +87,9 @@ describe("ajout d'une entrée (F-ALI-1, F-ALI-3, F-ALI-6)", () => {
       body: { eatenOn: "2026-10-30", meal: "breakfast", foodId: skyr.id, quantityG: 150 },
     });
     await waitFor(() => expect(push).toHaveBeenCalledWith("/alimentation?date=2026-10-30"));
+    // L'écran reste monté (caché) : revenir ajouter au même repas repart d'une page neuve (revue du Lot 4).
+    expect(screen.queryByRole("textbox", { name: "Quantité (g)" })).toBeNull();
+    expect(screen.getByRole("searchbox", { name: "Rechercher un aliment" })).toHaveValue("");
   });
 
   it("ajout rapide sans libellé : un message, rien n'est envoyé", async () => {

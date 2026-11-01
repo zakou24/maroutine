@@ -57,6 +57,11 @@ export function AddEntry({ date, meal: initialMeal }: { date: string; meal: Meal
       apiFetch("/api/v1/food-entries", { method: "POST", body }),
     onSuccess: async () => {
       await invalidateJournal(queryClient);
+      // L'écran reste monté (caché) après la navigation : il repart d'une page neuve, sinon un
+      // nouvel ajout au même repas reprendrait l'aliment choisi (revue du Lot 4).
+      setSelected(null);
+      setMode("search");
+      setError(null);
       router.push(`/alimentation?date=${date}`);
     },
     onError: () => setError("Ajout impossible. Réessaie."),
