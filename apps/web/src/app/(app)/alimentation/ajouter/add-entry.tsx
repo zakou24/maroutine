@@ -187,6 +187,9 @@ function Scan({ onPick, onMode }: { onPick: (food: Food) => void; onMode: (mode:
   const id = useId();
   const [text, setText] = useState("");
   const [error, setError] = useState<{ message: string; notFound: boolean } | null>(null);
+  // Un code lu éteint le scanner : après un échec, il ne se rallume qu'à la demande, sinon il
+  // relirait en boucle le produit resté devant l'objectif (revue du Lot 4.1).
+  const [scanning, setScanning] = useState(true);
   const lookup = useMutation({
     mutationFn: (code: string) => apiFetch<Food>(`/api/v1/foods/barcode/${code}`),
     onSuccess: onPick,
@@ -218,13 +221,25 @@ function Scan({ onPick, onMode }: { onPick: (food: Food) => void; onMode: (mode:
     <div className="flex flex-col gap-4">
       {lookup.isPending ? (
         <p className="text-[15px] text-muted-foreground">Recherche du produit…</p>
-      ) : (
+      ) : scanning ? (
         <BarcodeScanner
           onCode={(code) => {
+            setScanning(false);
             setText(code);
             look(code);
           }}
         />
+      ) : (
+        <Button
+          variant="outline"
+          className={`${secondaryButtonClass} self-start`}
+          onClick={() => {
+            setError(null);
+            setScanning(true);
+          }}
+        >
+          Scanner à nouveau
+        </Button>
       )}
       <form onSubmit={onSubmit} noValidate className="flex flex-col gap-2">
         <Label htmlFor={`${id}-code`} className={labelClass}>

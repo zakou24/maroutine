@@ -16,9 +16,20 @@ vi.mock("@/lib/api", async (original) => ({
 }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push, replace: push }) }));
 // La caméra n'existe pas dans jsdom : le scanner est remplacé, la saisie du code reste réelle.
-vi.mock("@/app/(app)/alimentation/ajouter/barcode-scanner", () => ({
-  BarcodeScanner: () => null,
-}));
+// `scanned.code` : code « lu » par le faux scanner dès qu'il s'affiche, comme un produit resté
+// devant l'objectif.
+const { scanned } = vi.hoisted(() => ({ scanned: { code: null as string | null } }));
+vi.mock("@/app/(app)/alimentation/ajouter/barcode-scanner", async () => {
+  const { useEffect } = await import("react");
+  return {
+    BarcodeScanner: ({ onCode }: { onCode: (code: string) => void }) => {
+      useEffect(() => {
+        if (scanned.code) onCode(scanned.code);
+      }, [onCode]);
+      return null;
+    },
+  };
+});
 
 const skyr: Food = {
   id: "11111111-1111-4111-8111-111111111111",
@@ -53,6 +64,7 @@ const searches = () =>
 beforeEach(() => {
   apiFetch.mockReset();
   push.mockReset();
+  scanned.code = null;
 });
 afterEach(cleanup);
 
@@ -166,6 +178,22 @@ describe("ajout par code-barres (D29)", () => {
       "aria-pressed",
       "true",
     );
+  });
+
+  it("après un échec, le scanner ne relit pas le même code tout seul (revue du Lot 4.1)", async () => {
+    serveBarcode(new ApiError(404, "not_found"));
+    scanned.code = "3017620422003";
+    renderWithQuery(<AddEntry date="2026-10-30" meal="breakfast" />);
+    await userEvent.click(screen.getByRole("button", { name: "Scanner" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Produit introuvable sur Open Food Facts.",
+    );
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    const lookups = () =>
+      apiFetch.mock.calls.filter(([p]) => String(p).startsWith("/api/v1/foods/barcode/"));
+    expect(lookups()).toHaveLength(1);
+    await userEvent.click(screen.getByRole("button", { name: "Scanner à nouveau" }));
+    await waitFor(() => expect(lookups()).toHaveLength(2));
   });
 
   it("Open Food Facts ne répond pas : message et pas d'écran figé", async () => {

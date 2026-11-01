@@ -6,6 +6,9 @@ import { FormError } from "@/components/form-error";
 import { createBarcodeDetector } from "@/lib/barcode-detector";
 
 const SCAN_EVERY_MS = 250;
+// Lectures ratées d'affilée avant d'abandonner (environ 2 s) : un .wasm qui ne charge pas ne
+// doit pas laisser une caméra qui filme sans jamais lire.
+const MAX_FAILURES = 8;
 
 // Vue de la caméra arrière qui lit le premier code-barres valide (D29). Les images restent sur
 // l'appareil : seul le code lu sort, par `onCode`. La caméra est coupée dès qu'un code est lu,
@@ -28,20 +31,29 @@ export function BarcodeScanner({ onCode }: { onCode: (code: string) => void }) {
 
     async function start() {
       if (!navigator.mediaDevices?.getUserMedia) throw new Error("no_camera");
-      const [detector, media] = await Promise.all([
-        createBarcodeDetector(),
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false }),
-      ]);
+      const asked = navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+        audio: false,
+      });
+      const detector = await createBarcodeDetector().catch((error: unknown) => {
+        // Caméra accordée après coup alors que le lecteur manque : on la coupe aussitôt.
+        asked.then((media) => media.getTracks().forEach((track) => track.stop())).catch(() => {});
+        throw error;
+      });
+      const media = await asked;
       stream = media;
       if (stopped || !video.current) return stop();
       video.current.srcObject = media;
       await video.current.play();
       let busy = false;
+      let failures = 0;
       timer = setInterval(async () => {
         if (busy || stopped || !video.current) return;
         busy = true;
         try {
-          for (const { rawValue } of await detector.detect(video.current)) {
+          const codes = await detector.detect(video.current);
+          failures = 0;
+          for (const { rawValue } of codes) {
             const code = normalizeBarcode(rawValue);
             if (code && !stopped) {
               stop();
@@ -50,7 +62,12 @@ export function BarcodeScanner({ onCode }: { onCode: (code: string) => void }) {
             }
           }
         } catch {
-          // Image illisible (vidéo pas encore prête) : on réessaie au tour suivant.
+          // Image illisible (vidéo pas encore prête) : on réessaie au tour suivant, un temps.
+          failures += 1;
+          if (failures >= MAX_FAILURES && !stopped) {
+            stop();
+            setFailed(true);
+          }
         } finally {
           busy = false;
         }

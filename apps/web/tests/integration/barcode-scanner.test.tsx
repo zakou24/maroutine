@@ -4,15 +4,18 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BarcodeScanner } from "@/app/(app)/alimentation/ajouter/barcode-scanner";
 
-const { detect } = vi.hoisted(() => ({ detect: vi.fn() }));
-vi.mock("@/lib/barcode-detector", () => ({
-  createBarcodeDetector: async () => ({ detect }),
+const { detect, createBarcodeDetector } = vi.hoisted(() => ({
+  detect: vi.fn(),
+  createBarcodeDetector: vi.fn(),
 }));
+vi.mock("@/lib/barcode-detector", () => ({ createBarcodeDetector }));
 
 const stop = vi.fn();
 const getUserMedia = vi.fn();
 
 beforeEach(() => {
+  createBarcodeDetector.mockReset();
+  createBarcodeDetector.mockResolvedValue({ detect });
   detect.mockReset();
   stop.mockReset();
   getUserMedia.mockReset();
@@ -65,6 +68,25 @@ describe("BarcodeScanner (D29)", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Caméra indisponible. Saisis le code écrit sous les barres.",
     );
+  });
+
+  it("lecteur impossible à charger : la caméra accordée ensuite est coupée (revue du Lot 4.1)", async () => {
+    createBarcodeDetector.mockRejectedValue(new Error("hors ligne"));
+    let grant: (stream: unknown) => void = () => {};
+    getUserMedia.mockReturnValue(new Promise((resolve) => (grant = resolve)));
+    render(<BarcodeScanner onCode={vi.fn()} />);
+    expect(await screen.findByRole("alert")).toHaveTextContent("Caméra indisponible.");
+    grant({ getTracks: () => [{ stop }] });
+    await waitFor(() => expect(stop).toHaveBeenCalled());
+  });
+
+  it("lecture qui échoue sans cesse (.wasm absent) : caméra coupée et message (revue du Lot 4.1)", async () => {
+    detect.mockRejectedValue(new Error("wasm"));
+    render(<BarcodeScanner onCode={vi.fn()} />);
+    expect(await screen.findByRole("alert", {}, { timeout: 4000 })).toHaveTextContent(
+      "Caméra indisponible.",
+    );
+    expect(stop).toHaveBeenCalled();
   });
 
   it("sans caméra du tout (pas de mediaDevices) : même message", async () => {

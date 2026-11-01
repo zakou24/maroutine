@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { PencilLine } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { LoadError, Loading } from "@/components/query-state";
 import { countLabel, formatDayMonthLong } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -34,19 +34,33 @@ export function HomeScreen() {
 
 // Une nouvelle séance enregistrée ramène ici avec ?enregistree=1 (D28) : le message reste quelques
 // secondes, l'adresse est nettoyée tout de suite pour qu'un rechargement ne le rejoue pas.
+const NOTICE_MS = 5000;
+
 export function SavedNotice() {
   const router = useRouter();
   const saved = useSearchParams().get("enregistree") === "1";
   const [shown, setShown] = useState(false);
   if (saved && !shown) setShown(true);
+  // Échéance fixée à l'arrivée : un accueil caché (Activity) suspend ses minuteurs, et le message
+  // ne doit pas revenir quand on y retourne après l'échéance (Review Focus 5).
+  const deadline = useRef<number | null>(null);
 
   useEffect(() => {
-    if (saved) router.replace("/", { scroll: false });
+    if (!saved) return;
+    deadline.current ??= Date.now() + NOTICE_MS;
+    router.replace("/", { scroll: false });
   }, [saved, router]);
 
   useEffect(() => {
     if (!shown) return;
-    const timer = setTimeout(() => setShown(false), 5000);
+    const left = (deadline.current ?? Date.now() + NOTICE_MS) - Date.now();
+    const timer = setTimeout(
+      () => {
+        deadline.current = null;
+        setShown(false);
+      },
+      Math.max(0, left),
+    );
     return () => clearTimeout(timer);
   }, [shown]);
 
