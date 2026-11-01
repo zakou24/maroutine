@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-> **Statut : validé** le 01/11/2026 (« garde comme ça et essaye d'écrire le chiffre du jour aussi dans la case »), après le choix de la maquette E, « par muscle », sur le [canevas des propositions](https://claude.ai/artifact/DN9FLZisbCk76V7A8uLszd).
+> **Statut : terminé** (PR #8). Validé le 01/11/2026 (« garde comme ça et essaye d'écrire le chiffre du jour aussi dans la case »), après le choix de la maquette E, « par muscle », sur le [canevas des propositions](https://claude.ai/artifact/DN9FLZisbCk76V7A8uLszd).
 
 **Goal :** les petits carrés du calendrier d'activité de l'accueil montrent, par leur couleur, les muscles travaillés chaque jour, et portent le chiffre du jour.
 
@@ -82,7 +82,7 @@
 - `squareBackground` : 1 couleur, une diagonale à 135°, des bandes à 90° pour 3 ;
 - le calendrier d'activité :
   - affiche le chiffre de chaque jour passé ;
-  - nomme un jour « 28 octobre, 2 séances, Jambes, Pectoraux, Triceps » ;
+  - nomme un jour « 28 octobre, 2 séances, Pectoraux, Triceps, Jambes » (muscles dans l'ordre des groupes) ;
   - n'a pas de bouton pour un jour sans séance ;
   - affiche la légende des groupes présents ;
   - montre les muscles du jour choisi en pastilles ;

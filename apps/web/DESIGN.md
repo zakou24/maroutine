@@ -17,6 +17,13 @@ colors:
   regression: "#b4470e"
   regression-ink: "#8a3409"
   regression-wash: "#fdf3ec"
+  muscle-chest: "#1f5fa8"
+  muscle-back: "#0b6e63"
+  muscle-shoulders: "#2a78b5"
+  muscle-biceps: "#6d45bd"
+  muscle-triceps: "#b0367f"
+  muscle-legs: "#2f7a2b"
+  muscle-abs: "#5b6878"
 typography:
   headline:
     fontFamily: "Atkinson Hyperlegible, system-ui, sans-serif"
@@ -237,9 +244,11 @@ Une palette froide et sourde, presque monochrome, où une seule teinte saturée 
 - **Gris de survol** (`muted`) : fond au survol des lignes de liste, des boutons icône et des boutons secondaires.
 - **Bord de champ** (`field`) : contour des champs, du bouton date, du bouton pointillé et de la case à cocher. Contraste 3,2:1 sur le fond et 3,5:1 sur le blanc (WCAG 1.4.11).
 
+- **Couleurs des muscles** (`muscle-*`, Lot 4.2) : une par groupe musculaire, réservées aux carrés du calendrier d'activité, à sa légende et aux pastilles des muscles du jour sur l'accueil. Pectoraux `#1f5fa8`, Dos `#0b6e63`, Épaules `#2a78b5`, Biceps `#6d45bd`, Triceps `#b0367f`, Jambes `#2f7a2b`, Abdominaux `#5b6878` ; toutes à 4,5:1 au moins avec un chiffre blanc, aucune orange.
+
 ### Named Rules
 
-**The Single Voice Rule.** Le bleu acier est la seule couleur d'action. Rien d'autre que ce qui se touche ne le porte, à l'exception de la pastille d'un jour avec séance.
+**The Single Voice Rule.** Le bleu acier est la seule couleur d'action. Rien d'autre que ce qui se touche ne le porte, à l'exception de la pastille d'un jour avec séance. Les couleurs `muscle-*` sont des données (quel muscle), jamais une action ni un jugement, et ne sortent pas du calendrier d'activité.
 
 **The Orange Is Earned Rule.** L'orange brûlé n'apparaît que pour une régression de performance calculée. Les erreurs de saisie et les actions destructives restent à l'encre, accompagnées d'une icône (`destructive` pointe sur `ink`).
 
@@ -360,7 +369,7 @@ Grille mensuelle dans une surface à filet : initiales des jours en 13 px encre 
 
 ### Activity calendar (Lot 1.1)
 
-Sur l'accueil, façon graphe d'activité de GitHub mais aux couleurs de la direction A : 13 colonnes de semaines (lundi → dimanche), cases carrées d'environ 22 px à coins de 3 px et 4 px d'écart, initiales L, M, V à gauche et mois abrégés (« sept. ») au-dessus, en 12 px encre douce. Aucune séance en `rule-soft`, 1 séance en `action`, 2 et plus en `action-strong` ; jamais d'orange, de jaune ni de vert. Une case de séance est un bouton nommé (« 28 octobre, 1 séance ») qui déplie la liste du jour ; sélectionnée, anneau encre de 2 px. Jours futurs vides. Légende « Aucune · 1 séance · 2 et plus » et nombre de séances sous le titre « 3 derniers mois ». Sur ordinateur, la carte épouse la largeur de la grille (400 px).
+Sur l'accueil, façon graphe d'activité de GitHub mais aux couleurs de la direction A : 13 colonnes de semaines (lundi → dimanche), cases carrées d'environ 22 px à coins de 3 px et 4 px d'écart, initiales L, M, V à gauche et mois abrégés (« sept. ») au-dessus, en 12 px encre douce. Chaque case porte le chiffre du jour en 11 px tabulaire (Lot 4.2) : encre douce sur `rule-soft` sans séance ; blanc et gras sur la couleur des muscles du jour (`muscle-*`, toutes séances réunies) : une couleur pour un muscle, coupée en diagonale pour deux, en bandes verticales au-delà ; `rule` à l'encre pour une séance sans muscle. Jamais d'orange. Une case de séance est un bouton nommé (« 28 octobre, 2 séances, Pectoraux, Triceps, Jambes ») qui déplie la liste du jour, chaque séance avec ses muscles en pastilles ; sélectionnée, contour encre plein de 2 px ; aujourd'hui, contour en pointillés de 1 px. Jours futurs vides. Légende des muscles présents (et « Sans muscle ») sous la grille, et nombre de séances sous le titre « 3 derniers mois ». Sur ordinateur, la carte épouse la largeur de la grille (400 px).
 
 ### Session extras (Lot 1.1)
 

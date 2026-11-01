@@ -109,7 +109,7 @@ Préfixe `/api/v1`. JSON, validation par schémas Zod partagés dans `packages/c
 | Ressource | Routes |
 |---|---|
 | Exercices | `GET/POST /exercises`, `GET/PATCH /exercises/{id}` (archivage par `PATCH archived` ; `muscleGroup` obligatoire à la création, D27) |
-| Séances | `GET /workouts?from&to`, `POST /workouts`, `GET/PUT/DELETE /workouts/{id}` (la séance complète, exercices, séries et muscles travaillés compris, D28) |
+| Séances | `GET /workouts?from&to`, `POST /workouts`, `GET/PUT/DELETE /workouts/{id}` (la séance complète, exercices, séries et muscles travaillés compris, D28 ; dans le résumé de `GET /workouts`, les muscles sont ceux choisis, sinon ceux des exercices, D31) |
 | Préremplissage | `GET /exercises/{id}/last-sets` |
 | Stats | `GET /exercises/{id}/stats?period=1m\|3m\|1y\|all`, `GET /exercises/{id}/suggestion?before`, `GET /exercises/trends` (tendance et dernier max de chaque exercice actif, D21) |
 | Pesées | `GET /body-weights?from&to` (bornes facultatives : sans `from`, tout l'historique), `PUT /body-weights/{date}` (`{ weightKg }`, 20 à 300 kg, une décimale, date non future), `DELETE /body-weights/{date}` (204, idempotent) |
