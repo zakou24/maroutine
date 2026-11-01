@@ -29,6 +29,13 @@
       "when": 1793496657416,
       "tag": "0003_body_weight",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793498510484,
+      "tag": "0004_nutrition",
+      "breakpoints": true
     }
   ]
 }
