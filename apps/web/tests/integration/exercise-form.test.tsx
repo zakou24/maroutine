@@ -21,6 +21,7 @@ const curl: Exercise = {
   id: "00000000-0000-4000-8000-00000000000c",
   name: "Curl",
   equipment: "dumbbell",
+  muscleGroup: "legs",
   repMin: 8,
   repMax: 12,
   incrementKg: 2,
@@ -46,18 +47,28 @@ describe("ExerciseForm, création", () => {
     expect(screen.queryByRole("textbox", { name: "Pas d'augmentation (kg)" })).toBeNull();
     apiFetch.mockResolvedValue({ ...curl, name: "Rowing" });
     await userEvent.type(screen.getByLabelText("Nom"), "Rowing");
+    await userEvent.selectOptions(screen.getByLabelText("Muscle"), "Dos");
     await userEvent.selectOptions(screen.getByLabelText("Matériel"), "Haltères");
     await userEvent.click(screen.getByRole("button", { name: "Créer l'exercice" }));
     await waitFor(() => expect(onSaved).toHaveBeenCalled());
     expect(apiFetch).toHaveBeenCalledWith("/api/v1/exercises", {
       method: "POST",
-      body: { name: "Rowing", equipment: "dumbbell", repMin: 6, repMax: 10 },
+      body: { name: "Rowing", muscleGroup: "back", equipment: "dumbbell", repMin: 6, repMax: 10 },
     });
+  });
+
+  it("demande un muscle avant d'envoyer (D27)", async () => {
+    await userEvent.type(screen.getByLabelText("Nom"), "Rowing");
+    expect(screen.queryByRole("option", { name: "Non classé" })).toBeNull();
+    await userEvent.click(screen.getByRole("button", { name: "Créer l'exercice" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Choisis un muscle.");
+    expect(apiFetch).not.toHaveBeenCalled();
   });
 
   it("affiche « Ce nom existe déjà. » sur un 409", async () => {
     apiFetch.mockRejectedValue(new ApiError(409, "duplicate_name"));
     await userEvent.type(screen.getByLabelText("Nom"), "Squat");
+    await userEvent.selectOptions(screen.getByLabelText("Muscle"), "Jambes");
     await userEvent.click(screen.getByRole("button", { name: "Créer l'exercice" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Ce nom existe déjà.");
     expect(onSaved).not.toHaveBeenCalled();
@@ -65,6 +76,7 @@ describe("ExerciseForm, création", () => {
 
   it("refuse une fourchette inversée sans appeler l'API", async () => {
     await userEvent.type(screen.getByLabelText("Nom"), "Squat");
+    await userEvent.selectOptions(screen.getByLabelText("Muscle"), "Jambes");
     await userEvent.clear(screen.getByLabelText("Répétitions minimum"));
     await userEvent.type(screen.getByLabelText("Répétitions minimum"), "12");
     await userEvent.click(screen.getByRole("button", { name: "Créer l'exercice" }));
@@ -97,7 +109,14 @@ describe("ExerciseForm, réglages d'un exercice", () => {
     await waitFor(() => expect(onSaved).toHaveBeenCalled());
     expect(apiFetch).toHaveBeenCalledWith(`/api/v1/exercises/${curl.id}`, {
       method: "PATCH",
-      body: { name: "Curl", equipment: "dumbbell", repMin: 8, repMax: 12, incrementKg: 1.25 },
+      body: {
+        name: "Curl",
+        muscleGroup: "legs",
+        equipment: "dumbbell",
+        repMin: 8,
+        repMax: 12,
+        incrementKg: 1.25,
+      },
     });
   });
 
@@ -113,6 +132,33 @@ describe("ExerciseForm, réglages d'un exercice", () => {
   it("changer de matériel ne remplace pas un pas déjà réglé", async () => {
     await userEvent.selectOptions(screen.getByLabelText("Matériel"), "Machine");
     expect(increment()).toHaveValue("2");
+  });
+});
+
+describe("ExerciseForm, muscle", () => {
+  it("préremplit le muscle proposé par la séance", () => {
+    renderWithQuery(<ExerciseForm defaultMuscleGroup="triceps" onSaved={onSaved} />);
+    expect(screen.getByLabelText("Muscle")).toHaveValue("triceps");
+  });
+
+  it("un exercice « Non classé » s'enregistre sans muscle, puis se classe", async () => {
+    apiFetch.mockResolvedValue(curl);
+    renderWithQuery(<ExerciseForm initial={{ ...curl, muscleGroup: null }} onSaved={onSaved} />);
+    expect(screen.getByLabelText("Muscle")).toHaveValue("");
+    expect(screen.getByRole("option", { name: "Non classé" })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
+    expect(apiFetch.mock.calls[0]![1].body).not.toHaveProperty("muscleGroup");
+
+    await userEvent.selectOptions(screen.getByLabelText("Muscle"), "Triceps");
+    await userEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    await waitFor(() => expect(apiFetch).toHaveBeenCalledTimes(2));
+    expect(apiFetch.mock.calls[1]![1].body).toMatchObject({ muscleGroup: "triceps" });
+  });
+
+  it("un exercice classé ne propose plus « Non classé »", () => {
+    renderWithQuery(<ExerciseForm initial={curl} onSaved={onSaved} />);
+    expect(screen.queryByRole("option", { name: "Non classé" })).toBeNull();
   });
 });
 

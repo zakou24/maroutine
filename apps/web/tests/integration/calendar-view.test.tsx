@@ -21,6 +21,7 @@ function summary(id: string, performedOn: string): WorkoutSummary {
     workingSetCount: 9,
     warmupDone: false,
     cardioMinutes: null,
+    muscleGroups: [],
   };
 }
 
@@ -60,6 +61,8 @@ describe("CalendarView", () => {
         .getAllByRole("link")
         .map((l) => l.getAttribute("href")),
     ).toEqual(["/seances/a", "/seances/b"]);
+    // L'écran Calendrier garde le nombre de séries de travail.
+    expect(list).toHaveTextContent("séries de travail");
   });
 
   it("un mois vide affiche « Aucune séance ce mois-ci. »", async () => {

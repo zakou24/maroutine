@@ -12,16 +12,20 @@ afterEach(cleanup);
 
 describe("navigation de l'app", () => {
   it("la barre d'onglets marque l'onglet courant", () => {
-    pathname.current = "/exercices";
+    pathname.current = "/poids";
     render(<TabBar />);
-    expect(screen.getByRole("link", { name: "Exercices" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "Poids" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("link", { name: "Accueil" })).not.toHaveAttribute("aria-current");
   });
 
-  it("une page enfant garde son onglet actif", () => {
-    pathname.current = "/exercices/nouveau";
-    render(<TabBar />);
-    expect(screen.getByRole("link", { name: "Exercices" })).toHaveAttribute("aria-current", "page");
+  it("les exercices et leurs pages enfants relèvent de « Plus » (D30)", () => {
+    for (const path of ["/exercices", "/exercices/nouveau", "/exercices/abc/reglages"]) {
+      pathname.current = path;
+      render(<TabBar />);
+      expect(screen.getByRole("link", { name: "Plus" })).toHaveAttribute("aria-current", "page");
+      expect(screen.queryByRole("link", { name: "Exercices" })).toBeNull();
+      cleanup();
+    }
   });
 
   it("le calendrier et une séance passée relèvent de « Plus » et de « Semaine »", () => {
@@ -30,7 +34,7 @@ describe("navigation de l'app", () => {
     expect(screen.getByRole("link", { name: "Plus" })).toHaveAttribute("aria-current", "page");
   });
 
-  it("propose Accueil, Séance, Repas, Exercices et Plus dans cet ordre (D24)", () => {
+  it("propose Accueil, Séance, Repas, Poids et Plus dans cet ordre (D24, D30)", () => {
     pathname.current = "/";
     render(<AppNav />);
     expect(screen.getAllByRole("link").map((l) => [l.textContent, l.getAttribute("href")])).toEqual(
@@ -38,7 +42,7 @@ describe("navigation de l'app", () => {
         ["Accueil", "/"],
         ["Séance", "/saisie"],
         ["Repas", "/alimentation"],
-        ["Exercices", "/exercices"],
+        ["Poids", "/poids"],
         ["Plus", "/plus"],
       ],
     );

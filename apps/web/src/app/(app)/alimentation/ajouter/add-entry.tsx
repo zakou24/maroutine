@@ -4,6 +4,7 @@ import {
   MEALS,
   entryNutrients,
   mealLabel,
+  normalizeBarcode,
   parseDecimal,
   toMeal,
   type Food,
@@ -28,16 +29,17 @@ import { LoadError } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { apiFetch } from "@/lib/api";
+import { ApiError, apiFetch } from "@/lib/api";
 import { formatGrams, formatKcal } from "@/lib/format";
 import { invalidateJournal, recentFoodsQuery } from "@/lib/nutrition-queries";
 import { cn } from "@/lib/utils";
+import { BarcodeScanner } from "./barcode-scanner";
 
 // Temporisation et longueur minimale : la recherche externe est limitée (ADR 0007, T-09).
 const DEBOUNCE_MS = 400;
 const MIN_QUERY = 2;
 
-type Mode = "search" | "quick" | "custom";
+type Mode = "search" | "scan" | "quick" | "custom";
 
 function nutrientsLabel(n: { kcal: number; proteinG: number }) {
   return `${formatKcal(n.kcal)} · ${formatGrams(n.proteinG)} de protéines`;
@@ -93,6 +95,7 @@ export function AddEntry({ date, meal: initialMeal }: { date: string; meal: Meal
         {(
           [
             ["search", "Rechercher"],
+            ["scan", "Scanner"],
             ["quick", "Ajout rapide"],
             ["custom", "Nouvel aliment perso"],
           ] as const
@@ -127,6 +130,8 @@ export function AddEntry({ date, meal: initialMeal }: { date: string; meal: Meal
         />
       ) : mode === "search" ? (
         <Search onPick={setSelected} />
+      ) : mode === "scan" ? (
+        <Scan onPick={setSelected} onMode={setMode} />
       ) : mode === "quick" ? (
         <QuickAdd
           addLabel={addLabel}
@@ -168,6 +173,117 @@ function FoodButton({
         {tags.length > 0 ? ` · ${tags.join(" · ")}` : ""}
       </span>
     </button>
+  );
+}
+
+const SCAN_ERRORS: Record<number, string> = {
+  404: "Produit introuvable sur Open Food Facts.",
+  429: "Trop de codes d'un coup. Attends une minute.",
+  503: "Open Food Facts ne répond pas. Réessaie ou saisis l'aliment.",
+};
+
+// Scan du code-barres (D29), ou saisie du code écrit sous les barres si la caméra manque.
+function Scan({ onPick, onMode }: { onPick: (food: Food) => void; onMode: (mode: Mode) => void }) {
+  const id = useId();
+  const [text, setText] = useState("");
+  const [error, setError] = useState<{ message: string; notFound: boolean } | null>(null);
+  // Un code lu éteint le scanner : après un échec, il ne se rallume qu'à la demande, sinon il
+  // relirait en boucle le produit resté devant l'objectif (revue du Lot 4.1).
+  const [scanning, setScanning] = useState(true);
+  const lookup = useMutation({
+    mutationFn: (code: string) => apiFetch<Food>(`/api/v1/foods/barcode/${code}`),
+    onSuccess: onPick,
+    onError: (failure) => {
+      const status = failure instanceof ApiError ? failure.status : 0;
+      setError({
+        message: SCAN_ERRORS[status] ?? "Recherche impossible. Réessaie.",
+        notFound: status === 404,
+      });
+    },
+  });
+
+  function look(raw: string) {
+    const code = normalizeBarcode(raw);
+    if (!code) {
+      setError({ message: "Code-barres invalide.", notFound: false });
+      return;
+    }
+    setError(null);
+    lookup.mutate(code);
+  }
+
+  function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    look(text);
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      {lookup.isPending ? (
+        <p className="text-[15px] text-muted-foreground">Recherche du produit…</p>
+      ) : scanning ? (
+        <BarcodeScanner
+          onCode={(code) => {
+            setScanning(false);
+            setText(code);
+            look(code);
+          }}
+        />
+      ) : (
+        <Button
+          variant="outline"
+          className={`${secondaryButtonClass} self-start`}
+          onClick={() => {
+            setError(null);
+            setScanning(true);
+          }}
+        >
+          Scanner à nouveau
+        </Button>
+      )}
+      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-2">
+        <Label htmlFor={`${id}-code`} className={labelClass}>
+          Code-barres
+        </Label>
+        <div className="flex gap-2">
+          <Input
+            id={`${id}-code`}
+            inputMode="numeric"
+            autoComplete="off"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            className={`${fieldClass} flex-1 tabular-nums`}
+          />
+          <Button
+            type="submit"
+            variant="outline"
+            disabled={lookup.isPending}
+            className={secondaryButtonClass}
+          >
+            Chercher le code
+          </Button>
+        </div>
+      </form>
+      <FormError>{error?.message ?? null}</FormError>
+      {error?.notFound ? (
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            className={secondaryButtonClass}
+            onClick={() => onMode("quick")}
+          >
+            Ajout rapide
+          </Button>
+          <Button
+            variant="outline"
+            className={secondaryButtonClass}
+            onClick={() => onMode("custom")}
+          >
+            Créer l&apos;aliment
+          </Button>
+        </div>
+      ) : null}
+    </div>
   );
 }
 

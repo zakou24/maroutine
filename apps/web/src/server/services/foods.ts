@@ -9,8 +9,8 @@ import {
 import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
 import type { AppDatabase } from "@/db/client";
 import { food, foodEntry } from "@/db/schema";
-import { NotFoundError } from "@/server/http/errors";
-import type { OffSearch } from "@/server/off-client";
+import { NotFoundError, ServiceUnavailableError, TooManyRequestsError } from "@/server/http/errors";
+import type { OffProductFetch, OffSearch } from "@/server/off-client";
 
 const columns = {
   id: food.id,
@@ -32,31 +32,47 @@ const LIMIT = 20;
 // Sous la limite publiée de 10 par minute, pour garder de la marge (T-09).
 const OFF_CALLS_PER_MINUTE = 6;
 const offCalls = new Map<string, number[]>();
+// Lecture d'un produit par code-barres : limite publiée de 100 par minute, 20 par utilisateur (D29).
+const BARCODE_CALLS_PER_MINUTE = 20;
+const barcodeCalls = new Map<string, number[]>();
 
 export function resetOffRateLimit() {
   offCalls.clear();
+  barcodeCalls.clear();
 }
 
-function takeOffSlot(userId: string, now = Date.now()): boolean {
-  const recent = (offCalls.get(userId) ?? []).filter((t) => now - t < 60_000);
-  if (recent.length >= OFF_CALLS_PER_MINUTE) {
-    offCalls.set(userId, recent);
+function takeSlot(
+  calls: Map<string, number[]>,
+  perMinute: number,
+  userId: string,
+  now = Date.now(),
+): boolean {
+  const recent = (calls.get(userId) ?? []).filter((t) => now - t < 60_000);
+  if (recent.length >= perMinute) {
+    calls.set(userId, recent);
     return false;
   }
-  offCalls.set(userId, [...recent, now]);
+  calls.set(userId, [...recent, now]);
   return true;
+}
+
+function takeOffSlot(userId: string): boolean {
+  return takeSlot(offCalls, OFF_CALLS_PER_MINUTE, userId);
 }
 
 function likePattern(q: string) {
   return `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
 }
 
-async function withTimeout(off: OffSearch, q: string, timeoutMs: number): Promise<unknown[]> {
+async function withTimeout<T>(
+  call: (signal: AbortSignal) => Promise<T>,
+  timeoutMs: number,
+): Promise<T> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await Promise.race([
-      off(q, controller.signal),
+      call(controller.signal),
       new Promise<never>((_, reject) =>
         controller.signal.addEventListener("abort", () => reject(new Error("off_timeout"))),
       ),
@@ -133,7 +149,7 @@ export async function searchFoods(
   const local = new Set([...custom, ...matching, ...cached].map((f) => f.id)).size;
   if (local < LOCAL_ENOUGH && takeOffSlot(userId)) {
     try {
-      const hits = await withTimeout(off, q, timeoutMs);
+      const hits = await withTimeout((signal) => off(q, signal), timeoutMs);
       const fresh = await cacheProducts(
         db,
         hits.map(parseOffHit).filter((p) => p !== null),
@@ -147,6 +163,33 @@ export async function searchFoods(
     results: orderSearchResults(custom.map(toFood), matching, offFoods).slice(0, 40),
     offUnavailable,
   };
+}
+
+// Aliment scanné (D29) : le cache d'abord, partagé entre utilisateurs comme pour la recherche,
+// puis Open Food Facts. `code` est déjà normalisé (normalizeBarcode).
+export async function foodByBarcode(
+  db: AppDatabase,
+  userId: string,
+  code: string,
+  fetchProduct: OffProductFetch,
+  timeoutMs: number,
+): Promise<Food> {
+  const [cached] = await db
+    .select(columns)
+    .from(food)
+    .where(and(eq(food.source, "off"), eq(food.offCode, code)));
+  if (cached) return toFood(cached);
+  if (!takeSlot(barcodeCalls, BARCODE_CALLS_PER_MINUTE, userId)) throw new TooManyRequestsError();
+  let raw: unknown;
+  try {
+    raw = await withTimeout((signal) => fetchProduct(code, signal), timeoutMs);
+  } catch {
+    throw new ServiceUnavailableError("off_unavailable");
+  }
+  const product = raw === null ? null : parseOffHit(raw);
+  if (!product) throw new NotFoundError();
+  const [saved] = await cacheProducts(db, [{ ...product, offCode: code }]);
+  return saved!;
 }
 
 // Aliments perso de l'utilisateur, par nom (écran « Mes aliments »).

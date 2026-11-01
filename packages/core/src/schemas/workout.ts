@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MUSCLE_GROUPS, sortMuscleGroups, type MuscleGroup } from "../training/catalog";
 import { isQuarterKg } from "./exercise";
 
 // Date calendaire réelle (C13) : « 2026-02-30 » est refusée.
@@ -20,6 +21,8 @@ export const workoutInputSchema = z.object({
   // Échauffement noté une fois pour la séance (D14), cardio de fin de séance en minutes (D15).
   warmupDone: z.boolean().default(false),
   cardioMinutes: z.int().min(1).max(180).nullish(),
+  // Muscles travaillés, choisis avant la séance (D28).
+  muscleGroups: z.array(z.enum(MUSCLE_GROUPS)).max(20).default([]).transform(sortMuscleGroups),
   exercises: z
     .array(z.object({ exerciseId: z.uuid(), sets: z.array(setInputSchema).min(1).max(20) }))
     .min(1)
@@ -43,6 +46,7 @@ export type Workout = {
   note: string | null;
   warmupDone: boolean;
   cardioMinutes: number | null;
+  muscleGroups: MuscleGroup[];
   exercises: { exerciseId: string; name: string; archived: boolean; sets: SetInput[] }[];
 };
 
@@ -51,6 +55,7 @@ export type WorkoutSummary = {
   performedOn: string;
   warmupDone: boolean;
   cardioMinutes: number | null;
+  muscleGroups: MuscleGroup[];
   exerciseCount: number;
   workingSetCount: number;
 };

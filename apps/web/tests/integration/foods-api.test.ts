@@ -5,6 +5,7 @@ import { food } from "@/db/schema";
 import type { SessionInfo } from "@/server/auth";
 import { resetOffRateLimit } from "@/server/services/foods";
 import {
+  makeFoodBarcodeRoutes,
   makeFoodRoutes,
   makeFoodsRoutes,
   makeFoodSearchRoutes,
@@ -199,5 +200,94 @@ describe("aliments récents (F-ALI-6)", () => {
       session: other,
     });
     expect(theirs.body).toEqual([]);
+  });
+});
+
+describe("aliment par code-barres (D29)", () => {
+  type Fetch = (code: string, signal: AbortSignal) => Promise<unknown>;
+
+  function scan(session: SessionInfo | null, code: string, fetchProduct: Fetch, timeoutMs = 3000) {
+    return callRoute((deps) => makeFoodBarcodeRoutes(deps, fetchProduct, timeoutMs), {
+      db,
+      method: "GET",
+      url: `/api/v1/foods/barcode/${code}`,
+      session,
+      params: { code },
+    });
+  }
+
+  it("trouve le produit sur Open Food Facts, le met en cache, puis le relit sans appel", async () => {
+    const fetchProduct = vi.fn(async () => hit("3017620422003", "Pâte à tartiner", 539));
+    const first = await scan(owner, "3017620422003", fetchProduct);
+    expect(first.status).toBe(200);
+    expect(first.body).toMatchObject({
+      name: "Pâte à tartiner",
+      brand: "Marque",
+      kcalPer100g: 539,
+      proteinPer100g: 11,
+      source: "off",
+    });
+    expect(fetchProduct).toHaveBeenCalledWith("3017620422003", expect.any(AbortSignal));
+
+    // Le cache est partagé : un autre utilisateur ne déclenche pas d'appel.
+    const again = await scan(other, "3017620422003", fetchProduct);
+    expect(again.status).toBe(200);
+    expect((again.body as { id: string }).id).toBe((first.body as { id: string }).id);
+    expect(fetchProduct).toHaveBeenCalledTimes(1);
+  });
+
+  it("un UPC-A cherche sa forme à 13 chiffres", async () => {
+    const fetchProduct = vi.fn(async () => hit("0036000291452", "Céréales"));
+    expect((await scan(owner, "036000291452", fetchProduct)).status).toBe(200);
+    expect(fetchProduct).toHaveBeenCalledWith("0036000291452", expect.any(AbortSignal));
+  });
+
+  it("refuse un code à la clé fausse sans appel : 400 invalid_barcode", async () => {
+    const fetchProduct = vi.fn(async () => null);
+    const res = await scan(owner, "3017620422004", fetchProduct);
+    expect(res).toEqual({ status: 400, body: { error: "invalid_barcode" } });
+    expect(fetchProduct).not.toHaveBeenCalled();
+  });
+
+  it("un produit inconnu, ou sans valeurs exploitables : 404", async () => {
+    expect((await scan(owner, "3017620422003", async () => null)).status).toBe(404);
+    const noKcal = { code: "96385074", product_name: "Eau", nutriments: {} };
+    expect((await scan(owner, "96385074", async () => noKcal)).status).toBe(404);
+  });
+
+  it("Open Food Facts en panne ou trop lent : 503 off_unavailable", async () => {
+    const failing = await scan(owner, "3017620422003", async () => {
+      throw new Error("réseau");
+    });
+    expect(failing).toEqual({ status: 503, body: { error: "off_unavailable" } });
+    const slow = await scan(owner, "3017620422003", () => new Promise(() => {}), 20);
+    expect(slow.status).toBe(503);
+  });
+
+  it("limite à 20 codes par minute et par utilisateur : 429 (T-09)", async () => {
+    const fetchProduct = vi.fn(async () => null);
+    // Codes EAN-8 valides et distincts : 0000000d + clé.
+    const codes = Array.from({ length: 21 }, (_, i) => {
+      const body = String(1000000 + i);
+      const sum = [...body].reduce((acc, d, k) => acc + Number(d) * (k % 2 === 0 ? 3 : 1), 0);
+      return `${body}${(10 - (sum % 10)) % 10}`;
+    });
+    for (const code of codes.slice(0, 20)) {
+      expect((await scan(owner, code, fetchProduct)).status).toBe(404);
+    }
+    expect(await scan(owner, codes[20]!, fetchProduct)).toEqual({
+      status: 429,
+      body: { error: "rate_limited" },
+    });
+    expect((await scan(other, codes[20]!, fetchProduct)).status).toBe(404);
+  });
+
+  it("refuse le compte démo et l'absence de session", async () => {
+    const fetchProduct = vi.fn(async () => null);
+    expect(
+      (await scan({ userId: "owner", isDemo: true }, "3017620422003", fetchProduct)).status,
+    ).toBe(403);
+    expect((await scan(null, "3017620422003", fetchProduct)).status).toBe(401);
+    expect(fetchProduct).not.toHaveBeenCalled();
   });
 });

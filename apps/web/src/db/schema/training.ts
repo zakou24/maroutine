@@ -24,6 +24,8 @@ export const exercise = pgTable(
       .references(() => user.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     equipment: text("equipment").notNull(),
+    // Nul pour un exercice créé avant D27 dont le nom n'est pas celui d'une entrée du catalogue.
+    muscleGroup: text("muscle_group"),
     repMin: integer("rep_min").notNull(),
     repMax: integer("rep_max").notNull(),
     incrementKg: numeric("increment_kg", { precision: 5, scale: 2, mode: "number" }).notNull(),
@@ -42,6 +44,10 @@ export const exercise = pgTable(
       sql`${t.repMin} >= 1 and ${t.repMax} >= ${t.repMin} and ${t.repMax} <= 50`,
     ),
     check("exercise_increment", sql`${t.incrementKg} > 0 and ${t.incrementKg} <= 20`),
+    check(
+      "exercise_muscle_group",
+      sql`${t.muscleGroup} in ('chest', 'back', 'shoulders', 'biceps', 'triceps', 'legs', 'abs')`,
+    ),
   ],
 );
 
@@ -57,12 +63,21 @@ export const workout = pgTable(
     // Échauffement noté pour la séance (D14) et cardio de fin de séance en minutes (D15).
     warmupDone: boolean("warmup_done").default(false).notNull(),
     cardioMinutes: integer("cardio_minutes"),
+    // Muscles travaillés, choisis avant la séance (D28).
+    muscleGroups: text("muscle_groups")
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     index("workout_user_performed_on_idx").on(t.userId, t.performedOn),
     check("workout_note_length", sql`char_length(${t.note}) <= 500`),
     check("workout_cardio_minutes", sql`${t.cardioMinutes} between 1 and 180`),
+    check(
+      "workout_muscle_groups",
+      sql`${t.muscleGroups} <@ array['chest', 'back', 'shoulders', 'biceps', 'triceps', 'legs', 'abs']::text[]`,
+    ),
   ],
 );
 

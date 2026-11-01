@@ -2,12 +2,15 @@
 
 import {
   EQUIPMENT,
+  MUSCLE_GROUPS,
   equipmentLabel,
   formatKg,
   isQuarterKg,
+  muscleGroupLabel,
   parseDecimal,
   type Equipment,
   type Exercise,
+  type MuscleGroup,
 } from "@maroutine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useId, useState, type FormEvent } from "react";
@@ -20,10 +23,15 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { invalidateStats } from "@/lib/stats-queries";
 
 // À la création, le pas d'augmentation n'est pas demandé : le serveur prend celui du matériel.
-type ExerciseBody = Omit<Exercise, "id" | "archived" | "incrementKg"> & { incrementKg?: number };
+// Le muscle manque seulement pour un ancien exercice encore « Non classé » (D27).
+type ExerciseBody = Omit<Exercise, "id" | "archived" | "incrementKg" | "muscleGroup"> & {
+  muscleGroup?: MuscleGroup;
+  incrementKg?: number;
+};
 
 const MESSAGES = {
   name: "Donne un nom à l'exercice.",
+  muscle: "Choisis un muscle.",
   repBounds: "Les répétitions vont de 1 à 50.",
   repOrder: "La fourchette doit aller d'un nombre au même ou à un plus grand.",
   step: "Le pas doit être un multiple de 0,25 kg.",
@@ -41,6 +49,8 @@ function parseReps(text: string): number | null {
 // Les mêmes règles que exerciseInputSchema, avec un message lisible pour chaque cas.
 function validate(fields: {
   name: string;
+  muscleGroup: MuscleGroup | null;
+  muscleRequired: boolean;
   equipment: Equipment;
   repMin: string;
   repMax: string;
@@ -48,31 +58,45 @@ function validate(fields: {
 }): { ok: true; body: ExerciseBody } | { ok: false; message: string } {
   const name = fields.name.trim();
   if (!name) return { ok: false, message: MESSAGES.name };
+  if (fields.muscleGroup === null && fields.muscleRequired) {
+    return { ok: false, message: MESSAGES.muscle };
+  }
+  const head = {
+    name,
+    ...(fields.muscleGroup ? { muscleGroup: fields.muscleGroup } : {}),
+    equipment: fields.equipment,
+  };
   const repMin = parseReps(fields.repMin);
   const repMax = parseReps(fields.repMax);
   if (repMin === null || repMax === null) return { ok: false, message: MESSAGES.repBounds };
   if (repMax < repMin) return { ok: false, message: MESSAGES.repOrder };
   if (fields.increment === null) {
-    return { ok: true, body: { name, equipment: fields.equipment, repMin, repMax } };
+    return { ok: true, body: { ...head, repMin, repMax } };
   }
   const incrementKg = parseDecimal(fields.increment);
   if (incrementKg === null || !isQuarterKg(incrementKg))
     return { ok: false, message: MESSAGES.step };
   if (incrementKg <= 0 || incrementKg > 20) return { ok: false, message: MESSAGES.stepBounds };
-  return { ok: true, body: { name, equipment: fields.equipment, repMin, repMax, incrementKg } };
+  return { ok: true, body: { ...head, repMin, repMax, incrementKg } };
 }
 
 export function ExerciseForm({
   initial,
+  defaultMuscleGroup,
   onSaved,
 }: {
   initial?: Exercise;
+  // Proposé par la séance : le premier des muscles travaillés (D28).
+  defaultMuscleGroup?: MuscleGroup;
   onSaved: (exercise: Exercise) => void;
 }) {
   const queryClient = useQueryClient();
   // Identifiants uniques : Next.js garde l'écran précédent caché dans le DOM (Activity).
   const id = useId();
   const [name, setName] = useState(initial?.name ?? "");
+  const [muscleGroup, setMuscleGroup] = useState<MuscleGroup | null>(
+    initial ? initial.muscleGroup : (defaultMuscleGroup ?? null),
+  );
   const [equipment, setEquipment] = useState<Equipment>(initial?.equipment ?? "barbell");
   const [repMin, setRepMin] = useState(String(initial?.repMin ?? 6));
   const [repMax, setRepMax] = useState(String(initial?.repMax ?? 10));
@@ -105,6 +129,9 @@ export function ExerciseForm({
     event.preventDefault();
     const result = validate({
       name,
+      muscleGroup,
+      // Un ancien exercice « Non classé » se règle sans être obligé de le classer.
+      muscleRequired: !initial || initial.muscleGroup !== null,
       equipment,
       repMin,
       repMax,
@@ -132,6 +159,27 @@ export function ExerciseForm({
           autoComplete="off"
           className={fieldClass}
         />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Label htmlFor={`${id}-muscle`} className={labelClass}>
+          Muscle
+        </Label>
+        <select
+          id={`${id}-muscle`}
+          value={muscleGroup ?? ""}
+          onChange={(e) => setMuscleGroup((e.target.value || null) as MuscleGroup | null)}
+          className={selectClass}
+        >
+          {muscleGroup === null ? (
+            <option value="">{initial ? "Non classé" : "Choisir"}</option>
+          ) : null}
+          {MUSCLE_GROUPS.map((value) => (
+            <option key={value} value={value}>
+              {muscleGroupLabel(value)}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="flex flex-col gap-2">

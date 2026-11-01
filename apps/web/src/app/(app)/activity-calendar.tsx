@@ -108,7 +108,7 @@ export function ActivityCalendar({ today }: { today: string }) {
         >
           {selectedWorkouts.map((w) => (
             <li key={w.id}>
-              <WorkoutLink workout={w} />
+              <WorkoutLink workout={w} showSets={false} />
             </li>
           ))}
         </ul>

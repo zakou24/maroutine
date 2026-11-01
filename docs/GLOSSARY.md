@@ -22,6 +22,14 @@ _Avoid_ : Workout (sauf dans le code), Entraînement, Session (réservé à la c
 Mouvement de la liste personnelle du propriétaire (« Développé couché »), avec son matériel, sa fourchette cible et son pas d'augmentation.
 _Avoid_ : Mouvement, Exo (à l'oral seulement)
 
+**Groupe musculaire** :
+Partie du corps travaillée par un exercice : Pectoraux, Dos, Épaules, Biceps, Triceps, Jambes, Abdominaux (D27). Un ancien exercice sans groupe est « Non classé ».
+_Avoid_ : Zone, Catégorie, Bras (séparé en Biceps et Triceps)
+
+**Muscles travaillés** :
+Groupes musculaires choisis en tête de séance ; ils filtrent l'ajout d'exercice et restent enregistrés avec la séance (D28).
+_Avoid_ : Zones cibles, Split
+
 **Matériel** :
 Type d'équipement d'un exercice : barre, haltères, machine, poulie, poids du corps, autre.
 _Avoid_ : Équipement, Type
@@ -147,6 +155,10 @@ _Avoid_ : Période, Contexte
 **Croisement** :
 Comparaison de la progression du max estimé après des fenêtres alimentaires engagées et non engagées.
 _Avoid_ : Corrélation (trop fort statistiquement), Analyse
+
+**Code-barres** :
+Code EAN-13, EAN-8 ou UPC-A imprimé sur un produit, scanné ou saisi à la main pour trouver l'aliment (D29).
+_Avoid_ : QR code, Code produit
 
 ## Usage
 

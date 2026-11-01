@@ -1,5 +1,6 @@
 import type {
   LastSets,
+  MuscleGroup,
   NewWorkoutInput,
   SetInput,
   Workout,
@@ -47,6 +48,7 @@ function headOf(input: WorkoutInput) {
     note: input.note ? input.note : null,
     warmupDone: input.warmupDone,
     cardioMinutes: input.cardioMinutes ?? null,
+    muscleGroups: input.muscleGroups,
   };
 }
 
@@ -58,6 +60,7 @@ export async function getWorkout(db: AppDatabase, userId: string, id: string): P
       note: workout.note,
       warmupDone: workout.warmupDone,
       cardioMinutes: workout.cardioMinutes,
+      muscleGroups: workout.muscleGroups,
     })
     .from(workout)
     .where(and(eq(workout.id, id), eq(workout.userId, userId)));
@@ -93,7 +96,7 @@ export async function getWorkout(db: AppDatabase, userId: string, id: string): P
     }
     exercises.at(-1)!.sets.push({ weightKg: row.weightKg, reps: row.reps, isWarmup: row.isWarmup });
   }
-  return { ...head, exercises };
+  return { ...head, muscleGroups: head.muscleGroups as MuscleGroup[], exercises };
 }
 
 // Création idempotente : si la séance `input.id` existe déjà pour cet utilisateur, elle est
@@ -151,12 +154,13 @@ export async function listWorkouts(
   from: string,
   to: string,
 ): Promise<WorkoutSummary[]> {
-  return db
+  const rows = await db
     .select({
       id: workout.id,
       performedOn: workout.performedOn,
       warmupDone: workout.warmupDone,
       cardioMinutes: workout.cardioMinutes,
+      muscleGroups: workout.muscleGroups,
       exerciseCount: sql<number>`count(distinct ${workoutExercise.id})::int`,
       // Les échauffements n'entrent jamais dans les stats (C4).
       workingSetCount: sql<number>`(count(${workoutSet.id}) filter (where not ${workoutSet.isWarmup}))::int`,
@@ -169,6 +173,8 @@ export async function listWorkouts(
     )
     .groupBy(workout.id)
     .orderBy(asc(workout.performedOn), asc(workout.createdAt));
+  // Texte borné par une contrainte check : seules les valeurs de MUSCLE_GROUPS y entrent.
+  return rows.map((row) => ({ ...row, muscleGroups: row.muscleGroups as MuscleGroup[] }));
 }
 
 // Séries de la séance la plus récente qui contient l'exercice, strictement avant `before` si fourni.

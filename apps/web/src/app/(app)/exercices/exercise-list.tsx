@@ -1,14 +1,19 @@
 "use client";
 
 import {
+  MUSCLE_GROUPS,
   equipmentLabel,
+  muscleGroupLabel,
   trendLabel,
   type Exercise,
   type ExerciseTrendSummary,
+  type MuscleGroup,
 } from "@maroutine/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { chipClass } from "@/components/form-styles";
 import { LoadError, Loading } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
@@ -39,7 +44,17 @@ function progress(trend: ExerciseTrendSummary | undefined): string | null {
   return parts.length > 0 ? parts.join(" · ") : null;
 }
 
+// « Tous », un muscle, ou les anciens exercices encore sans muscle (D27).
+type Filter = "all" | MuscleGroup | "unclassified";
+
+function matches(exercise: Exercise, filter: Filter) {
+  if (filter === "all") return true;
+  if (filter === "unclassified") return exercise.muscleGroup === null;
+  return exercise.muscleGroup === filter;
+}
+
 export function ExerciseList() {
+  const [filter, setFilter] = useState<Filter>("all");
   const active = useQuery(exercisesQuery("active"));
   const archived = useQuery(exercisesQuery("archived"));
   // Facultatif : si les tendances ne chargent pas, la liste reste affichée sans elles.
@@ -62,16 +77,49 @@ export function ExerciseList() {
     );
   }
 
+  const present = new Set(active.data.map((e) => e.muscleGroup));
+  const filters: Filter[] = [
+    "all",
+    ...MUSCLE_GROUPS.filter((group) => present.has(group)),
+    ...(present.has(null) ? (["unclassified"] as const) : []),
+  ];
+  // Un filtre dont le dernier exercice vient d'être archivé ou classé disparaît : retour à « Tous ».
+  const current = filters.includes(filter) ? filter : "all";
+  const shown = active.data.filter((e) => matches(e, current));
+
   return (
     <div className="flex flex-col gap-6">
+      {active.data.length > 0 ? (
+        <div role="group" aria-label="Filtrer par muscle" className="flex flex-wrap gap-2">
+          {filters.map((value) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={current === value}
+              onClick={() => setFilter(value)}
+              className={chipClass(current === value)}
+            >
+              {value === "all"
+                ? "Tous"
+                : value === "unclassified"
+                  ? "Non classés"
+                  : muscleGroupLabel(value)}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
       {active.data.length === 0 ? (
         <p className="text-[17px] text-muted-foreground">
           Aucun exercice pour l&apos;instant. Coche ceux que tu fais dans le catalogue, ou crée le
           tien.
         </p>
       ) : (
-        <ul className="divide-y divide-rule overflow-hidden rounded-xl border border-rule bg-surface">
-          {active.data.map((exercise) => (
+        <ul
+          aria-label="Exercices"
+          className="divide-y divide-rule overflow-hidden rounded-xl border border-rule bg-surface"
+        >
+          {shown.map((exercise) => (
             <li key={exercise.id}>
               <Link
                 href={`/exercices/${exercise.id}`}

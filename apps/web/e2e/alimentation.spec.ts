@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { parisDate } from "./api";
 import { AUTH_FILE } from "./owner";
@@ -60,4 +61,19 @@ test("objectif, aliment perso, ajout rapide, modification, suppression et copie"
   await page.getByRole("button", { name: "Copier" }).click();
   await expect(page.getByText("1 entrée copiée.")).toBeVisible();
   await expect(page.getByRole("region", { name: "Petit-déjeuner" })).toContainText(name);
+});
+
+test("scanner : sans caméra, le code saisi à la main est cherché (D29)", async ({ page }) => {
+  await page.goto("/alimentation/ajouter?meal=breakfast");
+  await page.getByRole("button", { name: "Scanner" }).click();
+  // Navigateur de test sans caméra : le message laisse la saisie du code.
+  await expect(page.getByRole("alert").filter({ hasText: "Caméra indisponible." })).toBeVisible();
+  await page.getByRole("textbox", { name: "Code-barres" }).fill("3017620422003");
+  await page.getByRole("button", { name: "Chercher le code" }).click();
+  // OPEN_FOOD_FACTS=off dans les e2e : aucun appel externe.
+  await expect(
+    page.getByRole("alert").filter({ hasText: "Open Food Facts ne répond pas." }),
+  ).toBeVisible();
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toEqual([]);
 });

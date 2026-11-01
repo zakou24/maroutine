@@ -35,6 +35,7 @@ export function CatalogPicker() {
         body: {
           exercises: EXERCISE_CATALOG.filter((e) => names.has(e.name)).map((e) => ({
             name: e.name,
+            muscleGroup: e.group,
             equipment: e.equipment,
           })),
         },

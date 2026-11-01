@@ -1,4 +1,4 @@
-import { CalendarDays, Carrot, ChevronRight, Goal, Scale } from "lucide-react";
+import { CalendarDays, Carrot, ChevronRight, Dumbbell, Goal } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Page } from "@/components/page";
@@ -7,7 +7,7 @@ import { LogoutButton } from "./logout-button";
 export const metadata: Metadata = { title: "Plus · MaRoutine" };
 
 const LINKS = [
-  { href: "/poids", label: "Poids", icon: Scale },
+  { href: "/exercices", label: "Exercices", icon: Dumbbell },
   { href: "/objectifs", label: "Objectifs", icon: Goal },
   { href: "/aliments", label: "Mes aliments", icon: Carrot },
   { href: "/calendrier", label: "Calendrier", icon: CalendarDays },

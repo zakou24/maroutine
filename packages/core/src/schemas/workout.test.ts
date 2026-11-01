@@ -103,3 +103,22 @@ describe("échauffement et cardio de la séance", () => {
     }
   });
 });
+
+describe("muscles travaillés de la séance (D28)", () => {
+  it("liste vide par défaut", () => {
+    expect(workoutInputSchema.parse(withSets(1)).muscleGroups).toEqual([]);
+  });
+  it("range les groupes dans l'ordre du catalogue, sans doublon", () => {
+    expect(
+      workoutInputSchema.parse({
+        ...withSets(1),
+        muscleGroups: ["triceps", "shoulders", "triceps"],
+      }).muscleGroups,
+    ).toEqual(["shoulders", "triceps"]);
+  });
+  it("refuse un groupe inconnu", () => {
+    expect(workoutInputSchema.safeParse({ ...withSets(1), muscleGroups: ["arms"] }).success).toBe(
+      false,
+    );
+  });
+});

@@ -231,6 +231,7 @@ erDiagram
         text user_id FK
         string name
         string equipment "barbell, dumbbell, machine, cable, bodyweight, other"
+        string muscle_group "chest, back, shoulders, biceps, triceps, legs, abs ; null = non classé (D27)"
         int rep_min
         int rep_max
         numeric increment_kg
@@ -241,6 +242,7 @@ erDiagram
         text user_id FK
         date performed_on
         string note
+        text_array muscle_groups "muscles travaillés (D28)"
     }
     WORKOUT_EXERCISE {
         uuid id PK
@@ -299,25 +301,25 @@ erDiagram
 
 ## 8. Écrans
 
-Direction visuelle retenue : **A — Courbes** ([décision D13](decisions-ouvertes.md#décisions-du-propriétaire), maquettes sur le [canevas](https://claude.ai/artifact/WStbXSegxDLEsFJhceFYXC), première ligne). Navigation : barre d'onglets en bas sur mobile (Tableau de bord, Saisie, Exercices, Plus), barre latérale sur ordinateur.
+Direction visuelle retenue : **A — Courbes** ([décision D13](decisions-ouvertes.md#décisions-du-propriétaire), maquettes sur le [canevas](https://claude.ai/artifact/WStbXSegxDLEsFJhceFYXC), première ligne). Navigation : barre d'onglets en bas sur mobile (Accueil, Séance, Repas, Poids, Plus : D24, D30), barre latérale sur ordinateur.
 
 | Écran | Contenu clé |
 |---|---|
 | Connexion | Email, mot de passe, bouton « Essayer la démo » |
-| Tableau de bord (Accueil) | Calendrier d'activité (D17), bloc Poids : dernière pesée, moyenne sur 7 jours, pesée du jour (D23), puis la semaine en cours. Au Lot 5 : tendance du poids, jours engagés, exercices par tendance, suggestions |
+| Tableau de bord (Accueil) | « Séance enregistrée. » après une nouvelle séance (D28), calendrier d'activité (D17), bloc Poids : dernière pesée, moyenne sur 7 jours, pesée du jour (D23), puis la semaine en cours, sans le nombre de séries. Au Lot 5 : tendance du poids, jours engagés, exercices par tendance, suggestions |
 | Saisie du soir | Un seul écran, trois sections repliables : Séance, Pesée, Alimentation. Date du jour par défaut, modifiable |
-| Séance (édition) | Exercices dans l'ordre, séries préremplies, suggestion affichée à côté de chaque exercice, ajout et suppression de séries |
+| Séance (édition) | Muscles travaillés en tête, qui filtrent l'ajout d'exercice (D28), exercices dans l'ordre, séries préremplies, suggestion affichée à côté de chaque exercice, ajout et suppression de séries |
 | Calendrier | Mois avec les jours de séance, total par semaine, accès à chaque séance |
-| Exercices | Liste avec tendance établie et dernier max estimé, catalogue, création |
+| Exercices (dans « Plus », D30) | Filtre par groupe musculaire (D27), liste avec tendance établie et dernier max estimé, catalogue, création |
 | Fiche exercice | Tendance et dernier max, suggestion justifiée, courbe du max estimé dans son couloir (1 mois, 3 mois, 1 an, tout) avec résumé textuel, historique (meilleure série, max estimé, volume). Superposition calories et protéines au Lot 5. Lien « Réglages » |
-| Réglages d'un exercice | Nom, matériel, fourchette, pas d'augmentation, archivage (D21) |
+| Réglages d'un exercice | Nom, groupe musculaire, matériel, fourchette, pas d'augmentation, archivage (D21) |
 | Poids | Saisie à une date passée (remplace la pesée du jour), courbe des pesées avec moyenne glissante et couloir (1 mois, 3 mois, 1 an, tout) et résumé textuel, liste avec suppression |
 | Repas (journal, onglet D24) | Jour sélectionné (jour précédent, jour suivant), totaux face aux objectifs en barres, entrées par repas avec modification et suppression en place, « Copier depuis » (D26) |
-| Ajouter (repas) | Repas, recherche temporisée (récents quand le champ est vide), quantité avec aperçu des valeurs, ajout rapide, nouvel aliment perso, mention ODbL (D25) |
+| Ajouter (repas) | Repas, recherche temporisée (récents quand le champ est vide), scan du code-barres avec saisie manuelle du code (D29), quantité avec aperçu des valeurs, ajout rapide, nouvel aliment perso, mention ODbL (D25) |
 | Mes aliments | Aliments perso : création, modification, suppression sans effet sur les entrées passées |
 | Croisement | Comparaison après fenêtres engagées et non engagées, tous exercices et par exercice, effectifs, mention de prudence |
 | Objectifs | Objectifs kcal et protéines avec une date d'effet, historique avec « En vigueur » |
-| Plus | Liens Poids, Objectifs, Mes aliments, Calendrier ; mention Open Food Facts (ODbL) ; déconnexion |
+| Plus | Liens Exercices, Objectifs, Mes aliments, Calendrier ; mention Open Food Facts (ODbL) ; déconnexion |
 
 ## 9. Environnements
 

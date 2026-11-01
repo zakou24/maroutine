@@ -1,26 +1,21 @@
-import {
-  Apple,
-  CalendarRange,
-  Dumbbell,
-  Ellipsis,
-  PencilLine,
-  type LucideIcon,
-} from "lucide-react";
+import { Apple, CalendarRange, Ellipsis, PencilLine, Scale, type LucideIcon } from "lucide-react";
 
 export type NavItem = { href: string; label: string; icon: LucideIcon; covers: string[] };
 
-// `covers` : les pages rattachées à l'onglet (le calendrier vit sous « Plus », une séance passée sous « Accueil »).
+// `covers` : les pages rattachées à l'onglet (le calendrier et les exercices vivent sous « Plus »,
+// une séance passée sous « Accueil »).
 export const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Accueil", icon: CalendarRange, covers: ["/seances"] },
   { href: "/saisie", label: "Séance", icon: PencilLine, covers: [] },
   // « Repas » plutôt qu'« Alimentation » : cinq onglets de 75 px à 375 px de large (D24).
   { href: "/alimentation", label: "Repas", icon: Apple, covers: [] },
-  { href: "/exercices", label: "Exercices", icon: Dumbbell, covers: [] },
+  // Le poids se note chaque matin : il prend la place des exercices, qu'on règle rarement (D30).
+  { href: "/poids", label: "Poids", icon: Scale, covers: [] },
   {
     href: "/plus",
     label: "Plus",
     icon: Ellipsis,
-    covers: ["/calendrier", "/poids", "/objectifs", "/aliments"],
+    covers: ["/calendrier", "/exercices", "/objectifs", "/aliments"],
   },
 ];
 

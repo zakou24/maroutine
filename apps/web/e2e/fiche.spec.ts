@@ -118,7 +118,7 @@ test("tendance dans la liste, suggestion dans la séance, fiche à jour après l
   await expect(card).toContainText("Tu as fait 110 × 5 : vise 110 × 6.");
   await card.getByRole("textbox", { name: "Répétitions, série 1" }).fill("6");
   await page.getByRole("button", { name: "Enregistrer la séance" }).click();
-  await expect(page).toHaveURL(/\/seances\/[0-9a-f-]{36}$/);
+  await expect(page).toHaveURL(/\/$/);
 
   await page.goBack();
   await page.goBack();

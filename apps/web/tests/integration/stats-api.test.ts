@@ -26,7 +26,7 @@ async function newExercise(session: SessionInfo, name: string, extra: object = {
     method: "POST",
     url: "/api/v1/exercises",
     session,
-    body: { name, equipment: "barbell", ...extra },
+    body: { name, muscleGroup: "legs", equipment: "barbell", ...extra },
   });
   return (res.body as { id: string }).id;
 }

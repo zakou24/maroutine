@@ -214,7 +214,16 @@ function DayCell({
 }
 
 // Ligne d'une séance : par défaut sa date, ou un titre fourni quand la date est déjà affichée.
-export function WorkoutLink({ workout, title }: { workout: WorkoutSummary; title?: string }) {
+// `showSets` : l'accueil n'affiche pas le nombre de séries (retour du propriétaire, Lot 4.1).
+export function WorkoutLink({
+  workout,
+  title,
+  showSets = true,
+}: {
+  workout: WorkoutSummary;
+  title?: string;
+  showSets?: boolean;
+}) {
   return (
     <Link
       href={`/seances/${workout.id}`}
@@ -227,7 +236,9 @@ export function WorkoutLink({ workout, title }: { workout: WorkoutSummary; title
         <span className="text-[15px] text-muted-foreground">
           {[
             countLabel(workout.exerciseCount, "exercice", "exercices"),
-            countLabel(workout.workingSetCount, "série de travail", "séries de travail"),
+            showSets
+              ? countLabel(workout.workingSetCount, "série de travail", "séries de travail")
+              : null,
             workout.cardioMinutes ? `cardio ${workout.cardioMinutes} min` : null,
           ]
             .filter(Boolean)

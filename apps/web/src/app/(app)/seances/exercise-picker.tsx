@@ -5,6 +5,7 @@ import {
   muscleGroupLabel,
   type CatalogExercise,
   type Exercise,
+  type MuscleGroup,
 } from "@maroutine/core";
 import { ChevronRight, Plus, Search } from "lucide-react";
 import { useId, useState } from "react";
@@ -24,14 +25,17 @@ function normalize(text: string) {
 const pickButton = "h-11 w-full justify-start rounded-lg px-4 text-[17px]";
 
 // Choix d'un exercice à ajouter à la séance, déplié sur place : tes exercices, puis le catalogue (D16).
+// Les muscles travaillés de la séance filtrent les deux listes, sauf pendant une recherche (D28).
 export function ExercisePicker({
   available,
+  muscleGroups,
   catalog,
   disabled,
   onPick,
   onPickCatalog,
 }: {
   available: Exercise[];
+  muscleGroups: readonly MuscleGroup[];
   catalog: readonly CatalogExercise[];
   disabled?: boolean;
   onPick: (exercise: Exercise) => void;
@@ -41,6 +45,7 @@ export function ExercisePicker({
   const [creating, setCreating] = useState(false);
   const [query, setQuery] = useState("");
   const [openGroup, setOpenGroup] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
   const catalogTitleId = useId();
 
   function close() {
@@ -48,6 +53,7 @@ export function ExercisePicker({
     setCreating(false);
     setQuery("");
     setOpenGroup(null);
+    setShowAll(false);
   }
 
   if (!open) {
@@ -66,9 +72,13 @@ export function ExercisePicker({
   }
 
   const needle = normalize(query.trim());
+  const filtering = needle === "" && !showAll && muscleGroups.length > 0;
+  const inGroups = (group: MuscleGroup | null) =>
+    !filtering || (group !== null && muscleGroups.includes(group));
   const matches = (name: string) => needle === "" || normalize(name).includes(needle);
-  const mine = available.filter((e) => matches(e.name));
-  const fromCatalog = catalog.filter((e) => matches(e.name));
+  const mine = available.filter((e) => matches(e.name) && inGroups(e.muscleGroup));
+  const fromCatalog = catalog.filter((e) => matches(e.name) && inGroups(e.group));
+  const hidden = filtering && available.some((e) => !inGroups(e.muscleGroup));
 
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-rule bg-surface p-4">
@@ -80,6 +90,7 @@ export function ExercisePicker({
       </div>
       {creating ? (
         <ExerciseForm
+          defaultMuscleGroup={muscleGroups[0]}
           onSaved={(exercise) => {
             close();
             onPick(exercise);
@@ -180,7 +191,17 @@ export function ExercisePicker({
             </section>
           ) : null}
 
-          {mine.length === 0 && fromCatalog.length === 0 ? (
+          {hidden ? (
+            <Button
+              variant="ghost"
+              className={`${secondaryButtonClass} self-start text-action`}
+              onClick={() => setShowAll(true)}
+            >
+              Voir tous mes exercices
+            </Button>
+          ) : null}
+
+          {mine.length === 0 && fromCatalog.length === 0 && !hidden ? (
             <p className="text-[15px] text-muted-foreground">Aucun exercice ne correspond.</p>
           ) : null}
 

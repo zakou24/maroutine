@@ -15,6 +15,17 @@ vi.mock("@/lib/api", async (original) => ({
 }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push, replace: push }) }));
 
+const facePull: Exercise = {
+  id: "00000000-0000-4000-8000-0000000000f0",
+  name: "Face pull",
+  equipment: "cable",
+  muscleGroup: "shoulders",
+  repMin: 12,
+  repMax: 15,
+  incrementKg: 2.5,
+  archived: false,
+};
+
 const TODAY = "2026-10-31";
 const KEY = draftStorageKey();
 const DRAFT_ID = "33333333-3333-4333-8333-333333333333";
@@ -22,6 +33,7 @@ const squat: Exercise = {
   id: "00000000-0000-4000-8000-00000000000a",
   name: "Squat",
   equipment: "barbell",
+  muscleGroup: "legs",
   repMin: 6,
   repMax: 10,
   incrementKg: 2.5,
@@ -32,6 +44,7 @@ const dips: Exercise = {
   id: "00000000-0000-4000-8000-00000000000d",
   name: "Dips",
   equipment: "bodyweight",
+  muscleGroup: "legs",
 };
 const curl: Exercise = {
   ...squat,
@@ -40,8 +53,8 @@ const curl: Exercise = {
   archived: true,
 };
 
-// Brouillon écrit avant le Lot 1.1 : sans échauffement ni cardio, il doit rester lisible.
-const stored: Omit<WorkoutDraft, "warmupDone" | "cardio"> = {
+// Brouillon écrit avant le Lot 1.1 : sans échauffement, cardio ni muscles, il doit rester lisible.
+const stored: Omit<WorkoutDraft, "warmupDone" | "cardio" | "muscleGroups"> = {
   id: DRAFT_ID,
   performedOn: TODAY,
   note: "",
@@ -153,7 +166,7 @@ describe("WorkoutEditor", () => {
     expect(push).not.toHaveBeenCalled();
   });
 
-  it("après un enregistrement réussi, le brouillon est effacé et l'écran ouvre la séance", async () => {
+  it("après un enregistrement réussi, le brouillon est effacé et l'écran ramène à l'accueil (D28)", async () => {
     localStorage.setItem(KEY, JSON.stringify(stored));
     routeApi((path, init) =>
       path === "/api/v1/workouts" && init?.method === "POST"
@@ -163,7 +176,7 @@ describe("WorkoutEditor", () => {
     openEditor();
     await screen.findByRole("region", { name: "Squat" });
     await userEvent.click(screen.getByRole("button", { name: "Enregistrer la séance" }));
-    await waitFor(() => expect(push).toHaveBeenCalledWith("/seances/w1"));
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/?enregistree=1"));
     expect(localStorage.getItem(KEY)).toBeNull();
     expect(apiFetch).toHaveBeenCalledWith("/api/v1/workouts", {
       method: "POST",
@@ -173,6 +186,7 @@ describe("WorkoutEditor", () => {
         note: null,
         warmupDone: false,
         cardioMinutes: null,
+        muscleGroups: [],
         exercises: [{ exerciseId: squat.id, sets: [{ weightKg: 62.5, reps: 8, isWarmup: false }] }],
       },
     });
@@ -189,6 +203,89 @@ describe("WorkoutEditor", () => {
     expect(await screen.findByText("Série 1 : charge invalide.")).toBeInTheDocument();
     expect(weight).toHaveAttribute("aria-invalid", "true");
     expect(apiFetch).not.toHaveBeenCalledWith("/api/v1/workouts", expect.anything());
+  });
+
+  it("les muscles choisis filtrent l'ajout d'exercice ; la recherche porte sur tout (D28)", async () => {
+    routeApi((path) =>
+      path.startsWith("/api/v1/exercises?filter=all") ? [squat, curl, facePull] : undefined,
+    );
+    openEditor();
+    const muscles = await screen.findByRole("group", { name: "Muscles travaillés" });
+    expect(within(muscles).getAllByRole("button")).toHaveLength(7);
+    await userEvent.click(within(muscles).getByRole("button", { name: "Épaules" }));
+    expect(within(muscles).getByRole("button", { name: "Épaules" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: "Ajouter un exercice" }));
+    const mine = await screen.findByRole("list", { name: "Tes exercices" });
+    expect(
+      within(mine)
+        .getAllByRole("button")
+        .map((b) => b.textContent),
+    ).toEqual(["Face pull"]);
+    const catalog = screen.getByRole("region", { name: "Catalogue" });
+    expect(within(catalog).getByRole("button", { name: /^Épaules/ })).toBeInTheDocument();
+    expect(within(catalog).queryByRole("button", { name: /^Jambes/ })).toBeNull();
+
+    await userEvent.click(screen.getByRole("button", { name: "Voir tous mes exercices" }));
+    expect(
+      within(screen.getByRole("list", { name: "Tes exercices" }))
+        .getAllByRole("button")
+        .map((b) => b.textContent),
+    ).toEqual(["Squat", "Face pull"]);
+
+    await userEvent.click(screen.getByRole("button", { name: "Fermer" }));
+    await userEvent.click(screen.getByRole("button", { name: "Ajouter un exercice" }));
+    await userEvent.type(screen.getByRole("searchbox", { name: "Rechercher un exercice" }), "squ");
+    expect(
+      within(screen.getByRole("list", { name: "Tes exercices" }))
+        .getAllByRole("button")
+        .map((b) => b.textContent),
+    ).toEqual(["Squat"]);
+  });
+
+  it("ajouter un exercice d'un autre muscle l'ajoute aux muscles travaillés, et tout repart à zéro après l'enregistrement", async () => {
+    routeApi((path, init) =>
+      path === "/api/v1/workouts" && init?.method === "POST"
+        ? { id: "w1", performedOn: TODAY, note: null, muscleGroups: [], exercises: [] }
+        : undefined,
+    );
+    openEditor();
+    const muscles = await screen.findByRole("group", { name: "Muscles travaillés" });
+    await userEvent.click(within(muscles).getByRole("button", { name: "Triceps" }));
+    await userEvent.click(screen.getByRole("button", { name: "Ajouter un exercice" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Voir tous mes exercices" }));
+    await userEvent.click(screen.getByRole("button", { name: "Squat" }));
+    await screen.findByRole("region", { name: "Squat" });
+    expect(within(muscles).getByRole("button", { name: "Jambes" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await userEvent.type(screen.getByRole("textbox", { name: "Charge (kg), série 1" }), "60");
+    await userEvent.type(screen.getByRole("textbox", { name: "Répétitions, série 1" }), "8");
+    await userEvent.click(screen.getByRole("button", { name: "Enregistrer la séance" }));
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/?enregistree=1"));
+    expect(apiFetch).toHaveBeenCalledWith(
+      "/api/v1/workouts",
+      expect.objectContaining({
+        body: expect.objectContaining({ muscleGroups: ["triceps", "legs"] }),
+      }),
+    );
+    for (const button of within(muscles).getAllByRole("button")) {
+      expect(button).toHaveAttribute("aria-pressed", "false");
+    }
+  });
+
+  it("« Créer un exercice » propose le premier muscle choisi", async () => {
+    routeApi();
+    openEditor();
+    const muscles = await screen.findByRole("group", { name: "Muscles travaillés" });
+    await userEvent.click(within(muscles).getByRole("button", { name: "Biceps" }));
+    await userEvent.click(screen.getByRole("button", { name: "Ajouter un exercice" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Créer un exercice" }));
+    expect(screen.getByLabelText("Muscle")).toHaveValue("biceps");
   });
 
   it("le sélecteur ne propose pas les exercices archivés", async () => {
@@ -214,7 +311,7 @@ describe("WorkoutEditor", () => {
     await userEvent.click(screen.getByRole("checkbox", { name: "Cardio" }));
     await userEvent.click(screen.getByRole("button", { name: "15 min" }));
     await userEvent.click(screen.getByRole("button", { name: "Enregistrer la séance" }));
-    await waitFor(() => expect(push).toHaveBeenCalledWith("/seances/w1"));
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/?enregistree=1"));
     expect(apiFetch).toHaveBeenCalledWith(
       "/api/v1/workouts",
       expect.objectContaining({
@@ -250,7 +347,7 @@ describe("WorkoutEditor", () => {
     expect(await screen.findByRole("region", { name: "Dips" })).toBeInTheDocument();
     expect(apiFetch).toHaveBeenCalledWith("/api/v1/exercises/batch", {
       method: "POST",
-      body: { exercises: [{ name: "Dips", equipment: "bodyweight" }] },
+      body: { exercises: [{ name: "Dips", muscleGroup: "chest", equipment: "bodyweight" }] },
     });
   });
 
@@ -317,6 +414,7 @@ describe("WorkoutEditor, séance existante", () => {
     note: null,
     warmupDone: false,
     cardioMinutes: 25,
+    muscleGroups: [],
     exercises: [
       {
         exerciseId: squat.id,

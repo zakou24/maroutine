@@ -1,12 +1,18 @@
-import { foodInputSchema } from "@maroutine/core";
+import { foodInputSchema, normalizeBarcode } from "@maroutine/core";
 import { z } from "zod";
-import { ForbiddenError } from "@/server/http/errors";
+import { BadRequestError, ForbiddenError } from "@/server/http/errors";
 import { resourceId } from "@/server/http/params";
 import { readJson } from "@/server/http/read-json";
-import { searchOpenFoodFacts, type OffSearch } from "@/server/off-client";
+import {
+  fetchOpenFoodFactsProduct,
+  searchOpenFoodFacts,
+  type OffProductFetch,
+  type OffSearch,
+} from "@/server/off-client";
 import {
   createFood,
   deleteFood,
+  foodByBarcode,
   listCustomFoods,
   recentFoods,
   searchFoods,
@@ -29,6 +35,24 @@ export function makeFoodSearchRoutes(
       if (session.isDemo) throw new ForbiddenError("demo_read_only");
       const { q } = searchSchema.parse(Object.fromEntries(new URL(request.url).searchParams));
       return Response.json(await searchFoods(db(), session.userId, q, off, timeoutMs));
+    }),
+  };
+}
+
+// GET /api/v1/foods/barcode/{code} : aliment scanné, du cache ou d'Open Food Facts (D29).
+export function makeFoodBarcodeRoutes(
+  { db, apiHandler }: RouteDeps,
+  fetchProduct: OffProductFetch = fetchOpenFoodFactsProduct,
+  timeoutMs = OFF_TIMEOUT_MS,
+) {
+  return {
+    GET: apiHandler<{ code: string }>(async ({ session, params }) => {
+      if (session.isDemo) throw new ForbiddenError("demo_read_only");
+      const code = normalizeBarcode(params.code);
+      if (!code) throw new BadRequestError("invalid_barcode");
+      return Response.json(
+        await foodByBarcode(db(), session.userId, code, fetchProduct, timeoutMs),
+      );
     }),
   };
 }

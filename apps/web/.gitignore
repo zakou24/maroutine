@@ -17,6 +17,9 @@
 /.data/
 /e2e/.auth/
 
+# lecteur de codes-barres, copié par scripts/copy-zxing-wasm.ts (D29)
+/public/zxing/
+
 # next.js
 /.next/
 /out/
