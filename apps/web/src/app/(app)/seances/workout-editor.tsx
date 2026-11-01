@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useReducer, useRef, useState } from "react";
 import { FormError } from "@/components/form-error";
 import {
+  chipClass,
   fieldClass,
   labelClass,
   primaryButtonClass,
@@ -614,14 +615,6 @@ function SessionExtras({
   // (y compris après « Annuler les modifications », qui ne remonte pas ce bloc).
   const [customChosen, setCustom] = useState(false);
   const custom = customChosen || (cardio !== null && !CARDIO_CHOICES.includes(cardio));
-  const chip = (selected: boolean) =>
-    cn(
-      "h-11 min-w-16 rounded-lg border px-3 text-[15px] tabular-nums",
-      selected
-        ? "border-action bg-corridor font-bold text-corridor-ink"
-        : "border-input bg-surface text-foreground hover:bg-muted",
-    );
-
   return (
     <section
       aria-label="Échauffement et cardio"
@@ -660,7 +653,7 @@ function SessionExtras({
                   setCustom(false);
                   act({ type: "setCardio", value: minutes });
                 }}
-                className={chip(!custom && cardio === minutes)}
+                className={chipClass(!custom && cardio === minutes)}
               >
                 {minutes} min
               </button>
@@ -672,7 +665,7 @@ function SessionExtras({
                 setCustom(true);
                 act({ type: "setCardio", value: "" });
               }}
-              className={chip(custom)}
+              className={chipClass(custom)}
             >
               Autre
             </button>

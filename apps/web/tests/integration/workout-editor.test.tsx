@@ -175,6 +175,7 @@ describe("WorkoutEditor", () => {
         note: null,
         warmupDone: false,
         cardioMinutes: null,
+        muscleGroups: [],
         exercises: [{ exerciseId: squat.id, sets: [{ weightKg: 62.5, reps: 8, isWarmup: false }] }],
       },
     });

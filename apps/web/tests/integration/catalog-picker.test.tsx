@@ -37,6 +37,13 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("CatalogPicker (D16)", () => {
+  it("range les bras en Biceps et Triceps (D27)", async () => {
+    await screen.findByRole("checkbox", { name: "Squat (déjà ajouté)" });
+    expect(screen.getByRole("group", { name: "Biceps" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Triceps" })).toBeInTheDocument();
+    expect(screen.queryByRole("group", { name: "Bras" })).toBeNull();
+  });
+
   it("un exercice déjà créé apparaît coché et grisé, quelle que soit la casse", async () => {
     const box = await screen.findByRole("checkbox", { name: "Squat (déjà ajouté)" });
     expect(box).toBeChecked();
@@ -57,9 +64,9 @@ describe("CatalogPicker (D16)", () => {
       method: "POST",
       body: {
         exercises: [
-          { name: "Dips", equipment: "bodyweight" },
-          { name: "Presse à cuisses", equipment: "machine" },
-          { name: "Curl haltères", equipment: "dumbbell" },
+          { name: "Dips", muscleGroup: "chest", equipment: "bodyweight" },
+          { name: "Presse à cuisses", muscleGroup: "legs", equipment: "machine" },
+          { name: "Curl haltères", muscleGroup: "biceps", equipment: "dumbbell" },
         ],
       },
     });
