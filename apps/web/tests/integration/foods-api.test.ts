@@ -102,6 +102,21 @@ describe("aliments perso (F-ALI-2)", () => {
   });
 });
 
+describe("liste des aliments perso", () => {
+  it("ne liste que les aliments perso de la session, par nom", async () => {
+    await createFood(owner, "Skyr maison");
+    await createFood(owner, "Avoine");
+    await createFood(other, "Riz");
+    const res = await callRoute(makeFoodsRoutes, {
+      db,
+      method: "GET",
+      url: "/api/v1/foods",
+      session: owner,
+    });
+    expect((res.body as { name: string }[]).map((f) => f.name)).toEqual(["Avoine", "Skyr maison"]);
+  });
+});
+
 describe("recherche (§5, ADR 0007)", () => {
   it("perso d'abord, puis récents, puis Open Food Facts mis en cache sans doublon", async () => {
     const perso = (await createFood(owner, "Skyr maison")).body as { id: string };

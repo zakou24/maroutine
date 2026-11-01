@@ -7,6 +7,7 @@ import { searchOpenFoodFacts, type OffSearch } from "@/server/off-client";
 import {
   createFood,
   deleteFood,
+  listCustomFoods,
   recentFoods,
   searchFoods,
   updateFood,
@@ -39,9 +40,12 @@ export function makeRecentFoodsRoutes({ db, apiHandler }: RouteDeps) {
   };
 }
 
-// POST /api/v1/foods : aliment perso (F-ALI-2)
+// GET et POST /api/v1/foods : aliments perso (F-ALI-2)
 export function makeFoodsRoutes({ db, apiHandler }: RouteDeps) {
   return {
+    GET: apiHandler(async ({ session }) =>
+      Response.json(await listCustomFoods(db(), session.userId)),
+    ),
     POST: apiHandler(async ({ request, session }) => {
       const input = await readJson(request, foodInputSchema);
       return Response.json(await createFood(db(), session.userId, input), { status: 201 });

@@ -149,6 +149,16 @@ export async function searchFoods(
   };
 }
 
+// Aliments perso de l'utilisateur, par nom (écran « Mes aliments »).
+export async function listCustomFoods(db: AppDatabase, userId: string): Promise<Food[]> {
+  const rows = await db
+    .select(columns)
+    .from(food)
+    .where(eq(food.ownerId, userId))
+    .orderBy(asc(food.name));
+  return rows.map(toFood);
+}
+
 export async function createFood(db: AppDatabase, userId: string, input: FoodInput): Promise<Food> {
   const [row] = await db
     .insert(food)
