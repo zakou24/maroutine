@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiFetch } from "@/lib/api";
 import { formatGrams, formatKcal, formatLongDate } from "@/lib/format";
-import { targetsQuery } from "@/lib/nutrition-queries";
+import { invalidateJournal, targetsQuery } from "@/lib/nutrition-queries";
 import { useToday } from "@/lib/use-today";
 
 const int = (text: string) => (/^\d+$/.test(text.trim()) ? Number(text) : null);
@@ -75,7 +75,7 @@ function TargetForm({ today, current }: { today: string; current: NutritionTarge
     onSuccess: async () => {
       setStatus("Objectifs enregistrés.");
       await queryClient.invalidateQueries({ queryKey: ["nutrition-targets"] });
-      await queryClient.invalidateQueries({ queryKey: ["journal"] });
+      await invalidateJournal(queryClient);
     },
     onError: () => setError("Enregistrement impossible. Réessaie."),
   });

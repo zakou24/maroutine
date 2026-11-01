@@ -1,6 +1,9 @@
 import type {
+  CrossingResponse,
   ExerciseStatsResponse,
   ExerciseTrendSummary,
+  NextSuggestions,
+  NutritionDay,
   Period,
   SuggestionResponse,
 } from "@maroutine/core";
@@ -31,10 +34,28 @@ export const trendsQuery = {
   queryFn: () => apiFetch<ExerciseTrendSummary[]>("/api/v1/exercises/trends"),
 };
 
+// Totaux, objectif et statut de chaque jour (§6.7).
+export function nutritionDaysQuery(from: string, to: string) {
+  return {
+    queryKey: ["nutrition-days", from, to],
+    queryFn: () => apiFetch<NutritionDay[]>(`/api/v1/nutrition/days?from=${from}&to=${to}`),
+  };
+}
+
+export const crossingQuery = {
+  queryKey: ["crossing"],
+  queryFn: () => apiFetch<CrossingResponse>("/api/v1/stats/crossing"),
+};
+
+export const nextQuery = {
+  queryKey: ["next-suggestions"],
+  queryFn: () => apiFetch<NextSuggestions>("/api/v1/stats/next"),
+};
+
 // Après l'écriture d'une séance, les stats sont recalculées par le serveur : on relit tout.
 export async function invalidateStats(queryClient: QueryClient) {
   await Promise.all(
-    ["exercise-stats", "exercise-trends", "suggestion"].map((key) =>
+    ["exercise-stats", "exercise-trends", "suggestion", "crossing", "next-suggestions"].map((key) =>
       queryClient.invalidateQueries({ queryKey: [key] }),
     ),
   );

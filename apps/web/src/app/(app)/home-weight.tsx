@@ -1,6 +1,6 @@
 "use client";
 
-import { formatWeight } from "@maroutine/core";
+import { formatWeight, weightChange, weightChangeText } from "@maroutine/core";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -14,6 +14,8 @@ export function HomeWeight({ today }: { today: string }) {
   const weighIns = useQuery(bodyWeightsQuery);
   const last = weighIns.data?.at(-1);
   const average = weighIns.data ? averageOn(weighIns.data, today) : null;
+  // Tendance (F-TDB-1) : moyenne du jour contre celle d'il y a 7 jours, si les deux existent.
+  const change = weighIns.data ? weightChange(weighIns.data, today) : null;
 
   return (
     <section aria-labelledby="weight-title" className="flex flex-col gap-3">
@@ -46,6 +48,11 @@ export function HomeWeight({ today }: { today: string }) {
               )}
             </p>
           ) : null}
+          {change === null ? null : (
+            <p className="text-[15px] text-muted-foreground tabular-nums">
+              Tendance : {weightChangeText(change)}
+            </p>
+          )}
           <WeightForm today={today} weighIns={weighIns.data} label="Pesée du jour (kg)" />
         </>
       )}
