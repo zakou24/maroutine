@@ -306,20 +306,20 @@ Direction visuelle retenue : **A — Courbes** ([décision D13](decisions-ouvert
 | Écran | Contenu clé |
 |---|---|
 | Connexion | Email, mot de passe, bouton « Essayer la démo » |
-| Tableau de bord (Accueil) | « Séance enregistrée. » après une nouvelle séance (D28), calendrier d'activité coloré par muscle avec le chiffre du jour (D17, D31), bloc Poids : dernière pesée, moyenne sur 7 jours, pesée du jour (D23), puis la semaine en cours, sans le nombre de séries. Au Lot 5 : tendance du poids, jours engagés, exercices par tendance, suggestions |
+| Tableau de bord (Accueil) | « Séance enregistrée. » après une nouvelle séance (D28), calendrier d'activité coloré par muscle avec le chiffre du jour (D17, D31), bloc Poids : dernière pesée, moyenne sur 7 jours, pesée du jour (D23), et sa tendance sur 7 jours, puis la semaine en cours (séances sans le nombre de séries, jours engagés en 7 pastilles), les exercices par tendance, la prochaine séance (suggestions des exercices de la dernière séance) et un lien vers le Croisement (F-TDB-1, D32) |
 | Saisie du soir | Un seul écran, trois sections repliables : Séance, Pesée, Alimentation. Date du jour par défaut, modifiable |
 | Séance (édition) | Muscles travaillés en tête, qui filtrent l'ajout d'exercice (D28), exercices dans l'ordre, séries préremplies, suggestion affichée à côté de chaque exercice, ajout et suppression de séries |
 | Calendrier | Mois avec les jours de séance, total par semaine, accès à chaque séance |
 | Exercices (dans « Plus », D30) | Filtre par groupe musculaire (D27), liste avec tendance établie et dernier max estimé, catalogue, création |
-| Fiche exercice | Tendance et dernier max, suggestion justifiée, courbe du max estimé dans son couloir (1 mois, 3 mois, 1 an, tout) avec résumé textuel, historique (meilleure série, max estimé, volume). Superposition calories et protéines au Lot 5. Lien « Réglages » |
+| Fiche exercice | Tendance et dernier max, suggestion justifiée, courbe du max estimé dans son couloir (1 mois, 3 mois, 1 an, tout) avec résumé textuel, historique (meilleure série, max estimé, volume). « Superposer » : calories ou protéines de chaque jour en barres discrètes et leur moyenne (F-TDB-2, D33). En régression, encart « Autour de la baisse » : la fenêtre alimentaire de la dernière séance et le poids (F-TDB-5, D34). Lien « Réglages » |
 | Réglages d'un exercice | Nom, groupe musculaire, matériel, fourchette, pas d'augmentation, archivage (D21) |
 | Poids | Saisie à une date passée (remplace la pesée du jour), courbe des pesées avec moyenne glissante et couloir (1 mois, 3 mois, 1 an, tout) et résumé textuel, liste avec suppression |
 | Repas (journal, onglet D24) | Jour sélectionné (jour précédent, jour suivant), totaux face aux objectifs en barres, entrées par repas avec modification et suppression en place, « Copier depuis » (D26) |
 | Ajouter (repas) | Repas, recherche temporisée (récents quand le champ est vide), scan du code-barres avec saisie manuelle du code (D29), quantité avec aperçu des valeurs, ajout rapide, nouvel aliment perso, mention ODbL (D25) |
 | Mes aliments | Aliments perso : création, modification, suppression sans effet sur les entrées passées |
-| Croisement | Comparaison après fenêtres engagées et non engagées, tous exercices et par exercice, effectifs, mention de prudence |
+| Croisement (dans « Plus ») | Phrase « Tous exercices », deux cartes (moyenne, progressions, séances) au-dessus du seuil, la phrase de chaque exercice, mention de prudence, « Comment c'est calculé » ; sous le seuil, les séances manquantes sans aucun chiffre (F-TDB-3, F-TDB-4, D35) |
 | Objectifs | Objectifs kcal et protéines avec une date d'effet, historique avec « En vigueur » |
-| Plus | Liens Exercices, Objectifs, Mes aliments, Calendrier ; mention Open Food Facts (ODbL) ; déconnexion |
+| Plus | Liens Exercices, Objectifs, Mes aliments, Calendrier, Croisement ; mention Open Food Facts (ODbL) ; déconnexion |
 
 ## 9. Environnements
 

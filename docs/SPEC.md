@@ -111,11 +111,12 @@ Préfixe `/api/v1`. JSON, validation par schémas Zod partagés dans `packages/c
 | Exercices | `GET/POST /exercises`, `GET/PATCH /exercises/{id}` (archivage par `PATCH archived` ; `muscleGroup` obligatoire à la création, D27) |
 | Séances | `GET /workouts?from&to`, `POST /workouts`, `GET/PUT/DELETE /workouts/{id}` (la séance complète, exercices, séries et muscles travaillés compris, D28 ; dans le résumé de `GET /workouts`, les muscles sont ceux choisis, sinon ceux des exercices, D31) |
 | Préremplissage | `GET /exercises/{id}/last-sets` |
-| Stats | `GET /exercises/{id}/stats?period=1m\|3m\|1y\|all`, `GET /exercises/{id}/suggestion?before`, `GET /exercises/trends` (tendance et dernier max de chaque exercice actif, D21) |
+| Stats | `GET /exercises/{id}/stats?period=1m\|3m\|1y\|all`, `GET /exercises/{id}/suggestion?before`, `GET /exercises/trends` (tendance et dernier max de chaque exercice actif, D21), `GET /stats/crossing` (croisement tous exercices et par exercice ; aucune moyenne sous le seuil, F-TDB-4), `GET /stats/next` (suggestions des exercices de la dernière séance, F-TDB-1) |
 | Pesées | `GET /body-weights?from&to` (bornes facultatives : sans `from`, tout l'historique), `PUT /body-weights/{date}` (`{ weightKg }`, 20 à 300 kg, une décimale, date non future), `DELETE /body-weights/{date}` (204, idempotent) |
 | Aliments | `GET /foods/search?q` (2 caractères au moins, 403 pour la démo), `GET /foods/barcode/{code}` (aliment scanné, D29 : 400 code invalide, 404 inconnu, 429 trop d'appels, 503 Open Food Facts indisponible, 403 pour la démo), `GET /foods/recent`, `GET /foods` (aliments perso, écran « Mes aliments »), `POST /foods` (aliment perso), `PATCH/DELETE /foods/{id}` |
 | Journal | `GET /food-entries?date` (entrées, totaux et objectif en vigueur), `POST /food-entries`, `PATCH/DELETE /food-entries/{id}`, `POST /food-entries/copy` (`{ fromDate, toDate, meal? }`) |
 | Objectifs | `GET /nutrition-targets`, `POST /nutrition-targets` |
+| Jours alimentaires | `GET /nutrition/days?from&to` (400 jours au plus) : totaux, objectif en vigueur et statut de chaque jour, jours vides compris (§6.7) |
 | Tableau de bord | `GET /dashboard?week`, `GET /insights/nutrition-performance?exerciseId` |
 
 La séance est écrite en une fois (`PUT` avec toute la structure) : c'est le formulaire du soir qui l'envoie, et ça évite des dizaines d'appels par série.

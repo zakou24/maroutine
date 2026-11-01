@@ -145,7 +145,7 @@ Jour avec au moins une entrée alimentaire.
 _Avoid_ : Jour suivi, Jour complet
 
 **Jour engagé** :
-Jour renseigné où les protéines atteignent au moins 90 % de l'objectif et les calories restent à ±10 % de l'objectif.
+Jour renseigné où les protéines atteignent au moins 90 % de l'objectif et les calories restent à ±10 % de l'objectif. Dans les phrases du croisement, on dit « jours bien suivis » (§6.8).
 _Avoid_ : Bon jour, Jour réussi, Jour clean
 
 **Fenêtre alimentaire** :

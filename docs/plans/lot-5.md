@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-> **Statut : en cours.** Rédaction et exécution déléguées par le propriétaire le 01/11/2026 (« Go je te laisse t'en charger »), mêmes étapes que les lots 3 et 4.
+> **Statut : terminé** (PR #9). Rédaction et exécution déléguées par le propriétaire le 01/11/2026 (« Go je te laisse t'en charger »), mêmes étapes que les lots 3 et 4.
 
 **Goal :** l'accueil devient le tableau de bord de la semaine (séances, tendance du poids, jours engagés, exercices par tendance, prochaines suggestions). Une vue Croisement compare la progression du max estimé après des fenêtres alimentaires engagées et non engagées. La fiche exercice superpose l'alimentation à la courbe, et une régression renvoie au poids et à l'alimentation des jours concernés.
 
