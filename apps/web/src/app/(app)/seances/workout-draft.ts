@@ -1,10 +1,14 @@
 import { z } from "zod";
 import {
+  MUSCLE_GROUPS,
   formatKg,
   isQuarterKg,
   parseDecimal,
+  sortMuscleGroups,
+  withMuscleGroup,
   workoutInputSchema,
   type Exercise,
+  type MuscleGroup,
   type LastSets,
   type SetInput,
   type Workout,
@@ -39,12 +43,19 @@ export type WorkoutDraft = {
   // Échauffement de la séance (D14) ; cardio en minutes tapées, null s'il n'y en a pas (D15).
   warmupDone: boolean;
   cardio: string | null;
+  // Muscles travaillés, choisis avant la séance (D28).
+  muscleGroups: MuscleGroup[];
   exercises: DraftExercise[];
 };
 
 export type DraftAction =
   | { type: "setDate"; performedOn: string }
-  | { type: "addExercise"; exercise: Pick<Exercise, "id" | "name">; lastSets: LastSets }
+  | {
+      type: "addExercise";
+      exercise: Pick<Exercise, "id" | "name" | "muscleGroup">;
+      lastSets: LastSets;
+    }
+  | { type: "toggleMuscleGroup"; group: MuscleGroup }
   | { type: "removeExercise"; key: string }
   | { type: "moveExercise"; key: string; direction: "up" | "down" }
   | { type: "addSet"; exerciseKey: string }
@@ -74,6 +85,7 @@ export function emptyDraft(performedOn: string): WorkoutDraft {
     note: "",
     warmupDone: false,
     cardio: null,
+    muscleGroups: [],
     exercises: [],
   };
 }
@@ -109,11 +121,20 @@ export function draftReducer(state: WorkoutDraft, action: DraftAction): WorkoutD
       return { ...state, warmupDone: action.value };
     case "setCardio":
       return { ...state, cardio: action.value };
+    case "toggleMuscleGroup":
+      return {
+        ...state,
+        muscleGroups: state.muscleGroups.includes(action.group)
+          ? state.muscleGroups.filter((g) => g !== action.group)
+          : sortMuscleGroups([...state.muscleGroups, action.group]),
+      };
     case "addExercise": {
       if (state.exercises.some((e) => e.exerciseId === action.exercise.id)) return state;
       const sets = action.lastSets.sets.map((set) => draftSet(set, true));
       return {
         ...state,
+        // Un exercice d'un autre muscle ajoute ce muscle à la séance (D28).
+        muscleGroups: [...withMuscleGroup(state.muscleGroups, action.exercise.muscleGroup)],
         exercises: [
           ...state.exercises,
           {
@@ -166,6 +187,7 @@ export function draftReducer(state: WorkoutDraft, action: DraftAction): WorkoutD
         note: action.workout.note ?? "",
         warmupDone: action.workout.warmupDone,
         cardio: action.workout.cardioMinutes === null ? null : String(action.workout.cardioMinutes),
+        muscleGroups: action.workout.muscleGroups,
         exercises: action.workout.exercises.map((e) => ({
           key: newKey(),
           exerciseId: e.exerciseId,
@@ -231,6 +253,7 @@ export function toWorkoutInput(
     note: draft.note.trim() || null,
     warmupDone: draft.warmupDone,
     cardioMinutes,
+    muscleGroups: draft.muscleGroups,
     exercises,
   });
   if (!parsed.success) return { ok: false, errors: { exercises: "Séance incomplète." } };
@@ -250,6 +273,8 @@ const storedDraftSchema = z.object({
   // Absents des brouillons écrits avant le Lot 1.1.
   warmupDone: z.boolean().default(false),
   cardio: z.string().nullable().default(null),
+  // Absents des brouillons écrits avant le Lot 4.1 (Review Focus 1).
+  muscleGroups: z.array(z.enum(MUSCLE_GROUPS)).catch([]).default([]),
   exercises: z.array(
     z.object({
       key: z.string(),

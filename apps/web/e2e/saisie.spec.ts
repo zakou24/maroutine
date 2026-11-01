@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createExercise, createWorkout, getWorkout, parisDate } from "./api";
+import { createExercise, createWorkout, findWorkoutWith, parisDate } from "./api";
 import { AUTH_FILE } from "./owner";
 
 test.use({ storageState: AUTH_FILE });
@@ -15,17 +15,28 @@ async function addExercise(page: Page, name: string) {
   return page.getByRole("region", { name });
 }
 
-test("séance complète : 2 exercices, échauffement, 15 min de cardio, enregistrer, la séance s'ouvre", async ({
+test("séance complète : muscles, 2 exercices, échauffement, 15 min de cardio, enregistrer, retour à l'accueil", async ({
   page,
   request,
 }, testInfo) => {
   const bench = unique("Développé", testInfo.project.name);
-  const squat = unique("Squat", testInfo.project.name);
-  await createExercise(request, bench);
-  await createExercise(request, squat);
+  const squat = unique("Extension", testInfo.project.name);
+  const other = unique("Leg curl", testInfo.project.name);
+  await createExercise(request, bench, "barbell", "shoulders");
+  await createExercise(request, squat, "cable", "triceps");
+  await createExercise(request, other, "machine", "legs");
 
   await page.goto("/saisie");
   await expect(page.getByRole("heading", { name: "Séance du soir" })).toBeVisible();
+  const muscles = page.getByRole("group", { name: "Muscles travaillés" });
+  await muscles.getByRole("button", { name: "Épaules" }).click();
+  await muscles.getByRole("button", { name: "Triceps" }).click();
+  await page.getByRole("button", { name: "Ajouter un exercice" }).click();
+  const mine = page.getByRole("list", { name: "Tes exercices" });
+  await expect(mine.getByRole("button", { name: bench })).toBeVisible();
+  await expect(mine.getByRole("button", { name: other })).toHaveCount(0);
+  await page.getByRole("button", { name: "Fermer" }).click();
+
   const benchCard = await addExercise(page, bench);
   await benchCard.getByRole("textbox", { name: "Charge (kg), série 1" }).fill("62,5");
   await benchCard.getByRole("textbox", { name: "Répétitions, série 1" }).fill("8");
@@ -40,8 +51,17 @@ test("séance complète : 2 exercices, échauffement, 15 min de cardio, enregist
   await page.getByRole("button", { name: "15 min" }).click();
 
   await page.getByRole("button", { name: "Enregistrer la séance" }).click();
-  await expect(page).toHaveURL(/\/seances\/[0-9a-f-]{36}$/);
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole("status").filter({ hasText: "Séance enregistrée." })).toBeVisible();
+
+  const workout = await findWorkoutWith(request, parisDate(), bench);
+  expect(workout.muscleGroups).toEqual(["shoulders", "triceps"]);
+  await page.goto(`/seances/${workout.id}`);
   await expect(page.getByRole("heading", { name: /^Séance du / })).toBeVisible();
+  await expect(muscles.getByRole("button", { name: "Triceps" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
   const saved = page.getByRole("region", { name: bench });
   await expect(saved.getByRole("textbox", { name: "Charge (kg), série 2" })).toHaveValue("62,5");
   await expect(saved.getByRole("textbox", { name: "Répétitions, série 2" })).toHaveValue("7");
@@ -75,10 +95,9 @@ test("préremplissage : la séance suivante reprend les séries, on ne modifie q
   await expect(card.getByRole("textbox", { name: "Charge (kg), série 3" })).toHaveValue("80");
   await card.getByRole("textbox", { name: "Répétitions, série 3" }).fill("6");
   await page.getByRole("button", { name: "Enregistrer la séance" }).click();
-  await expect(page).toHaveURL(/\/seances\/[0-9a-f-]{36}$/);
+  await expect(page).toHaveURL(/\/$/);
 
-  const id = page.url().split("/").at(-1)!;
-  const workout = await getWorkout(request, id);
+  const workout = await findWorkoutWith(request, parisDate(), row);
   expect(workout.exercises[0]?.sets.map((s) => [s.weightKg, s.reps])).toEqual([
     [80, 6],
     [80, 6],

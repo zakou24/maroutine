@@ -9,8 +9,21 @@ import {
   type WorkoutDraft,
 } from "@/app/(app)/seances/workout-draft";
 
-const SQUAT = { id: "00000000-0000-4000-8000-00000000000a", name: "Squat" };
-const BENCH = { id: "00000000-0000-4000-8000-00000000000b", name: "Développé couché" };
+const SQUAT = {
+  id: "00000000-0000-4000-8000-00000000000a",
+  name: "Squat",
+  muscleGroup: "legs" as const,
+};
+const BENCH = {
+  id: "00000000-0000-4000-8000-00000000000b",
+  name: "Développé couché",
+  muscleGroup: "chest" as const,
+};
+const PUSHDOWN = {
+  id: "00000000-0000-4000-8000-00000000000e",
+  name: "Extension triceps à la poulie",
+  muscleGroup: "triceps" as const,
+};
 const NONE: LastSets = { performedOn: null, sets: [] };
 
 function withSquat(lastSets: LastSets = NONE): WorkoutDraft {
@@ -202,6 +215,69 @@ describe("draftReducer", () => {
   });
 });
 
+describe("muscles travaillés de la séance (D28)", () => {
+  it("un brouillon neuf n'a aucun muscle", () => {
+    expect(emptyDraft("2026-10-31").muscleGroups).toEqual([]);
+  });
+
+  it("toggleMuscleGroup ajoute puis retire un muscle, dans l'ordre du catalogue", () => {
+    let draft = emptyDraft("2026-10-31");
+    draft = draftReducer(draft, { type: "toggleMuscleGroup", group: "triceps" });
+    draft = draftReducer(draft, { type: "toggleMuscleGroup", group: "shoulders" });
+    expect(draft.muscleGroups).toEqual(["shoulders", "triceps"]);
+    draft = draftReducer(draft, { type: "toggleMuscleGroup", group: "triceps" });
+    expect(draft.muscleGroups).toEqual(["shoulders"]);
+  });
+
+  it("ajouter un exercice d'un autre muscle ajoute ce muscle ; le retirer le garde", () => {
+    let draft = draftReducer(emptyDraft("2026-10-31"), {
+      type: "toggleMuscleGroup",
+      group: "shoulders",
+    });
+    draft = draftReducer(draft, { type: "addExercise", exercise: PUSHDOWN, lastSets: NONE });
+    expect(draft.muscleGroups).toEqual(["shoulders", "triceps"]);
+    draft = draftReducer(draft, { type: "removeExercise", key: draft.exercises[0]!.key });
+    expect(draft.muscleGroups).toEqual(["shoulders", "triceps"]);
+  });
+
+  it("un exercice « Non classé » ne change pas les muscles", () => {
+    const draft = draftReducer(emptyDraft("2026-10-31"), {
+      type: "addExercise",
+      exercise: { ...SQUAT, muscleGroup: null },
+      lastSets: NONE,
+    });
+    expect(draft.muscleGroups).toEqual([]);
+  });
+
+  it("les muscles partent avec la séance, et load les reprend", () => {
+    const draft = draftReducer(withSquat({ performedOn: null, sets: [] }), {
+      type: "toggleMuscleGroup",
+      group: "abs",
+    });
+    draft.exercises[0]!.sets = [{ key: "s", weight: "60", reps: "8", isWarmup: false }];
+    const result = toWorkoutInput(draft);
+    expect(result.ok && result.input.muscleGroups).toEqual(["legs", "abs"]);
+    const loaded = draftReducer(emptyDraft("2026-10-31"), {
+      type: "load",
+      workout: {
+        id: "w",
+        performedOn: "2026-10-30",
+        note: null,
+        warmupDone: false,
+        cardioMinutes: null,
+        muscleGroups: ["back", "biceps"],
+        exercises: [],
+      },
+    });
+    expect(loaded.muscleGroups).toEqual(["back", "biceps"]);
+  });
+
+  it("un brouillon écrit avant ce lot, sans muscles, se restaure avec une liste vide (Review Focus 1)", () => {
+    const old = { performedOn: "2026-10-31", note: "", exercises: [] };
+    expect(parseStoredDraft(old)?.muscleGroups).toEqual([]);
+  });
+});
+
 describe("échauffement et cardio de la séance (D14, D15)", () => {
   it("un brouillon neuf n'a ni échauffement ni cardio", () => {
     expect(emptyDraft("2026-10-31")).toMatchObject({ warmupDone: false, cardio: null });
@@ -286,7 +362,7 @@ describe("toWorkoutInput", () => {
         note: null,
         warmupDone: false,
         cardioMinutes: null,
-        muscleGroups: [],
+        muscleGroups: ["legs"],
         exercises: [{ exerciseId: SQUAT.id, sets: [{ weightKg: 62.5, reps: 8, isWarmup: false }] }],
       },
     });

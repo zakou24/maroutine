@@ -2,9 +2,12 @@
 
 import {
   EXERCISE_CATALOG,
+  MUSCLE_GROUPS,
+  muscleGroupLabel,
   type CatalogExercise,
   type Exercise,
   type LastSets,
+  type MuscleGroup,
   type Workout,
   type WorkoutInput,
 } from "@maroutine/core";
@@ -207,7 +210,12 @@ function EditorForm({
     try {
       const { created, existing } = await apiFetch<{ created: Exercise[]; existing: Exercise[] }>(
         "/api/v1/exercises/batch",
-        { method: "POST", body: { exercises: [{ name: entry.name, equipment: entry.equipment }] } },
+        {
+          method: "POST",
+          body: {
+            exercises: [{ name: entry.name, muscleGroup: entry.group, equipment: entry.equipment }],
+          },
+        },
       );
       await queryClient.invalidateQueries({ queryKey: ["exercises"] });
       const exercise = created[0] ?? existing[0];
@@ -243,7 +251,8 @@ function EditorForm({
       if (mode === "create") {
         // L'écran reste monté (caché) après la navigation : il repart d'une saisie vide.
         resetTo(emptyDraft(today ?? draft.performedOn));
-        router.push(`/seances/${workout.id}`);
+        // Retour à l'accueil, qui annonce l'enregistrement (D28).
+        router.push("/?enregistree=1");
       } else {
         dirty.current = false;
         removeStored(storageKey);
@@ -311,6 +320,8 @@ function EditorForm({
         </div>
       ) : null}
 
+      <MuscleGroupsField selected={draft.muscleGroups} act={act} />
+
       {draft.exercises.length === 0 ? (
         <p className="text-[17px] text-muted-foreground">
           Ajoute les exercices de ta séance : leurs séries se préremplissent depuis la dernière
@@ -339,6 +350,7 @@ function EditorForm({
       ) : (
         <ExercisePicker
           available={available}
+          muscleGroups={draft.muscleGroups}
           catalog={catalog}
           disabled={exercises.isPending || picking}
           onPick={addExercise}
@@ -599,6 +611,34 @@ function ExerciseCard({
 const CARDIO_CHOICES = ["10", "15", "20"];
 
 // Échauffement et cardio notés une fois pour la séance (D14, D15).
+// Muscles travaillés, choisis en tête de séance : ils filtrent l'ajout d'exercice (D28).
+function MuscleGroupsField({
+  selected,
+  act,
+}: {
+  selected: MuscleGroup[];
+  act: (action: DraftAction) => void;
+}) {
+  return (
+    <fieldset className="flex flex-col gap-2">
+      <legend className={`${labelClass} mb-2`}>Muscles travaillés</legend>
+      <div className="flex flex-wrap gap-2">
+        {MUSCLE_GROUPS.map((group) => (
+          <button
+            key={group}
+            type="button"
+            aria-pressed={selected.includes(group)}
+            onClick={() => act({ type: "toggleMuscleGroup", group })}
+            className={chipClass(selected.includes(group))}
+          >
+            {muscleGroupLabel(group)}
+          </button>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
 function SessionExtras({
   warmupDone,
   cardio,

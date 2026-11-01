@@ -4,8 +4,11 @@ import { addDays, startOfWeek } from "@maroutine/core";
 import { useQuery } from "@tanstack/react-query";
 import { PencilLine } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { LoadError, Loading } from "@/components/query-state";
 import { countLabel, formatDayMonthLong } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import { useToday } from "@/lib/use-today";
 import { workoutsQuery } from "@/lib/workouts-query";
 import { ActivityCalendar } from "./activity-calendar";
@@ -19,10 +22,45 @@ export function HomeScreen() {
   if (today === null) return <Loading />;
   return (
     <div className="flex flex-col gap-8">
+      <Suspense fallback={null}>
+        <SavedNotice />
+      </Suspense>
       <ActivityCalendar today={today} />
       <HomeWeight today={today} />
       <Week today={today} />
     </div>
+  );
+}
+
+// Une nouvelle séance enregistrée ramène ici avec ?enregistree=1 (D28) : le message reste quelques
+// secondes, l'adresse est nettoyée tout de suite pour qu'un rechargement ne le rejoue pas.
+export function SavedNotice() {
+  const router = useRouter();
+  const saved = useSearchParams().get("enregistree") === "1";
+  const [shown, setShown] = useState(false);
+  if (saved && !shown) setShown(true);
+
+  useEffect(() => {
+    if (saved) router.replace("/", { scroll: false });
+  }, [saved, router]);
+
+  useEffect(() => {
+    if (!shown) return;
+    const timer = setTimeout(() => setShown(false), 5000);
+    return () => clearTimeout(timer);
+  }, [shown]);
+
+  // Région toujours présente, pour que le lecteur d'écran annonce le message quand il apparaît ;
+  // vide, elle annule l'espace qui la sépare du calendrier.
+  return (
+    <p
+      role="status"
+      className={cn(
+        shown ? "rounded-xl bg-corridor px-4 py-3 text-[15px] text-corridor-ink" : "-mb-8",
+      )}
+    >
+      {shown ? "Séance enregistrée." : null}
+    </p>
   );
 }
 
