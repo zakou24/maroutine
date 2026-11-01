@@ -39,3 +39,21 @@ export class ForbiddenError extends BadRequestError {
     this.name = "ForbiddenError";
   }
 }
+
+// Trop d'appels à Open Food Facts pour cette session (T-09).
+export class TooManyRequestsError extends BadRequestError {
+  override readonly status = 429;
+  constructor(code = "rate_limited") {
+    super(code);
+    this.name = "TooManyRequestsError";
+  }
+}
+
+// Service externe en panne ou trop lent (Open Food Facts).
+export class ServiceUnavailableError extends BadRequestError {
+  override readonly status = 503;
+  constructor(code: string) {
+    super(code);
+    this.name = "ServiceUnavailableError";
+  }
+}
