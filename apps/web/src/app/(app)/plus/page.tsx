@@ -1,4 +1,4 @@
-import { CalendarDays, Carrot, ChevronRight, Dumbbell, Goal } from "lucide-react";
+import { CalendarDays, Carrot, ChevronRight, Dumbbell, GitCompare, Goal } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Page } from "@/components/page";
@@ -11,6 +11,7 @@ const LINKS = [
   { href: "/objectifs", label: "Objectifs", icon: Goal },
   { href: "/aliments", label: "Mes aliments", icon: Carrot },
   { href: "/calendrier", label: "Calendrier", icon: CalendarDays },
+  { href: "/croisement", label: "Croisement", icon: GitCompare },
 ];
 
 export default function PlusPage() {

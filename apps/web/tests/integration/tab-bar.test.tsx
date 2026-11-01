@@ -19,7 +19,12 @@ describe("navigation de l'app", () => {
   });
 
   it("les exercices et leurs pages enfants relèvent de « Plus » (D30)", () => {
-    for (const path of ["/exercices", "/exercices/nouveau", "/exercices/abc/reglages"]) {
+    for (const path of [
+      "/exercices",
+      "/exercices/nouveau",
+      "/exercices/abc/reglages",
+      "/croisement",
+    ]) {
       pathname.current = path;
       render(<TabBar />);
       expect(screen.getByRole("link", { name: "Plus" })).toHaveAttribute("aria-current", "page");
