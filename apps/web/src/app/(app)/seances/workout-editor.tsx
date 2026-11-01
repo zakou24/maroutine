@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { ApiError, apiFetch } from "@/lib/api";
 import { readStored, removeStored, writeStored } from "@/lib/draft-storage";
 import { formatDayMonth, formatShortDate } from "@/lib/format";
+import { invalidateStats } from "@/lib/stats-queries";
 import { cn } from "@/lib/utils";
 import { useToday } from "@/lib/use-today";
 import {
@@ -39,6 +40,7 @@ import {
   type DraftExercise,
   type WorkoutDraft,
 } from "./workout-draft";
+import { SuggestionNote } from "./suggestion-note";
 import { ExercisePicker } from "./exercise-picker";
 
 const NO_HISTORY: LastSets = { performedOn: null, sets: [] };
@@ -236,6 +238,7 @@ function EditorForm({
     onSuccess: async (workout) => {
       queryClient.setQueryData(["workout", workout.id], workout);
       await queryClient.invalidateQueries({ queryKey: ["workouts"] });
+      await invalidateStats(queryClient);
       if (mode === "create") {
         // L'écran reste monté (caché) après la navigation : il repart d'une saisie vide.
         resetTo(emptyDraft(today ?? draft.performedOn));
@@ -257,6 +260,7 @@ function EditorForm({
       removeStored(storageKey);
       queryClient.removeQueries({ queryKey: ["workout", workoutId] });
       await queryClient.invalidateQueries({ queryKey: ["workouts"] });
+      await invalidateStats(queryClient);
       router.push("/");
     },
     onError: () => {
@@ -318,6 +322,7 @@ function EditorForm({
           key={exercise.key}
           exercise={exercise}
           range={byId.get(exercise.exerciseId)}
+          performedOn={draft.performedOn}
           first={index === 0}
           last={index === draft.exercises.length - 1}
           errors={errors}
@@ -421,6 +426,7 @@ function EditorForm({
 function ExerciseCard({
   exercise,
   range,
+  performedOn,
   first,
   last,
   errors,
@@ -428,6 +434,7 @@ function ExerciseCard({
 }: {
   exercise: DraftExercise;
   range?: Exercise;
+  performedOn: string;
   first: boolean;
   last: boolean;
   errors: Record<string, string>;
@@ -545,6 +552,10 @@ function ExerciseCard({
         <p className="px-1 text-[15px] text-muted-foreground">
           Prérempli depuis le {formatDayMonth(exercise.prefilledFrom)}
         </p>
+      ) : null}
+
+      {range ? (
+        <SuggestionNote exerciseId={range.id} equipment={range.equipment} before={performedOn} />
       ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-2">

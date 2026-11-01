@@ -47,7 +47,7 @@ Vérifiées sur npm le 31/10/2026, au démarrage du Lot 0.
 | tsx | 4.23.15 | |
 | TanStack Query | 5.105.0 | Lot 1 : lectures et écritures de l'interface via `/api/v1` |
 
-Recharts sera figé au premier lot qui l'utilise (Lot 2).
+Recharts est figé au Lot 2 en version `3.10.1`.
 
 ## Offres réellement souscrites (31/10/2026)
 

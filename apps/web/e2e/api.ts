@@ -3,10 +3,14 @@ import type { APIRequestContext } from "@playwright/test";
 // Préparation des données par l'API, avec l'origine de l'app (contrôle T-07) et la session du test.
 const ORIGIN = "http://localhost:3100";
 
-export async function createExercise(request: APIRequestContext, name: string): Promise<string> {
+export async function createExercise(
+  request: APIRequestContext,
+  name: string,
+  equipment = "barbell",
+): Promise<string> {
   const res = await request.post("/api/v1/exercises", {
     headers: { origin: ORIGIN },
-    data: { name, equipment: "barbell" },
+    data: { name, equipment },
   });
   if (res.status() !== 201) throw new Error(`exercice non créé : ${res.status()}`);
   return ((await res.json()) as { id: string }).id;

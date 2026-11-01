@@ -73,3 +73,13 @@ const monthShort = new Intl.DateTimeFormat("fr-FR", { month: "short", timeZone: 
 export function formatMonthShort(date: string): string {
   return monthShort.format(utc(date));
 }
+
+// Max estimé avec une décimale : 22 → « 22,0 », 22,666… → « 22,7 ».
+export function formatMax(value: number): string {
+  return value.toFixed(1).replace(".", ",");
+}
+
+// Volume en kilos entiers, avec séparateur de milliers : « 1 240 kg ».
+export function formatVolume(value: number): string {
+  return `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(value)} kg`;
+}

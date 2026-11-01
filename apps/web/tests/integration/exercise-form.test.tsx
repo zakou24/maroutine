@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 import "@testing-library/jest-dom/vitest";
 import type { Exercise } from "@maroutine/core";
-import { cleanup, screen, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ExerciseForm } from "@/app/(app)/exercices/exercise-form";
@@ -112,5 +113,34 @@ describe("ExerciseForm, réglages d'un exercice", () => {
   it("changer de matériel ne remplace pas un pas déjà réglé", async () => {
     await userEvent.selectOptions(screen.getByLabelText("Matériel"), "Machine");
     expect(increment()).toHaveValue("2");
+  });
+});
+
+describe("ExerciseForm, réglages enregistrés", () => {
+  it("relit stats, tendances et suggestions : la fourchette ou le matériel les change (revue du Lot 2)", async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    for (const key of [
+      ["suggestion", curl.id, null],
+      ["exercise-stats", curl.id, "3m"],
+      ["exercise-trends"],
+    ]) {
+      client.setQueryData(key, {});
+    }
+    const onSaved = vi.fn();
+    apiFetch.mockResolvedValue({ ...curl, repMax: 10 });
+    render(
+      <QueryClientProvider client={client}>
+        <ExerciseForm initial={curl} onSaved={onSaved} />
+      </QueryClientProvider>,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
+    for (const key of [
+      ["suggestion", curl.id, null],
+      ["exercise-stats", curl.id, "3m"],
+      ["exercise-trends"],
+    ]) {
+      expect(client.getQueryState(key)?.isInvalidated).toBe(true);
+    }
   });
 });

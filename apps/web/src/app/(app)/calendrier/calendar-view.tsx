@@ -199,13 +199,15 @@ function DayCell({
   return (
     <button
       type="button"
-      aria-label={`${formatDayMonthLong(day)}, ${countLabel(count, "séance", "séances")}`}
       aria-pressed={selected}
       aria-current={isToday ? "date" : undefined}
       onClick={onSelect}
       className={cn(base, "hover:bg-muted", selected && "bg-corridor text-corridor-ink")}
     >
-      {number}
+      {/* Nom porté par le texte et non par aria-label : « 1er novembre » ne contient pas le « 1 »
+          affiché, ce qu'axe signale (label-content-name-mismatch) le 1er de chaque mois. */}
+      <span aria-hidden>{number}</span>
+      <span className="sr-only">{`${formatDayMonthLong(day)}, ${countLabel(count, "séance", "séances")}`}</span>
       <span aria-hidden className="size-1.5 rounded-full bg-action" />
     </button>
   );
