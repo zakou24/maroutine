@@ -2,6 +2,7 @@ import { addDays, todayIn } from "@maroutine/core";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { AppDatabase } from "@/db/client";
 import type { SessionInfo } from "@/server/auth";
+import { makeBodyWeightRoutes } from "@/server/routes/body-weights";
 import { makeExerciseRoutes, makeExercisesRoutes } from "@/server/routes/exercises";
 import {
   makeExerciseStatsRoutes,
@@ -162,5 +163,36 @@ describe("isolation et accès", () => {
     const demo = { ...owner, isDemo: true };
     expect((await stats(demo, squat)).status).toBe(200);
     expect((await suggestion(demo, squat)).status).toBe(200);
+  });
+});
+
+describe("exercice au poids du corps avec les pesées (C5, Lot 3)", () => {
+  async function weighIn(date: string, weightKg: number) {
+    await callRoute(makeBodyWeightRoutes, {
+      db,
+      method: "PUT",
+      url: `/api/v1/body-weights/${date}`,
+      session: owner,
+      body: { weightKg },
+      params: { date },
+    });
+  }
+
+  it("ajoute la pesée de J-14 au lest, mais pas celle de J-15", async () => {
+    const dips = await newExercise(owner, "Dips", { equipment: "bodyweight" });
+    // Séance d'hier (J) : J-15 = il y a 16 jours, J-14 = il y a 15 jours.
+    await workoutOn(daysAgo(1), dips, 10, 5);
+    await weighIn(daysAgo(16), 80);
+    const without = await stats(owner, dips);
+    expect(
+      (without.body as { latest: { estimatedMax: number | null } }).latest.estimatedMax,
+    ).toBeNull();
+    await weighIn(daysAgo(15), 80);
+    const withWeight = await stats(owner, dips);
+    expect(
+      (withWeight.body as { latest: { estimatedMax: number } }).latest.estimatedMax,
+    ).toBeCloseTo(90 * (1 + 5 / 30), 5);
+    const list = (await trends(owner)).body as { exerciseId: string; latestMax: number | null }[];
+    expect(list.find((t) => t.exerciseId === dips)!.latestMax).toBeCloseTo(90 * (1 + 5 / 30), 5);
   });
 });
