@@ -34,6 +34,7 @@ export {
   EXERCISE_CATALOG,
   MUSCLE_GROUPS,
   muscleGroupLabel,
+  sessionMuscleGroups,
   sortMuscleGroups,
   withMuscleGroup,
   type CatalogExercise,

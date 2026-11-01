@@ -31,6 +31,16 @@ export function sortMuscleGroups(groups: readonly MuscleGroup[]): MuscleGroup[] 
   return MUSCLE_GROUPS.filter((group) => groups.includes(group));
 }
 
+// Muscles d'une séance pour l'affichage (Lot 4.2) : ceux choisis avant la séance, sinon ceux de
+// ses exercices, pour les séances d'avant D28 ou saisies sans choisir.
+export function sessionMuscleGroups(
+  chosen: readonly MuscleGroup[],
+  exerciseGroups: readonly (MuscleGroup | null)[],
+): MuscleGroup[] {
+  if (chosen.length > 0) return sortMuscleGroups(chosen);
+  return sortMuscleGroups(exerciseGroups.filter((g): g is MuscleGroup => g !== null));
+}
+
 // Un exercice ajouté à la séance ajoute son groupe aux muscles travaillés (D28) ; un exercice
 // sans groupe ne change rien.
 export function withMuscleGroup(

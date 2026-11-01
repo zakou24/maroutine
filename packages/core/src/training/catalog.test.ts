@@ -3,6 +3,7 @@ import {
   EXERCISE_CATALOG,
   MUSCLE_GROUPS,
   muscleGroupLabel,
+  sessionMuscleGroups,
   sortMuscleGroups,
   withMuscleGroup,
 } from "./catalog";
@@ -55,4 +56,13 @@ it("ajoute le groupe d'un exercice à la séance s'il manque", () => {
   expect(withMuscleGroup(["chest"], "chest")).toEqual(["chest"]);
   const groups = ["back" as const];
   expect(withMuscleGroup(groups, null)).toBe(groups);
+});
+
+it("les muscles d'une séance : ceux choisis, sinon ceux de ses exercices (Lot 4.2)", () => {
+  expect(sessionMuscleGroups(["abs"], ["legs"])).toEqual(["abs"]);
+  expect(sessionMuscleGroups([], ["triceps", null, "chest", "triceps"])).toEqual([
+    "chest",
+    "triceps",
+  ]);
+  expect(sessionMuscleGroups([], [null])).toEqual([]);
 });
