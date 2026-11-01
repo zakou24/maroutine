@@ -52,17 +52,18 @@ Risque = vraisemblance × impact (Faible / Moyen / Élevé).
 | Id | STRIDE | Menace | Risque | Mitigation | Vérification |
 |---|---|---|---|---|---|
 | T-01 | **I** | Le visiteur démo lit les données du propriétaire en changeant un identifiant dans l'URL (`/api/v1/workouts/{id}`). | Élevé | L'utilisateur vient toujours de la session. Chaque requête de service filtre par `user_id`. Une ressource d'un autre utilisateur répond 404. | Tests d'accès croisé sur chaque route (NF-5) |
-| T-02 | **T** | Le visiteur démo modifie ou supprime des données (les siennes ou celles du propriétaire). | Moyen | Garde serveur : toute méthode autre que `GET` d'un compte `is_demo` répond 403, ainsi que `GET /foods/search` (T-09). L'interface masque les boutons, mais ce n'est pas la protection. [ADR 0008](adr/0008-mode-demo-et-inscriptions-fermees.md) | Test sur chaque route d'écriture |
+| T-02 | **T** | Le visiteur démo modifie ou supprime des données (les siennes ou celles du propriétaire). | Moyen | Garde serveur : toute méthode autre que `GET` d'un compte `is_demo` répond 403, ainsi que `GET /foods/search` et `GET /foods/barcode/{code}` (T-09). L'interface masque les boutons, mais ce n'est pas la protection. [ADR 0008](adr/0008-mode-demo-et-inscriptions-fermees.md) | Test sur chaque route d'écriture |
 | T-03 | **S** | Un anonyme crée un compte et stocke des données. | Moyen | Inscriptions désactivées dans Better Auth. Il n'existe aucune route d'inscription. | Test : l'appel d'inscription est refusé |
 | T-04 | **S** | Force brute sur le mot de passe du propriétaire. | Moyen | Limite de débit de Better Auth sur la connexion, mot de passe long imposé par `create-owner` (12 caractères minimum). | Test de limite de débit |
 | T-05 | **S** | Un secret (`DATABASE_URL`, `BETTER_AUTH_SECRET`) est committé dans le dépôt public. | Élevé | `.env.example` sans valeurs, `.gitignore`, gitleaks en CI et en hook pre-commit. Secrets uniquement dans les variables Vercel et GitHub. | Étape CI |
 | T-06 | **S** | Vol de session par XSS. | Faible | Rendu React (échappement), aucun `dangerouslySetInnerHTML`, cookie `HttpOnly`, `Secure`, `SameSite=Lax`, en-tête CSP. | En-têtes vérifiés en e2e |
 | T-07 | **T** | Requête intersite (CSRF) qui écrit au nom du propriétaire. | Faible | Cookie `SameSite=Lax`, vérification de l'en-tête `Origin` sur les méthodes d'écriture, corps JSON obligatoire. | Test d'écriture avec `Origin` étranger |
 | T-08 | **T** | Open Food Facts renvoie des données malformées ou hostiles (texte, valeurs absurdes). | Faible | Validation Zod des réponses, valeurs bornées (kcal ≤ 900 et protéines ≤ 100 pour 100 g), texte affiché échappé. | Test avec réponse invalide |
-| T-09 | **D** | Un anonyme ou le visiteur démo inonde la recherche d'aliments, ce qui épuise le quota Open Food Facts de l'app. | Moyen | Recherche réservée aux sessions non démo, limite de débit par session, cache local, debounce côté interface. | Test de limite |
+| T-09 | **D** | Un anonyme ou le visiteur démo inonde la recherche d'aliments, ce qui épuise le quota Open Food Facts de l'app. | Moyen | Recherche et lecture par code-barres réservées aux sessions non démo, limite de débit par session (6 recherches, 20 codes par minute), cache local, debounce côté interface. | Test de limite |
 | T-10 | **D** | Inondation de la route de connexion démo, qui crée des sessions en masse. | Faible | Limite de débit par IP. Les sessions démo expirent après 24 h. | Test de limite |
 | T-11 | **I** | Des données de santé apparaissent dans les logs Vercel. | Faible | Aucun corps de requête ni valeur de pesée ou d'alimentation dans les logs. On ne journalise que la route, le statut et la durée. | Revue de code |
 | T-12 | **D** | Perte de données (erreur de migration, suppression accidentelle, problème chez Neon). | Moyen | Migrations versionnées et revues, jamais de `push` du schéma en production. La restauration à un instant donné de l'offre gratuite Neon couvre une courte fenêtre. Export régulier : voir menaces acceptées. | Revue des migrations |
+| T-13 | **I** | Le scan du code-barres expose les images de la caméra du propriétaire. | Faible | La lecture se fait dans le navigateur (ZXing en WebAssembly servi par l'app) ; seul le code lu est envoyé au serveur. La caméra n'est autorisée que pour l'app (`Permissions-Policy: camera=(self)`), le flux est coupé dès qu'un code est lu ou que l'écran se ferme, et la CSP n'ajoute que `'wasm-unsafe-eval'`, aucune origine (D29). | Tests du scanner et des en-têtes |
 
 ## Menaces acceptées
 
@@ -78,4 +79,5 @@ Risque = vraisemblance × impact (Faible / Moyen / Élevé).
 | 1 | T-01 (séances, exercices), T-12 (première migration réelle) |
 | 3 | T-01 (pesées), T-11 |
 | 4 | T-01 (alimentation), T-08, T-09 |
+| 4.1 | T-09 (code-barres), T-13 |
 | 6 | T-02, T-10, puis revue complète |

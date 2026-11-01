@@ -85,7 +85,7 @@ Chaque exigence porte un identifiant (`F-<module>-<n>`) repris dans les tests.
 
 - **F-DEM-1** : la page de connexion propose « Essayer la démo », qui ouvre le compte démo sans mot de passe.
 - **F-DEM-2** : le compte démo contient 16 semaines de données générées de façon déterministe, dont une période d'alimentation relâchée suivie d'une régression, pour que chaque écran soit parlant.
-- **F-DEM-3** : toute écriture par le compte démo est refusée par l'API (403), ainsi que la recherche d'aliments (`/foods/search`, qui consomme le quota Open Food Facts), et l'interface masque les boutons de saisie avec un bandeau « Mode démo, lecture seule ».
+- **F-DEM-3** : toute écriture par le compte démo est refusée par l'API (403), ainsi que la recherche d'aliments (`/foods/search` et `/foods/barcode/{code}`, qui consomment le quota Open Food Facts), et l'interface masque les boutons de saisie avec un bandeau « Mode démo, lecture seule ».
 
 ## 4. Exigences non fonctionnelles
 
@@ -108,12 +108,12 @@ Préfixe `/api/v1`. JSON, validation par schémas Zod partagés dans `packages/c
 
 | Ressource | Routes |
 |---|---|
-| Exercices | `GET/POST /exercises`, `GET/PATCH /exercises/{id}` (archivage par `PATCH archived`) |
-| Séances | `GET /workouts?from&to`, `POST /workouts`, `GET/PUT/DELETE /workouts/{id}` (la séance complète, exercices et séries compris) |
+| Exercices | `GET/POST /exercises`, `GET/PATCH /exercises/{id}` (archivage par `PATCH archived` ; `muscleGroup` obligatoire à la création, D27) |
+| Séances | `GET /workouts?from&to`, `POST /workouts`, `GET/PUT/DELETE /workouts/{id}` (la séance complète, exercices, séries et muscles travaillés compris, D28) |
 | Préremplissage | `GET /exercises/{id}/last-sets` |
 | Stats | `GET /exercises/{id}/stats?period=1m\|3m\|1y\|all`, `GET /exercises/{id}/suggestion?before`, `GET /exercises/trends` (tendance et dernier max de chaque exercice actif, D21) |
 | Pesées | `GET /body-weights?from&to` (bornes facultatives : sans `from`, tout l'historique), `PUT /body-weights/{date}` (`{ weightKg }`, 20 à 300 kg, une décimale, date non future), `DELETE /body-weights/{date}` (204, idempotent) |
-| Aliments | `GET /foods/search?q` (2 caractères au moins, 403 pour la démo), `GET /foods/recent`, `GET /foods` (aliments perso, écran « Mes aliments »), `POST /foods` (aliment perso), `PATCH/DELETE /foods/{id}` |
+| Aliments | `GET /foods/search?q` (2 caractères au moins, 403 pour la démo), `GET /foods/barcode/{code}` (aliment scanné, D29 : 400 code invalide, 404 inconnu, 429 trop d'appels, 503 Open Food Facts indisponible, 403 pour la démo), `GET /foods/recent`, `GET /foods` (aliments perso, écran « Mes aliments »), `POST /foods` (aliment perso), `PATCH/DELETE /foods/{id}` |
 | Journal | `GET /food-entries?date` (entrées, totaux et objectif en vigueur), `POST /food-entries`, `PATCH/DELETE /food-entries/{id}`, `POST /food-entries/copy` (`{ fromDate, toDate, meal? }`) |
 | Objectifs | `GET /nutrition-targets`, `POST /nutrition-targets` |
 | Tableau de bord | `GET /dashboard?week`, `GET /insights/nutrition-performance?exerciseId` |

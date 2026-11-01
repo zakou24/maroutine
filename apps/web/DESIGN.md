@@ -274,7 +274,7 @@ Une palette froide et sourde, presque monochrome, où une seule teinte saturée 
 
 Une seule colonne de contenu de 640 px au plus, centrée. Marges latérales de 16 px sur iPhone, 24 px à partir de 640 px. Haut de page à 32 px (48 px à partir de 768 px). Les blocs d'un écran sont espacés de 20 px ; à l'intérieur d'une carte, 12 px ; entre un libellé et son champ, 8 px.
 
-En dessous de 768 px, une barre d'onglets fixe de 52 px (plus la zone sûre du bas) porte quatre onglets : Semaine, Saisie, Exercices, Plus. Le contenu réserve sa hauteur. À partir de 768 px, elle disparaît au profit d'une barre latérale collante de 240 px, pleine hauteur, séparée du contenu par un filet.
+En dessous de 768 px, une barre d'onglets fixe de 52 px (plus la zone sûre du bas) porte cinq onglets : Accueil, Séance, Repas, Poids, Plus (D24, D30). Le contenu réserve sa hauteur. À partir de 768 px, elle disparaît au profit d'une barre latérale collante de 240 px, pleine hauteur, séparée du contenu par un filet.
 
 Dans la saisie du soir, le bouton « Enregistrer la séance » vit dans une barre collante (fond `ground`, filet en haut) posée juste au-dessus de la barre d'onglets sur iPhone, en bas de l'écran sur ordinateur.
 
@@ -351,7 +351,7 @@ Bandeau d'information en voile de couloir, texte encre de couloir 15 px, coins d
 
 ### Navigation
 
-- **Barre d'onglets (iPhone) :** fond blanc, filet en haut, quatre onglets égaux de 52 px, icône 24 px au-dessus d'un libellé 12 px. Inactif en encre douce, actif en bleu acier gras. Respecte la zone sûre du bas.
+- **Barre d'onglets (iPhone) :** fond blanc, filet en haut, cinq onglets égaux de 52 px, icône 24 px au-dessus d'un libellé 12 px. Inactif en encre douce, actif en bleu acier gras. Respecte la zone sûre du bas.
 - **Barre latérale (ordinateur) :** 240 px, fond blanc, filet à droite, nom « MaRoutine » en 20 px gras, éléments de 44 px en 15 px avec icône 20 px. Actif sur voile de couloir, texte encre de couloir gras ; inactif en encre douce, survol `muted`.
 
 ### Calendar

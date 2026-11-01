@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-> **Statut : validé** le 01/11/2026 (« Parfait »), avec un ajout : retirer le nombre de séries de l'accueil. Exécution déléguée, mêmes étapes que les lots 3 et 4.
+> **Statut : terminé** (PR #7). Validé le 01/11/2026 (« Parfait »), avec un ajout : retirer le nombre de séries de l'accueil. Exécution déléguée, mêmes étapes que les lots 3 et 4.
 
 **Goal :** appliquer les retours du propriétaire du 01/11/2026, avant le Lot 5 :
 - chaque exercice appartient à un groupe musculaire, et « Bras » se sépare en Biceps et Triceps ;
