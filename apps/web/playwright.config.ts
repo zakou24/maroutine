@@ -43,6 +43,8 @@ export default defineConfig({
       DATABASE_URL: "pglite:./.data/e2e",
       BETTER_AUTH_SECRET: "e2e-secret-e2e-secret-e2e-secret-e2e",
       BETTER_AUTH_URL: `http://localhost:${PORT}`,
+      // Pas d'appel réseau vers Open Food Facts : e2e déterministes (plan du Lot 4, choix 4).
+      OPEN_FOOD_FACTS: "off",
     },
   },
 });

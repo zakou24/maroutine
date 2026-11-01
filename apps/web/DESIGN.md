@@ -378,6 +378,10 @@ Puce de tendance en 15 px gras, coins pleins, sur `muted` ; « En régression »
 
 Bloc « Poids » de l'accueil sous le calendrier d'activité : titre 20 px gras et lien « Voir la courbe » en bleu acier à droite ; dernière pesée en 17 px tabulaire (« 78,4 kg, le 31 octobre ») suivie de la moyenne sur 7 jours en encre douce ; puis le champ « Pesée du jour (kg) » de 112 px et le bouton principal (« Enregistrer », ou « Remplacer » si la pesée du jour existe). Écran Poids : la même saisie avec un champ date, la courbe (pesées en points de 3 px bleu acier, moyenne glissante en ligne de 2 px interrompue sans valeur, couloir en aire `corridor`) avec les boutons de période et le résumé textuel, puis la liste des pesées avec un bouton corbeille de 44 px par ligne.
 
+### Food journal (Lot 4)
+
+Onglet « Repas » (icône pomme). En tête, le jour en 20 px gras entre deux chevrons de 44 px (pas de chevron après aujourd'hui). Puis une surface à filet « Objectifs du jour » : « 893 / 2 400 kcal » et « 46,5 / 150 g de protéines » en 17 px tabulaire, chacun sur une barre de 8 px `action` sur `rule-soft` ; un dépassement reste bleu, jamais orange. Une section par repas : titre 17 px gras et total en encre douce, liste à filet (libellé 17 px, détail « 150 g · 93 kcal · 16,5 g de protéines » en 15 px encre douce, crayon et corbeille de 44 px), lien « + Ajouter » en bleu acier gras. Page d'ajout : boutons de mode de 44 px (sélectionné sur voile de couloir), résultats en liste à filet avec « Perso » et « Récent » en fin de détail, avertissement Open Food Facts sur voile de couloir, mention ODbL en 13 px.
+
 ### Set grid (signature du Lot 1)
 
 Dans chaque carte d'exercice : nom en 17 px gras et fourchette « 6–10 rép. » en encre douce sur la même ligne, puis la grille N° | Charge (kg) × Rép. | Supprimer (plus de colonne échauffement depuis D14), en chiffres tabulaires alignés en colonnes, puis « Prérempli depuis le … » en encre douce, puis la rangée d'actions (ajouter une série à gauche, monter/descendre/retirer à droite). Elle tient lieu du couloir de tendance jusqu'au Lot 2.

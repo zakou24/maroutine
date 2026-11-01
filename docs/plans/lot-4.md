@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-> **Statut : en cours** (branche `lot-4`). Rédaction et exécution déléguées par le propriétaire le 01/11/2026 (« C'est parti pour le lot 4, suis les mêmes étapes »).
+> **Statut : terminé** (PR #6). Rédaction et exécution déléguées par le propriétaire le 01/11/2026 (« C'est parti pour le lot 4, suis les mêmes étapes »).
 
 **Goal :** noter ce qu'on mange chaque jour, avec les calories et les protéines de chaque entrée, et voir sa journée par rapport à ses objectifs. Les entrées viennent de trois sources : Open Food Facts, les aliments perso et l'ajout rapide.
 

@@ -73,15 +73,19 @@ export function JournalView({
         <h2 className="text-[20px] leading-7 font-bold first-letter:uppercase" aria-live="polite">
           {date === today ? "Aujourd'hui" : formatLongDate(date)}
         </h2>
-        <button
-          type="button"
-          aria-label="Jour suivant"
-          disabled={date >= today}
-          onClick={() => onDateChange(addDays(date, 1))}
-          className={`${iconButton} disabled:invisible`}
-        >
-          <ChevronRight aria-hidden className="size-6" strokeWidth={2} />
-        </button>
+        {date < today ? (
+          <button
+            type="button"
+            aria-label="Jour suivant"
+            onClick={() => onDateChange(addDays(date, 1))}
+            className={iconButton}
+          >
+            <ChevronRight aria-hidden className="size-6" strokeWidth={2} />
+          </button>
+        ) : (
+          // Pas de jour suivant après aujourd'hui : un espace garde le titre centré.
+          <span aria-hidden className="size-11" />
+        )}
       </div>
 
       {journal.isPending ? (

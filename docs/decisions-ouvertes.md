@@ -40,6 +40,9 @@ Chaque décision indique sa source :
 | D21 | Fiche exercice | Les stats d'abord, les réglages derrière un lien « Réglages ». Le volume est une colonne de l'historique, pas un second graphique. La liste des exercices lit toutes les tendances en un appel (`GET /exercises/trends`). |
 | D22 | Couloir du poids | Choix de Claude, délégué par le propriétaire le 01/11/2026 : chaque jour ayant une moyenne glissante, le couloir va de la plus petite à la plus grande pesée de J-6 à J, comme le couloir du max estimé (D18). |
 | D23 | Saisie de la pesée | Choix de Claude, délégué : « Pesée du jour » sur l'accueil, sous le calendrier d'activité (place réservée par D17) ; écran Poids (depuis l'accueil et « Plus ») pour une autre date, la courbe et la liste. Pas de cinquième onglet. Pesée de 20 à 300 kg, une décimale, date non future. |
+| D24 | Onglet Repas | Choix de Claude, délégué le 01/11/2026 : un cinquième onglet « Repas » (et non « Alimentation », trop long pour cinq onglets de 75 px) entre Séance et Exercices. Poids, Objectifs et Mes aliments sont dans « Plus ». |
+| D25 | Ajout d'une entrée | Choix de Claude, délégué : « Ajouter » sous chaque repas ouvre une page avec le repas (modifiable), la recherche (les récents quand le champ est vide), l'ajout rapide et la création d'un aliment perso. La quantité est préremplie à 100 g, avec l'aperçu des valeurs. |
+| D26 | Copie | Choix de Claude, délégué : « Copier depuis » en bas du journal, avec un jour (la veille par défaut) et toute la journée ou un seul repas ; les entrées s'ajoutent dans les mêmes repas. |
 
 ## Choix de conception (à relire)
 
