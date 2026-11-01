@@ -1,5 +1,11 @@
 import { expect, it } from "vitest";
-import { EXERCISE_CATALOG, MUSCLE_GROUPS, muscleGroupLabel } from "./catalog";
+import {
+  EXERCISE_CATALOG,
+  MUSCLE_GROUPS,
+  muscleGroupLabel,
+  sortMuscleGroups,
+  withMuscleGroup,
+} from "./catalog";
 import { EQUIPMENT } from "./equipment";
 
 it("propose 40 exercices aux noms uniques, sans tenir compte de la casse", () => {
@@ -18,8 +24,35 @@ it("range chaque exercice dans un groupe musculaire, et aucun groupe n'est vide"
     "Pectoraux",
     "Dos",
     "Épaules",
+    "Biceps",
+    "Triceps",
     "Jambes",
-    "Bras",
     "Abdominaux",
   ]);
+});
+
+it("sépare les bras en biceps et triceps (D27)", () => {
+  const of = (group: string) =>
+    EXERCISE_CATALOG.filter((e) => e.group === group).map((e) => e.name);
+  expect(of("arms")).toEqual([]);
+  expect(of("biceps")).toEqual(["Curl barre", "Curl haltères", "Curl marteau", "Curl à la poulie"]);
+  expect(of("triceps")).toEqual([
+    "Extension triceps à la poulie",
+    "Barre au front",
+    "Extension triceps au-dessus de la tête",
+  ]);
+  expect(EXERCISE_CATALOG.find((e) => e.name === "Dips")?.group).toBe("chest");
+});
+
+it("range les groupes dans l'ordre du catalogue, sans doublon", () => {
+  expect(sortMuscleGroups(["abs", "chest", "abs"])).toEqual(["chest", "abs"]);
+  expect(sortMuscleGroups([])).toEqual([]);
+});
+
+it("ajoute le groupe d'un exercice à la séance s'il manque", () => {
+  expect(withMuscleGroup(["chest"], "triceps")).toEqual(["chest", "triceps"]);
+  expect(withMuscleGroup(["triceps"], "shoulders")).toEqual(["shoulders", "triceps"]);
+  expect(withMuscleGroup(["chest"], "chest")).toEqual(["chest"]);
+  const groups = ["back" as const];
+  expect(withMuscleGroup(groups, null)).toBe(groups);
 });

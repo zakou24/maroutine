@@ -1,6 +1,15 @@
 import type { Equipment } from "./equipment";
 
-export const MUSCLE_GROUPS = ["chest", "back", "shoulders", "legs", "arms", "abs"] as const;
+// Les bras se séparent en biceps et triceps (D27) : l'ordre est celui de l'affichage.
+export const MUSCLE_GROUPS = [
+  "chest",
+  "back",
+  "shoulders",
+  "biceps",
+  "triceps",
+  "legs",
+  "abs",
+] as const;
 
 export type MuscleGroup = (typeof MUSCLE_GROUPS)[number];
 
@@ -8,13 +17,28 @@ const GROUP_LABELS: Record<MuscleGroup, string> = {
   chest: "Pectoraux",
   back: "Dos",
   shoulders: "Épaules",
+  biceps: "Biceps",
+  triceps: "Triceps",
   legs: "Jambes",
-  arms: "Bras",
   abs: "Abdominaux",
 };
 
 export function muscleGroupLabel(group: MuscleGroup): string {
   return GROUP_LABELS[group];
+}
+
+export function sortMuscleGroups(groups: readonly MuscleGroup[]): MuscleGroup[] {
+  return MUSCLE_GROUPS.filter((group) => groups.includes(group));
+}
+
+// Un exercice ajouté à la séance ajoute son groupe aux muscles travaillés (D28) ; un exercice
+// sans groupe ne change rien.
+export function withMuscleGroup(
+  groups: readonly MuscleGroup[],
+  group: MuscleGroup | null,
+): readonly MuscleGroup[] {
+  if (group === null || groups.includes(group)) return groups;
+  return sortMuscleGroups([...groups, group]);
 }
 
 export type CatalogExercise = { name: string; equipment: Equipment; group: MuscleGroup };
@@ -56,13 +80,14 @@ export const EXERCISE_CATALOG: readonly CatalogExercise[] = [
   { name: "Leg curl", equipment: "machine", group: "legs" },
   { name: "Mollets debout", equipment: "machine", group: "legs" },
 
-  { name: "Curl barre", equipment: "barbell", group: "arms" },
-  { name: "Curl haltères", equipment: "dumbbell", group: "arms" },
-  { name: "Curl marteau", equipment: "dumbbell", group: "arms" },
-  { name: "Curl à la poulie", equipment: "cable", group: "arms" },
-  { name: "Extension triceps à la poulie", equipment: "cable", group: "arms" },
-  { name: "Barre au front", equipment: "barbell", group: "arms" },
-  { name: "Extension triceps au-dessus de la tête", equipment: "dumbbell", group: "arms" },
+  { name: "Curl barre", equipment: "barbell", group: "biceps" },
+  { name: "Curl haltères", equipment: "dumbbell", group: "biceps" },
+  { name: "Curl marteau", equipment: "dumbbell", group: "biceps" },
+  { name: "Curl à la poulie", equipment: "cable", group: "biceps" },
+
+  { name: "Extension triceps à la poulie", equipment: "cable", group: "triceps" },
+  { name: "Barre au front", equipment: "barbell", group: "triceps" },
+  { name: "Extension triceps au-dessus de la tête", equipment: "dumbbell", group: "triceps" },
 
   { name: "Crunch à la poulie", equipment: "cable", group: "abs" },
   { name: "Relevé de jambes", equipment: "bodyweight", group: "abs" },

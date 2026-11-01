@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MUSCLE_GROUPS, type MuscleGroup } from "../training/catalog";
 import { EQUIPMENT, defaultIncrementKg, type Equipment } from "../training/equipment";
 
 // Multiple de 0,25 kg (C3) : 1,25 passe, 1,3 non.
@@ -9,6 +10,7 @@ export function isQuarterKg(value: number): boolean {
 const fields = {
   name: z.string().trim().min(1).max(60),
   equipment: z.enum(EQUIPMENT),
+  muscleGroup: z.enum(MUSCLE_GROUPS),
   repMin: z.int().min(1).max(50),
   repMax: z.int().min(1).max(50),
   incrementKg: z.number().gt(0).max(20).refine(isQuarterKg, "Multiple de 0,25 kg attendu."),
@@ -17,6 +19,8 @@ const fields = {
 export const exerciseInputSchema = z
   .object({
     name: fields.name,
+    // Obligatoire pour tout nouvel exercice ; les anciens peuvent rester « Non classés » (D27).
+    muscleGroup: fields.muscleGroup,
     equipment: fields.equipment,
     repMin: fields.repMin.default(6),
     repMax: fields.repMax.default(10),
@@ -36,6 +40,7 @@ export const exerciseBatchSchema = z.object({
 export const exercisePatchSchema = z.object({
   name: fields.name.optional(),
   equipment: fields.equipment.optional(),
+  muscleGroup: fields.muscleGroup.optional(),
   repMin: fields.repMin.optional(),
   repMax: fields.repMax.optional(),
   incrementKg: fields.incrementKg.optional(),
@@ -48,6 +53,7 @@ export type Exercise = {
   id: string;
   name: string;
   equipment: Equipment;
+  muscleGroup: MuscleGroup | null;
   repMin: number;
   repMax: number;
   incrementKg: number;

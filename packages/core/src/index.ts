@@ -34,6 +34,8 @@ export {
   EXERCISE_CATALOG,
   MUSCLE_GROUPS,
   muscleGroupLabel,
+  sortMuscleGroups,
+  withMuscleGroup,
   type CatalogExercise,
   type MuscleGroup,
 } from "./training/catalog";
@@ -95,6 +97,7 @@ export {
   targetOn,
 } from "./nutrition/nutrients";
 export { parseOffHit, type OffProduct } from "./nutrition/off";
+export { normalizeBarcode } from "./nutrition/barcode";
 export {
   copyEntriesSchema,
   foodEntryInputSchema,
