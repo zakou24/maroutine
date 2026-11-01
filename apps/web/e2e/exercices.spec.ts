@@ -11,6 +11,7 @@ test("créer, modifier, archiver puis restaurer un exercice", async ({ page }, t
   await page.goto("/exercices");
   await page.getByRole("link", { name: "Nouvel exercice" }).click();
   await page.getByRole("textbox", { name: "Nom" }).fill(name);
+  await page.getByRole("combobox", { name: "Muscle" }).selectOption({ label: "Dos" });
   await page.getByRole("combobox", { name: "Matériel" }).selectOption({ label: "Haltères" });
   await page.getByRole("button", { name: "Créer l'exercice" }).click();
 

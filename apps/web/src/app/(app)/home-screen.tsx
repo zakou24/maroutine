@@ -108,7 +108,7 @@ function Week({ today }: { today: string }) {
           >
             {list.map((w) => (
               <li key={w.id}>
-                <WorkoutLink workout={w} />
+                <WorkoutLink workout={w} showSets={false} />
               </li>
             ))}
           </ul>

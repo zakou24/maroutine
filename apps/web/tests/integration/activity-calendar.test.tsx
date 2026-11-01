@@ -72,6 +72,9 @@ describe("ActivityCalendar (D17)", () => {
         .getAllByRole("link")
         .map((l) => l.getAttribute("href")),
     ).toEqual(["/seances/b", "/seances/c"]);
+    // L'accueil ne montre pas le nombre de séries (retour du propriétaire, Lot 4.1).
+    expect(within(list).getAllByRole("link")[0]).toHaveTextContent("3 exercices · cardio 15 min");
+    expect(list).not.toHaveTextContent("série");
   });
 });
 
